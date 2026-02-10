@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#1a1a2e"/>
+
+  <!-- Pentagram watermark -->
+  <g transform="translate(600,315)" opacity="0.08">
+    <circle r="250" fill="none" stroke="#fff" stroke-width="2"/>
+    <circle r="220" fill="none" stroke="#fff" stroke-width="1"/>
+    <polygon points="0,-250 -237.5,192.5 146.5,-80.5 -146.5,-80.5 237.5,192.5" fill="none" stroke="#fff" stroke-width="2"/>
+  </g>
+
+  <!-- Bottom glow -->
+  <rect y="550" width="1200" height="80" fill="url(#flame)" opacity="0.15"/>
+  <defs>
+    <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#c0392b"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Title -->
+  <text x="600" y="260" text-anchor="middle" font-family="Georgia, serif" font-size="80" font-weight="bold" letter-spacing="12" fill="#c4a35a">DIABOLICAL</text>
+
+  <!-- Subtitle -->
+  <text x="600" y="320" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="32" letter-spacing="4" fill="#888">DICE ROLLER</text>
+
+  <!-- Ornament -->
+  <text x="600" y="375" text-anchor="middle" font-family="serif" font-size="24" fill="#c4a35a" opacity="0.4">&#9670;   &#9674;   &#9670;</text>
+
+  <!-- Dice row -->
+  <g transform="translate(340,410)">
+    <!-- Die 1 - normal, success -->
+    <rect x="0" y="0" width="60" height="60" rx="10" fill="none" stroke="#4caf50" stroke-width="3"/>
+    <text x="30" y="42" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="28" font-weight="700" fill="#4caf50">6</text>
+
+    <!-- Die 2 - normal -->
+    <rect x="80" y="0" width="60" height="60" rx="10" fill="none" stroke="#555" stroke-width="3"/>
+    <text x="110" y="42" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="28" font-weight="700" fill="#ccc">3</text>
+
+    <!-- Die 3 - normal, success -->
+    <rect x="160" y="0" width="60" height="60" rx="10" fill="none" stroke="#4caf50" stroke-width="3"/>
+    <text x="190" y="42" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="28" font-weight="700" fill="#4caf50">5</text>
+
+    <!-- Die 4 - hunger, normal -->
+    <rect x="240" y="0" width="60" height="60" rx="10" fill="#c0392b" stroke="#b22" stroke-width="3"/>
+    <text x="270" y="42" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="28" font-weight="700" fill="#1a1a2e">4</text>
+
+    <!-- Die 5 - normal, miss -->
+    <rect x="320" y="0" width="60" height="60" rx="10" fill="none" stroke="#ff3333" stroke-width="3"/>
+    <text x="350" y="42" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="28" font-weight="700" fill="#ff3333">1</text>
+
+    <!-- Die 6 - hunger, success -->
+    <rect x="400" y="0" width="60" height="60" rx="10" fill="#c0392b" stroke="#b22" stroke-width="3"/>
+    <text x="430" y="42" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="28" font-weight="700" fill="#4caf50">5</text>
+
+    <!-- Die 7 - normal -->
+    <rect x="480" y="0" width="60" height="60" rx="10" fill="none" stroke="#555" stroke-width="3"/>
+    <text x="510" y="42" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="28" font-weight="700" fill="#ccc">2</text>
+  </g>
+</svg>
