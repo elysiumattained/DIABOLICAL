@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIABOLICAL - Character Sheet</title>
+<style>
+  :root {
+    --bg: #1a1a1a;
+    --surface: #242424;
+    --surface2: #2e2e2e;
+    --border: #444;
+    --text: #e0e0e0;
+    --text-dim: #999;
+    --accent: #c62828;
+    --accent-glow: #ff5252;
+    --hunger: #b71c1c;
+    --humanity: #e0c080;
+    --gold: #d4a843;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: linear-gradient(135deg, #0d0d0d, #1a0a0a);
+    border-bottom: 2px solid var(--accent);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  header h1 {
+    font-size: 1.6rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent-glow);
+    text-shadow: 0 0 20px rgba(198,40,40,0.5);
+  }
+
+  .header-actions { display: flex; gap: 8px; }
+
+  .header-actions button {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+  .header-actions button:hover { border-color: var(--accent); }
+
+  nav {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  nav button {
+    flex: 1;
+    padding: 12px 16px;
+    background: transparent;
+    color: var(--text-dim);
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  nav button:hover { color: var(--text); background: var(--surface2); }
+  nav button.active { color: var(--accent-glow); border-bottom-color: var(--accent); }
+
+  .tab-content { display: none; padding: 16px; max-width: 1200px; margin: 0 auto; }
+  .tab-content.active { display: block; }
+
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent-glow);
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
+
+  label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 3px;
+  }
+
+  input[type="text"], input[type="number"], textarea {
+    width: 100%;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 6px 8px;
+    border-radius: 3px;
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+
+  input[type="number"] { width: 60px; }
+  input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 60px; }
+
+  .field-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .field-row label { margin-bottom: 0; white-space: nowrap; min-width: 90px; }
+  .field-row input[type="text"] { flex: 1; }
+
+  .field-group { margin-bottom: 10px; }
+
+  /* Dot indicators */
+  .dots { display: flex; gap: 4px; align-items: center; }
+  .dot {
+    width: 22px; height: 22px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: transparent;
+  }
+  .dot.filled { background: var(--text); border-color: var(--text); }
+  .dot:hover { border-color: var(--accent-glow); }
+
+  /* Square box indicators */
+  .boxes { display: flex; gap: 3px; align-items: center; }
+  .box {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+    background: transparent;
+  }
+  .box.filled { background: var(--text); border-color: var(--text); }
+  .box:hover { border-color: var(--accent-glow); }
+
+  /* Hunger dots */
+  .hunger-dots .dot { border-color: var(--hunger); }
+  .hunger-dots .dot.filled { background: var(--accent-glow); border-color: var(--accent-glow); box-shadow: 0 0 8px rgba(255,82,82,0.5); }
+
+  /* Humanity boxes */
+  .humanity-boxes .box { border-color: var(--gold); }
+  .humanity-boxes .box.filled { background: var(--humanity); border-color: var(--humanity); }
+
+  /* Attribute block */
+  .attribute-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+  }
+
+  .attribute-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .attribute-name {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .skill-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+    padding: 2px 0;
+  }
+
+  .skill-row input[type="text"] {
+    flex: 1;
+    padding: 3px 6px;
+    font-size: 0.85rem;
+  }
+
+  .skill-row input[type="number"] {
+    width: 40px;
+    padding: 3px;
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  .add-btn {
+    background: transparent;
+    color: var(--accent-glow);
+    border: 1px dashed var(--border);
+    padding: 4px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    width: 100%;
+    margin-top: 4px;
+  }
+  .add-btn:hover { border-color: var(--accent-glow); }
+
+  .remove-btn {
+    background: transparent;
+    color: var(--text-dim);
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 2px 4px;
+  }
+  .remove-btn:hover { color: var(--accent-glow); }
+
+  /* Quick reference table */
+  .qr-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .qr-table th {
+    text-align: left;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    padding: 4px 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .qr-table td { padding: 3px 4px; }
+  .qr-table input[type="text"] { font-size: 0.85rem; padding: 3px 5px; }
+  .qr-table input[type="number"] { width: 45px; font-size: 0.85rem; padding: 3px; text-align: center; }
+
+  /* Stat display boxes */
+  .stat-display {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px;
+    text-align: center;
+  }
+
+  .stat-display .stat-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+
+  .stat-display .stat-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--accent-glow);
+  }
+
+  .current-max {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-content: center;
+  }
+
+  .current-max input[type="number"] {
+    width: 45px;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 4px;
+  }
+
+  .current-max .sep { color: var(--text-dim); font-size: 0.9rem; }
+
+  /* Clickable checkbox for Pride */
+  .pride-check {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    display: inline-block;
+    cursor: pointer;
+    vertical-align: middle;
+    margin-left: 6px;
+    position: relative;
+  }
+  .pride-check.checked::after {
+    content: '✕';
+    position: absolute;
+    top: -2px; left: 2px;
+    color: var(--accent-glow);
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  /* Domain block */
+  .domain-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+
+  .domain-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .domain-header input[type="text"] { flex: 1; font-weight: 600; }
+
+  .domain-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .domain-row label { min-width: 0; }
+
+  /* Info tab merits focus */
+  .merits-section { min-height: 250px; }
+  .merits-section textarea { min-height: 200px; font-size: 0.95rem; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    nav button { font-size: 0.75rem; padding: 10px 8px; letter-spacing: 0; }
+  }
+
+  .inline-field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .inline-field label { margin-bottom: 0; }
+
+  .domain-type-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 8px;
+    margin-top: 4px;
+  }
+
+  .computed-value {
+    display: inline-block;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 3px;
+    font-weight: 700;
+    color: var(--accent-glow);
+    min-width: 35px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Diabolical</h1>
+  <div class="header-actions">
+    <button onclick="exportData()">Export</button>
+    <button onclick="importData()">Import</button>
+    <button onclick="clearAll()">Clear All</button>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="switchTab('sheet', this)">Sheet</button>
+  <button onclick="switchTab('info', this)">Info</button>
+  <button onclick="switchTab('domains', this)">Domains</button>
+  <button onclick="switchTab('descriptions', this)">Descriptions</button>
+</nav>
+
+<!-- ======================== TAB 1: SHEET ======================== -->
+<div id="tab-sheet" class="tab-content active">
+
+  <!-- Identity Fields -->
+  <div class="section">
+    <div class="section-title">Identity</div>
+    <div class="grid-2">
+      <div class="field-row"><label>Name</label><input type="text" data-field="name"></div>
+      <div class="field-row"><label>Fear Name</label><input type="text" data-field="fearName"></div>
+      <div class="field-row"><label>Bane</label><input type="text" data-field="bane"></div>
+      <div class="field-row"><label>Severity</label><input type="text" data-field="severity"></div>
+      <div class="field-row"><label>Nature</label><input type="text" data-field="nature"></div>
+      <div class="field-row"><label>Demeanor</label><input type="text" data-field="demeanor"></div>
+      <div class="field-row"><label>Predator Type</label><input type="text" data-field="predatorType"></div>
+      <div class="field-row"><label>Fear Rating</label><input type="text" data-field="fearRating"></div>
+      <div class="field-row"><label>Concept</label><input type="text" data-field="concept"></div>
+      <div class="field-row"><label>XP Spent</label><input type="number" data-field="xpSpent" min="0" style="width:60px"><label style="min-width:auto;margin-left:8px">/ Gained</label><input type="number" data-field="xpGained" min="0" style="width:60px"></div>
+    </div>
+  </div>
+
+  <!-- Attributes & Skills -->
+  <div class="section">
+    <div class="section-title">Attributes &amp; Skills</div>
+    <div class="grid-3">
+      <!-- BODY -->
+      <div class="attribute-block">
+        <div class="attribute-header">
+          <span class="attribute-name">Body</span>
+          <div class="dots" data-dots="attrBody" data-max="5"></div>
+        </div>
+        <div id="skills-body"></div>
+        <button class="add-btn" onclick="addSkill('body')">+ Add Skill</button>
+      </div>
+      <!-- MIND -->
+      <div class="attribute-block">
+        <div class="attribute-header">
+          <span class="attribute-name">Mind</span>
+          <div class="dots" data-dots="attrMind" data-max="5"></div>
+        </div>
+        <div id="skills-mind"></div>
+        <button class="add-btn" onclick="addSkill('mind')">+ Add Skill</button>
+      </div>
+      <!-- SPIRIT -->
+      <div class="attribute-block">
+        <div class="attribute-header">
+          <span class="attribute-name">Spirit</span>
+          <div class="dots" data-dots="attrSpirit" data-max="5"></div>
+        </div>
+        <div id="skills-spirit"></div>
+        <button class="add-btn" onclick="addSkill('spirit')">+ Add Skill</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Humanity & Hunger -->
+  <div class="grid-2">
+    <div class="section">
+      <div class="section-title">Humanity</div>
+      <div class="boxes humanity-boxes" data-boxes="humanity" data-max="10" style="margin-bottom:10px;"></div>
+      <div class="grid-2">
+        <div class="field-group">
+          <label>Homogenize Bonus</label>
+          <input type="text" data-field="homogenizeBonus">
+        </div>
+        <div class="field-group">
+          <label>Mortal Penalty</label>
+          <input type="text" data-field="mortalPenalty">
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Hunger</div>
+      <div class="dots hunger-dots" data-dots="hunger" data-max="5" style="justify-content:center;"></div>
+    </div>
+  </div>
+
+  <!-- Derived Stats -->
+  <div class="section">
+    <div class="section-title">Derived Stats</div>
+    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap:10px;">
+      <div class="stat-display">
+        <div class="stat-label">HP</div>
+        <div class="current-max">
+          <input type="number" data-field="hpCurrent" min="0">
+          <span class="sep">/</span>
+          <input type="number" data-field="hpMax" min="0">
+        </div>
+      </div>
+      <div class="stat-display">
+        <div class="stat-label">Speed (Bo+Mi)</div>
+        <div class="current-max">
+          <input type="number" data-field="speedCurrent" min="0">
+          <span class="sep">/</span>
+          <span class="computed-value" id="speedMax">0</span>
+        </div>
+      </div>
+      <div class="stat-display">
+        <div class="stat-label">Willpower (Mi+Sp)</div>
+        <div class="current-max">
+          <input type="number" data-field="willpowerCurrent" min="0">
+          <span class="sep">/</span>
+          <span class="computed-value" id="willpowerMax">0</span>
+        </div>
+      </div>
+      <div class="stat-display">
+        <div class="stat-label">Hit Die (Bo+Sp)</div>
+        <div class="stat-value"><span class="computed-value" id="hitDie">0</span></div>
+      </div>
+      <div class="stat-display">
+        <div class="stat-label">Regenerate</div>
+        <input type="number" data-field="regenerate" min="0" style="width:50px;text-align:center;font-size:1rem;font-weight:700;">
+      </div>
+      <div class="stat-display">
+        <div class="stat-label">Health Bonus</div>
+        <input type="number" data-field="healthBonus" min="0" style="width:50px;text-align:center;font-size:1rem;font-weight:700;">
+      </div>
+      <div class="stat-display">
+        <div class="stat-label">Movement Speed</div>
+        <input type="number" data-field="movementSpeed" min="0" style="width:50px;text-align:center;font-size:1rem;font-weight:700;">
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Reference -->
+  <div class="section">
+    <div class="section-title">Quick Reference — Common Rolls</div>
+    <div style="overflow-x:auto;">
+      <table class="qr-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Pool</th>
+            <th>Rerolls</th>
+            <th>Extra Dmg/Hit</th>
+            <th>Base Dmg</th>
+            <th>Traits</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="qr-rows"></tbody>
+      </table>
+    </div>
+    <button class="add-btn" onclick="addQR()" style="margin-top:6px;">+ Add Roll</button>
+  </div>
+</div>
+
+<!-- ======================== TAB 2: INFO ======================== -->
+<div id="tab-info" class="tab-content">
+
+  <div class="grid-2">
+    <div class="section">
+      <div class="section-title">Convictions &amp; Touchstones</div>
+      <textarea data-field="convictions" placeholder="List your Convictions and their relevant Touchstones..." style="min-height:120px;"></textarea>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Pride <span class="pride-check" id="prideCheck" data-field="prideUsed" onclick="togglePride()"></span></div>
+      <input type="text" data-field="pride" placeholder="One sentence Pride...">
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="section">
+      <div class="section-title">Iconic Item</div>
+      <textarea data-field="iconicItem" placeholder="Describe your Iconic Item..."></textarea>
+    </div>
+    <div class="section">
+      <div class="section-title">Allies &amp; Organizations</div>
+      <textarea data-field="allies" placeholder="List allies and organizations..." style="min-height:100px;"></textarea>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="section">
+      <div class="section-title">Contracts &amp; Curses</div>
+      <textarea data-field="contracts" placeholder="List any contracts or curses..." style="min-height:100px;"></textarea>
+    </div>
+    <div class="section">
+      <div class="section-title">Inventory</div>
+      <textarea data-field="inventory" placeholder="List carried items..." style="min-height:100px;"></textarea>
+    </div>
+  </div>
+
+  <!-- Merits & Flaws — the biggest section -->
+  <div class="section merits-section">
+    <div class="section-title">Merits &amp; Flaws</div>
+    <textarea data-field="meritsFlaws" placeholder="List all Merits and Flaws with their ratings..." style="min-height:200px;"></textarea>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Physical Information</div>
+    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap:10px;">
+      <div class="field-group"><label>Hair Color</label><input type="text" data-field="hairColor"></div>
+      <div class="field-group"><label>Skin Color</label><input type="text" data-field="skinColor"></div>
+      <div class="field-group"><label>Height</label><input type="text" data-field="height"></div>
+      <div class="field-group"><label>Age</label><input type="text" data-field="age"></div>
+      <div class="field-group"><label>Weight</label><input type="text" data-field="weight"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== TAB 3: DOMAINS ======================== -->
+<div id="tab-domains" class="tab-content">
+
+  <!-- Blood Points & Blood Surge -->
+  <div class="grid-2">
+    <div class="section">
+      <div class="section-title">Blood Points</div>
+      <div class="current-max" style="justify-content:flex-start;gap:8px;">
+        <label style="margin:0;">Current</label>
+        <input type="number" data-field="bpCurrent" min="0" style="width:55px;text-align:center;font-size:1rem;">
+        <span class="sep">/</span>
+        <label style="margin:0;">Max</label>
+        <input type="number" data-field="bpMax" min="0" style="width:55px;text-align:center;font-size:1rem;">
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Blood Surge</div>
+      <div style="display:flex;gap:16px;align-items:center;">
+        <div class="inline-field">
+          <label>Dice Added</label>
+          <input type="number" data-field="bloodSurgeDice" min="0" style="width:50px;text-align:center;">
+        </div>
+        <div class="inline-field">
+          <label>BP Cost</label>
+          <input type="number" data-field="bloodSurgeCost" min="0" style="width:50px;text-align:center;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Innate Domains -->
+  <div class="section">
+    <div class="section-title">Innate Domains</div>
+    <div class="domain-type-label">These domains are innate to your character</div>
+    <div id="innate-domains"></div>
+  </div>
+
+  <!-- Learned Domains -->
+  <div class="section">
+    <div class="section-title">Learned Domains</div>
+    <div class="domain-type-label">These domains have been learned</div>
+    <div id="learned-domains"></div>
+  </div>
+</div>
+
+<!-- ======================== TAB 4: DESCRIPTIONS ======================== -->
+<div id="tab-descriptions" class="tab-content">
+  <div class="section">
+    <div class="section-title">Personality</div>
+    <textarea data-field="personality" placeholder="Describe your character's personality..." style="min-height:120px;"></textarea>
+  </div>
+  <div class="grid-2">
+    <div class="section">
+      <div class="section-title">Human Form</div>
+      <textarea data-field="humanForm" placeholder="Describe your human form..." style="min-height:140px;"></textarea>
+    </div>
+    <div class="section">
+      <div class="section-title">Devil Form</div>
+      <textarea data-field="devilForm" placeholder="Describe your devil form..." style="min-height:140px;"></textarea>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Notable Features</div>
+    <textarea data-field="notableFeatures" placeholder="Scars, tattoos, unusual traits..." style="min-height:100px;"></textarea>
+  </div>
+  <div class="section">
+    <div class="section-title">Apparel</div>
+    <textarea data-field="apparel" placeholder="Typical clothing and accessories..." style="min-height:100px;"></textarea>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA PERSISTENCE (localStorage)
+// ============================================================
+const STORAGE_KEY = 'diabolical_character';
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
+
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+let charData = loadData();
+
+// Save a single field
+function saveField(key, value) {
+  charData[key] = value;
+  saveData(charData);
+}
+
+// ============================================================
+// TAB NAVIGATION
+// ============================================================
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tabId).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ============================================================
+// TEXT/NUMBER FIELD BINDING
+// ============================================================
+function bindFields() {
+  document.querySelectorAll('[data-field]').forEach(el => {
+    const key = el.dataset.field;
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      el.value = charData[key] || '';
+      el.addEventListener('input', () => {
+        saveField(key, el.value);
+        computeDerived();
+      });
+    }
+  });
+}
+
+// ============================================================
+// DOT & BOX INDICATORS
+// ============================================================
+function initDots() {
+  document.querySelectorAll('[data-dots]').forEach(container => {
+    const key = container.dataset.dots;
+    const max = parseInt(container.dataset.max) || 5;
+    const current = charData[key] || 0;
+    container.innerHTML = '';
+    for (let i = 1; i <= max; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (i <= current ? ' filled' : '');
+      dot.addEventListener('click', () => {
+        // Clicking the current value clears it (toggle off), otherwise set to clicked
+        const newVal = (charData[key] === i) ? i - 1 : i;
+        saveField(key, newVal);
+        initDots();
+        computeDerived();
+      });
+      container.appendChild(dot);
+    }
+  });
+}
+
+function initBoxes() {
+  document.querySelectorAll('[data-boxes]').forEach(container => {
+    const key = container.dataset.boxes;
+    const max = parseInt(container.dataset.max) || 10;
+    const current = charData[key] || 0;
+    container.innerHTML = '';
+    for (let i = 1; i <= max; i++) {
+      const box = document.createElement('div');
+      box.className = 'box' + (i <= current ? ' filled' : '');
+      box.addEventListener('click', () => {
+        const newVal = (charData[key] === i) ? i - 1 : i;
+        saveField(key, newVal);
+        initBoxes();
+      });
+      container.appendChild(box);
+    }
+  });
+}
+
+// ============================================================
+// COMPUTED / DERIVED STATS
+// ============================================================
+function computeDerived() {
+  const body = charData.attrBody || 0;
+  const mind = charData.attrMind || 0;
+  const spirit = charData.attrSpirit || 0;
+
+  // Speed max = Body + Mind
+  document.getElementById('speedMax').textContent = body + mind;
+  // Willpower max = Mind + Spirit
+  document.getElementById('willpowerMax').textContent = mind + spirit;
+  // Hit Die = Body + Spirit
+  document.getElementById('hitDie').textContent = body + spirit;
+
+  // Update domain pools
+  updateDomainPools();
+}
+
+// ============================================================
+// SKILLS (dynamic per attribute)
+// ============================================================
+function getSkills(attr) {
+  return charData['skills_' + attr] || [];
+}
+
+function setSkills(attr, skills) {
+  saveField('skills_' + attr, skills);
+}
+
+function renderSkills(attr) {
+  const container = document.getElementById('skills-' + attr);
+  const skills = getSkills(attr);
+  container.innerHTML = '';
+  skills.forEach((s, i) => {
+    const row = document.createElement('div');
+    row.className = 'skill-row';
+    row.innerHTML = `
+      <input type="text" value="${escHtml(s.name)}" placeholder="Skill name"
+        oninput="updateSkill('${attr}',${i},'name',this.value)">
+      <input type="number" value="${s.level || 0}" min="0" max="10"
+        oninput="updateSkill('${attr}',${i},'level',parseInt(this.value)||0)">
+      <button class="remove-btn" onclick="removeSkill('${attr}',${i})">✕</button>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function addSkill(attr) {
+  const skills = getSkills(attr);
+  skills.push({ name: '', level: 0 });
+  setSkills(attr, skills);
+  renderSkills(attr);
+}
+
+function updateSkill(attr, index, prop, value) {
+  const skills = getSkills(attr);
+  if (skills[index]) {
+    skills[index][prop] = value;
+    setSkills(attr, skills);
+  }
+}
+
+function removeSkill(attr, index) {
+  const skills = getSkills(attr);
+  skills.splice(index, 1);
+  setSkills(attr, skills);
+  renderSkills(attr);
+}
+
+// ============================================================
+// QUICK REFERENCE ROWS
+// ============================================================
+function getQR() { return charData.quickRef || []; }
+function setQR(rows) { saveField('quickRef', rows); }
+
+function renderQR() {
+  const tbody = document.getElementById('qr-rows');
+  const rows = getQR();
+  tbody.innerHTML = '';
+  rows.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${escHtml(r.name)}" oninput="updateQR(${i},'name',this.value)"></td>
+      <td><input type="number" value="${r.pool||0}" min="0" oninput="updateQR(${i},'pool',parseInt(this.value)||0)"></td>
+      <td><input type="number" value="${r.rerolls||0}" min="0" oninput="updateQR(${i},'rerolls',parseInt(this.value)||0)"></td>
+      <td><input type="number" value="${r.extraDmg||0}" min="0" oninput="updateQR(${i},'extraDmg',parseInt(this.value)||0)"></td>
+      <td><input type="number" value="${r.baseDmg||0}" min="0" oninput="updateQR(${i},'baseDmg',parseInt(this.value)||0)"></td>
+      <td><input type="text" value="${escHtml(r.traits)}" oninput="updateQR(${i},'traits',this.value)"></td>
+      <td><button class="remove-btn" onclick="removeQR(${i})">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function addQR() {
+  const rows = getQR();
+  rows.push({ name:'', pool:0, rerolls:0, extraDmg:0, baseDmg:0, traits:'' });
+  setQR(rows);
+  renderQR();
+}
+
+function updateQR(i, prop, val) {
+  const rows = getQR();
+  if (rows[i]) { rows[i][prop] = val; setQR(rows); }
+}
+
+function removeQR(i) {
+  const rows = getQR();
+  rows.splice(i, 1);
+  setQR(rows);
+  renderQR();
+}
+
+// ============================================================
+// PRIDE CHECKBOX
+// ============================================================
+function togglePride() {
+  const el = document.getElementById('prideCheck');
+  const used = !charData.prideUsed;
+  saveField('prideUsed', used);
+  el.classList.toggle('checked', used);
+}
+
+function initPride() {
+  const el = document.getElementById('prideCheck');
+  if (charData.prideUsed) el.classList.add('checked');
+}
+
+// ============================================================
+// DOMAINS
+// ============================================================
+function getDomains() {
+  if (!charData.domains) {
+    charData.domains = [];
+    for (let i = 0; i < 6; i++) {
+      charData.domains.push({ name: '', level: 0, attribute: 'body' });
+    }
+    saveData(charData);
+  }
+  return charData.domains;
+}
+
+function renderDomains() {
+  const domains = getDomains();
+  const innateContainer = document.getElementById('innate-domains');
+  const learnedContainer = document.getElementById('learned-domains');
+  innateContainer.innerHTML = '';
+  learnedContainer.innerHTML = '';
+
+  domains.forEach((d, i) => {
+    const container = i < 3 ? innateContainer : learnedContainer;
+    const block = document.createElement('div');
+    block.className = 'domain-block';
+
+    const attrOptions = ['body','mind','spirit'].map(a =>
+      `<option value="${a}" ${d.attribute===a?'selected':''}>${a.charAt(0).toUpperCase()+a.slice(1)}</option>`
+    ).join('');
+
+    block.innerHTML = `
+      <div class="domain-header">
+        <input type="text" value="${escHtml(d.name)}" placeholder="Domain Name"
+          oninput="updateDomain(${i},'name',this.value)">
+      </div>
+      <div class="domain-row">
+        <div class="inline-field">
+          <label>Level (0-5)</label>
+          <div class="dots" data-domain-dots="${i}" data-max="5"></div>
+        </div>
+        <div class="inline-field">
+          <label>Attribute</label>
+          <select style="background:var(--bg);color:var(--text);border:1px solid var(--border);padding:4px 8px;border-radius:3px;"
+            onchange="updateDomain(${i},'attribute',this.value)">${attrOptions}</select>
+        </div>
+        <div class="inline-field">
+          <label>Pool</label>
+          <span class="computed-value domain-pool" id="domain-pool-${i}">0</span>
+        </div>
+      </div>
+    `;
+    container.appendChild(block);
+  });
+
+  // init domain dots
+  document.querySelectorAll('[data-domain-dots]').forEach(container => {
+    const idx = parseInt(container.dataset.domainDots);
+    const max = 5;
+    const current = domains[idx].level || 0;
+    container.innerHTML = '';
+    for (let i = 1; i <= max; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (i <= current ? ' filled' : '');
+      dot.addEventListener('click', () => {
+        const newVal = (domains[idx].level === i) ? i - 1 : i;
+        updateDomain(idx, 'level', newVal);
+      });
+      container.appendChild(dot);
+    }
+  });
+
+  updateDomainPools();
+}
+
+function updateDomain(i, prop, val) {
+  const domains = getDomains();
+  domains[i][prop] = val;
+  saveField('domains', domains);
+  renderDomains();
+}
+
+function updateDomainPools() {
+  const domains = getDomains();
+  const attrs = {
+    body: charData.attrBody || 0,
+    mind: charData.attrMind || 0,
+    spirit: charData.attrSpirit || 0
+  };
+  domains.forEach((d, i) => {
+    const el = document.getElementById('domain-pool-' + i);
+    if (el) {
+      el.textContent = (d.level || 0) + (attrs[d.attribute] || 0);
+    }
+  });
+}
+
+// ============================================================
+// EXPORT / IMPORT / CLEAR
+// ============================================================
+function exportData() {
+  const blob = new Blob([JSON.stringify(charData, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (charData.name || 'character') + '.diabolical.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importData() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        charData = JSON.parse(ev.target.result);
+        saveData(charData);
+        initAll();
+      } catch (err) {
+        alert('Invalid file format');
+      }
+    };
+    reader.readAsText(file);
+  });
+  input.click();
+}
+
+function clearAll() {
+  if (confirm('Clear all character data? This cannot be undone.')) {
+    charData = {};
+    saveData(charData);
+    initAll();
+  }
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function initAll() {
+  bindFields();
+  initDots();
+  initBoxes();
+  initPride();
+  renderSkills('body');
+  renderSkills('mind');
+  renderSkills('spirit');
+  renderQR();
+  renderDomains();
+  computeDerived();
+}
+
+initAll();
+</script>
+</body>
+</html>
