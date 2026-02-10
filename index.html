@@ -85,9 +85,14 @@
     color: #eee;
     background: rgba(196,163,90,0.1);
   }
+  .picker-btn.filled {
+    border-color: #c4a35a;
+    background: rgba(196,163,90,0.15);
+    color: #c4a35a;
+  }
   .picker-btn.selected {
     border-color: #c4a35a;
-    background: rgba(196,163,90,0.2);
+    background: rgba(196,163,90,0.3);
     color: #c4a35a;
     font-weight: 700;
   }
@@ -97,9 +102,14 @@
     color: #eee;
     background: rgba(221,68,68,0.1);
   }
+  .picker-btn.hunger-btn.filled {
+    border-color: #d44;
+    background: rgba(221,68,68,0.15);
+    color: #d44;
+  }
   .picker-btn.hunger-btn.selected {
     border-color: #d44;
-    background: rgba(221,68,68,0.2);
+    background: rgba(221,68,68,0.3);
     color: #d44;
     font-weight: 700;
   }
@@ -319,15 +329,18 @@
       const btn = document.createElement('button');
       btn.className = 'picker-btn';
       btn.textContent = i;
+      if (i < totalDice) btn.classList.add('filled');
       if (i === totalDice) btn.classList.add('selected');
       btn.addEventListener('click', () => setTotal(i));
       totalPicker.appendChild(btn);
     }
 
-    for (let i = 0; i <= totalDice; i++) {
+    const maxHunger = Math.min(5, totalDice);
+    for (let i = 0; i <= maxHunger; i++) {
       const btn = document.createElement('button');
       btn.className = 'picker-btn hunger-btn';
       btn.textContent = i;
+      if (i > 0 && i < hungerDice) btn.classList.add('filled');
       if (i === hungerDice) btn.classList.add('selected');
       btn.addEventListener('click', () => setHunger(i));
       hungerPicker.appendChild(btn);
@@ -336,7 +349,8 @@
 
   function setTotal(n) {
     totalDice = n;
-    if (hungerDice > totalDice) hungerDice = totalDice;
+    const maxHunger = Math.min(5, totalDice);
+    if (hungerDice > maxHunger) hungerDice = maxHunger;
     updateSetupUI();
   }
 
@@ -445,16 +459,18 @@
   }
 
   function updateSummary() {
-    const successes = diceResults.filter(d => d.value >= 5).length;
-    const ones = diceResults.filter(d => d.value === 1).length;
+    const hits = diceResults.filter(d => d.value >= 5).length;
+    const misses = diceResults.filter(d => d.value === 1).length;
+    const net = Math.max(0, hits - misses);
     const hungerOnes = diceResults.filter(d => d.isHunger && d.value === 1).length;
 
-    let html = `<span class="successes">${successes} ${successes === 1 ? 'Success' : 'Successes'}</span>`;
-    if (ones > 0) {
-      html += `<br><span style="color:#ff3333;">${ones} ${ones === 1 ? 'one' : 'ones'} rolled</span>`;
+    let html = `<span class="successes">${net} Net ${net === 1 ? 'Success' : 'Successes'}</span>`;
+    html += `<br><span style="color:#aaa;">${hits} ${hits === 1 ? 'hit' : 'hits'}</span>`;
+    if (misses > 0) {
+      html += ` <span style="color:#ff3333;">&#8722; ${misses} ${misses === 1 ? 'miss' : 'misses'}</span>`;
     }
     if (hungerOnes > 0) {
-      html += ` <span style="color:#ff3333;">(${hungerOnes} on hunger)</span>`;
+      html += `<br><span style="color:#ff3333;">(${hungerOnes} on hunger)</span>`;
     }
 
     document.getElementById('summary').innerHTML = html;
