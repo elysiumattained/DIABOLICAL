@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIABOLICAL - Dice Roller</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #1a1a2e;
+    color: #eee;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+    color: #c4a35a;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 2rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* ---- Setup controls ---- */
+  #setup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .control-group {
+    width: 100%;
+    text-align: center;
+  }
+
+  .control-group label {
+    display: block;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #aaa;
+    margin-bottom: 0.5rem;
+  }
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .stepper button {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #555;
+    border-radius: 8px;
+    background: transparent;
+    color: #eee;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stepper button:hover { border-color: #c4a35a; background: rgba(196,163,90,0.1); }
+
+  .stepper .value {
+    font-size: 1.8rem;
+    min-width: 2ch;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .stepper .value.hunger { color: #d44; }
+
+  .dice-preview {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    min-height: 44px;
+    margin-top: 0.5rem;
+  }
+
+  .preview-die {
+    width: 36px;
+    height: 36px;
+    border: 2px solid #555;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: #888;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .preview-die.hunger {
+    border-color: #d44;
+    color: #d44;
+  }
+
+  #roll-btn {
+    margin-top: 0.5rem;
+    padding: 0.75rem 2.5rem;
+    border: none;
+    border-radius: 8px;
+    background: #c4a35a;
+    color: #1a1a2e;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  #roll-btn:hover { background: #d4b36a; }
+  #roll-btn:active { transform: scale(0.97); }
+  #roll-btn:disabled { opacity: 0.4; cursor: default; }
+
+  /* ---- Results ---- */
+  #results {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .results-info {
+    font-size: 0.85rem;
+    color: #888;
+    text-align: center;
+  }
+
+  .dice-tray {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .die {
+    width: 60px;
+    height: 60px;
+    border: 3px solid #555;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+    user-select: none;
+    position: relative;
+  }
+
+  .die:hover:not(.hunger):not(.rolling) {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(196,163,90,0.3);
+    border-color: #c4a35a;
+  }
+
+  .die.hunger {
+    border-color: #d44;
+    cursor: not-allowed;
+  }
+
+  .die.hunger::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 7px;
+    background: rgba(221, 68, 68, 0.08);
+  }
+
+  /* Result highlighting */
+  .die.success {
+    color: #4caf50;
+    border-color: #4caf50;
+    text-shadow: 0 0 8px rgba(76,175,80,0.5);
+  }
+
+  .die.hunger.success {
+    color: #4caf50;
+    border-color: #d44;
+    text-shadow: 0 0 8px rgba(76,175,80,0.5);
+  }
+
+  .die.bestial {
+    color: #ff3333;
+    border-color: #ff3333;
+    text-shadow: 0 0 8px rgba(255,51,51,0.5);
+  }
+
+  .die.hunger.bestial {
+    border-color: #ff3333;
+  }
+
+  .die.normal-result {
+    color: #ccc;
+  }
+
+  /* Roll animation */
+  @keyframes tumble {
+    0%   { transform: rotateZ(0deg)   scale(1);   }
+    25%  { transform: rotateZ(90deg)  scale(1.1);  }
+    50%  { transform: rotateZ(180deg) scale(1);    }
+    75%  { transform: rotateZ(270deg) scale(1.1);  }
+    100% { transform: rotateZ(360deg) scale(1);    }
+  }
+
+  .die.rolling {
+    animation: tumble 0.4s ease-in-out;
+    pointer-events: none;
+  }
+
+  .summary {
+    text-align: center;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  .summary .successes { color: #4caf50; font-weight: 700; font-size: 1.2rem; }
+
+  #reset-btn {
+    padding: 0.6rem 2rem;
+    border: 2px solid #555;
+    border-radius: 8px;
+    background: transparent;
+    color: #ccc;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  #reset-btn:hover { border-color: #c4a35a; color: #c4a35a; }
+</style>
+</head>
+<body>
+
+<h1>Diabolical</h1>
+<p class="subtitle">Dice Roller</p>
+
+<!-- Setup Screen -->
+<div id="setup">
+  <div class="control-group">
+    <label>Total Dice (d6)</label>
+    <div class="stepper">
+      <button onclick="adjustTotal(-1)">&#8722;</button>
+      <span class="value" id="total-val">1</span>
+      <button onclick="adjustTotal(1)">+</button>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <label>Hunger Dice</label>
+    <div class="stepper">
+      <button onclick="adjustHunger(-1)">&#8722;</button>
+      <span class="value hunger" id="hunger-val">0</span>
+      <button onclick="adjustHunger(1)">+</button>
+    </div>
+  </div>
+
+  <div class="dice-preview" id="dice-preview"></div>
+
+  <button id="roll-btn" onclick="rollDice()">Roll</button>
+</div>
+
+<!-- Results Screen -->
+<div id="results">
+  <div class="results-info">Click a die to reroll it. <span style="color:#d44;">Hunger dice</span> cannot be rerolled.</div>
+  <div class="dice-tray" id="dice-tray"></div>
+  <div class="summary" id="summary"></div>
+  <button id="reset-btn" onclick="resetToSetup()">New Roll</button>
+</div>
+
+<script>
+  let totalDice = 1;
+  let hungerDice = 0;
+  let diceResults = []; // { value, isHunger }
+
+  function adjustTotal(delta) {
+    totalDice = Math.max(1, Math.min(10, totalDice + delta));
+    if (hungerDice > totalDice) hungerDice = totalDice;
+    updateSetupUI();
+  }
+
+  function adjustHunger(delta) {
+    hungerDice = Math.max(0, Math.min(totalDice, hungerDice + delta));
+    updateSetupUI();
+  }
+
+  function updateSetupUI() {
+    document.getElementById('total-val').textContent = totalDice;
+    document.getElementById('hunger-val').textContent = hungerDice;
+
+    const preview = document.getElementById('dice-preview');
+    preview.innerHTML = '';
+    const normalCount = totalDice - hungerDice;
+    for (let i = 0; i < normalCount; i++) {
+      const d = document.createElement('div');
+      d.className = 'preview-die';
+      d.textContent = 'd6';
+      preview.appendChild(d);
+    }
+    for (let i = 0; i < hungerDice; i++) {
+      const d = document.createElement('div');
+      d.className = 'preview-die hunger';
+      d.textContent = 'd6';
+      preview.appendChild(d);
+    }
+  }
+
+  function rollValue() {
+    return Math.floor(Math.random() * 6) + 1;
+  }
+
+  function rollDice() {
+    diceResults = [];
+    const normalCount = totalDice - hungerDice;
+    for (let i = 0; i < normalCount; i++) {
+      diceResults.push({ value: rollValue(), isHunger: false });
+    }
+    for (let i = 0; i < hungerDice; i++) {
+      diceResults.push({ value: rollValue(), isHunger: true });
+    }
+
+    document.getElementById('setup').style.display = 'none';
+    document.getElementById('results').style.display = 'flex';
+    renderResults(true);
+  }
+
+  function renderResults(animate) {
+    const tray = document.getElementById('dice-tray');
+    tray.innerHTML = '';
+
+    diceResults.forEach((die, idx) => {
+      const el = document.createElement('div');
+      el.className = 'die';
+      el.textContent = die.value;
+
+      if (die.isHunger) el.classList.add('hunger');
+
+      // Highlight based on value
+      if (die.value >= 5) {
+        el.classList.add('success');
+      } else if (die.value === 1) {
+        el.classList.add('bestial');
+      } else {
+        el.classList.add('normal-result');
+      }
+
+      if (animate) el.classList.add('rolling');
+
+      if (!die.isHunger) {
+        el.addEventListener('click', () => rerollDie(idx));
+      }
+
+      tray.appendChild(el);
+    });
+
+    if (animate) {
+      setTimeout(() => {
+        tray.querySelectorAll('.rolling').forEach(el => el.classList.remove('rolling'));
+      }, 400);
+    }
+
+    updateSummary();
+  }
+
+  function rerollDie(idx) {
+    const die = diceResults[idx];
+    if (die.isHunger) return;
+
+    die.value = rollValue();
+
+    // Re-render just that die with animation
+    const tray = document.getElementById('dice-tray');
+    const el = tray.children[idx];
+    el.textContent = die.value;
+    el.className = 'die';
+
+    if (die.value >= 5) {
+      el.classList.add('success');
+    } else if (die.value === 1) {
+      el.classList.add('bestial');
+    } else {
+      el.classList.add('normal-result');
+    }
+
+    el.classList.add('rolling');
+    setTimeout(() => el.classList.remove('rolling'), 400);
+
+    updateSummary();
+  }
+
+  function updateSummary() {
+    const successes = diceResults.filter(d => d.value >= 5).length;
+    const ones = diceResults.filter(d => d.value === 1).length;
+    const hungerOnes = diceResults.filter(d => d.isHunger && d.value === 1).length;
+
+    let html = `<span class="successes">${successes} ${successes === 1 ? 'Success' : 'Successes'}</span>`;
+    if (ones > 0) {
+      html += `<br><span style="color:#ff3333;">${ones} ${ones === 1 ? 'one' : 'ones'} rolled</span>`;
+    }
+    if (hungerOnes > 0) {
+      html += ` <span style="color:#ff3333;">(${hungerOnes} on hunger)</span>`;
+    }
+
+    document.getElementById('summary').innerHTML = html;
+  }
+
+  function resetToSetup() {
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('setup').style.display = 'flex';
+    diceResults = [];
+  }
+
+  // Initial render
+  updateSetupUI();
+</script>
+
+</body>
+</html>
