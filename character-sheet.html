@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIABOLICAL - Character Sheet</title>
+<style>
+  :root {
+    --bg-primary: #0d0d0d;
+    --bg-secondary: #1a1a1a;
+    --bg-tertiary: #252525;
+    --bg-input: #2a2a2a;
+    --border: #3a3a3a;
+    --border-focus: #8b0000;
+    --text-primary: #e0e0e0;
+    --text-secondary: #999;
+    --text-muted: #666;
+    --accent: #8b0000;
+    --accent-dim: #5a0000;
+    --accent-glow: #b22222;
+    --tab-active: #8b0000;
+    --danger: #cc3333;
+    --hunger: #b22222;
+    --health: #2d5a2d;
+    --willpower: #2d4a6a;
+    --blood: #6a1a1a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    background: var(--bg-secondary);
+    border-bottom: 2px solid var(--accent);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent-glow);
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .header-actions button {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    border-radius: 3px;
+    transition: border-color 0.2s;
+  }
+
+  .header-actions button:hover {
+    border-color: var(--accent);
+  }
+
+  /* Tabs */
+  .tab-bar {
+    display: flex;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 12px 24px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .tab-btn:hover {
+    color: var(--text-primary);
+  }
+
+  .tab-btn.active {
+    color: var(--accent-glow);
+    border-bottom-color: var(--accent-glow);
+  }
+
+  /* Tab Content */
+  .tab-content {
+    display: none;
+    padding: 24px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  /* Sections */
+  .section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent-glow);
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Form Grid */
+  .field-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .field {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    border-radius: 3px;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--border-focus);
+  }
+
+  .field textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+
+  .field-narrow {
+    flex: 0 0 80px;
+    min-width: 80px;
+  }
+
+  /* Dot Tracker */
+  .dot-tracker {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .dot-tracker .dot-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    min-width: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .dot-tracker .dots {
+    display: flex;
+    gap: 4px;
+  }
+
+  .dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .dot.filled {
+    background: var(--accent-glow);
+    border-color: var(--accent-glow);
+  }
+
+  .dot:hover {
+    border-color: var(--accent-glow);
+  }
+
+  .dot.health-dot.filled { background: var(--health); border-color: var(--health); }
+  .dot.willpower-dot.filled { background: var(--willpower); border-color: var(--willpower); }
+  .dot.hunger-dot.filled { background: var(--hunger); border-color: var(--hunger); }
+  .dot.blood-dot.filled { background: var(--blood); border-color: var(--blood); }
+
+  /* Attribute Block */
+  .attribute-group {
+    margin-bottom: 20px;
+  }
+
+  .attribute-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .attribute-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .broad-skill {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0 4px 16px;
+    border-left: 2px solid var(--border);
+    margin-bottom: 4px;
+  }
+
+  .broad-skill-name {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    min-width: 100px;
+  }
+
+  .focused-skill {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 3px 0 3px 36px;
+    border-left: 2px solid transparent;
+    margin-bottom: 2px;
+  }
+
+  .focused-skill-name {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    min-width: 100px;
+  }
+
+  /* Domain List */
+  .domain-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .domain-entry:last-child {
+    border-bottom: none;
+  }
+
+  .domain-name {
+    font-size: 0.9rem;
+    min-width: 160px;
+  }
+
+  .domain-type {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* List Items */
+  .list-section {
+    margin-bottom: 8px;
+  }
+
+  .list-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .list-item:last-child {
+    border-bottom: none;
+  }
+
+  .list-item input[type="text"],
+  .list-item textarea {
+    flex: 1;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 6px 8px;
+    font-size: 0.85rem;
+    border-radius: 3px;
+    font-family: inherit;
+  }
+
+  .list-item input:focus,
+  .list-item textarea:focus {
+    outline: none;
+    border-color: var(--border-focus);
+  }
+
+  .btn-remove {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .btn-remove:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+
+  .btn-add {
+    background: var(--bg-tertiary);
+    border: 1px dashed var(--border);
+    color: var(--text-muted);
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 8px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .btn-add:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+  }
+
+  /* Tracker Bars */
+  .tracker-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .tracker-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    min-width: 90px;
+  }
+
+  .tracker-boxes {
+    display: flex;
+    gap: 3px;
+  }
+
+  .tracker-box {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: transparent;
+    user-select: none;
+  }
+
+  .tracker-box.filled {
+    background: var(--accent-glow);
+    border-color: var(--accent-glow);
+  }
+
+  .tracker-box.stain {
+    background: none;
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+
+  .tracker-box:hover {
+    border-color: var(--accent-glow);
+  }
+
+  .tracker-value {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    min-width: 30px;
+    text-align: center;
+  }
+
+  /* HP Input */
+  .hp-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hp-display input {
+    width: 60px;
+    text-align: center;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 6px;
+    font-size: 1rem;
+    border-radius: 3px;
+    font-family: inherit;
+  }
+
+  .hp-display input:focus {
+    outline: none;
+    border-color: var(--border-focus);
+  }
+
+  .hp-display span {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+  }
+
+  /* Two-column layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 700px) {
+    .two-col { grid-template-columns: 1fr; }
+    .tab-btn { padding: 10px 14px; font-size: 0.75rem; }
+    .tab-content { padding: 12px; }
+  }
+
+  /* Death Box */
+  .death-box-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .death-box {
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--danger);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: transparent;
+    transition: all 0.15s;
+  }
+
+  .death-box.marked {
+    background: var(--danger);
+    color: #fff;
+  }
+
+  .death-box-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Notes textarea */
+  .notes-area {
+    width: 100%;
+    min-height: 200px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 12px;
+    font-size: 0.9rem;
+    border-radius: 3px;
+    font-family: inherit;
+    resize: vertical;
+  }
+
+  .notes-area:focus {
+    outline: none;
+    border-color: var(--border-focus);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Diabolical</h1>
+  <div class="header-actions">
+    <button onclick="exportSheet()">Export</button>
+    <button onclick="importSheet()">Import</button>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="info">Info</button>
+  <button class="tab-btn" data-tab="stats">Attributes &amp; Skills</button>
+  <button class="tab-btn" data-tab="combat">Combat</button>
+  <button class="tab-btn" data-tab="domains">Domains</button>
+  <button class="tab-btn" data-tab="merits">Merits &amp; Flaws</button>
+  <button class="tab-btn" data-tab="inventory">Inventory</button>
+  <button class="tab-btn" data-tab="notes">Notes</button>
+</div>
+
+<!-- INFO TAB -->
+<div class="tab-content active" id="tab-info">
+  <div class="section">
+    <div class="section-title">Identity</div>
+    <div class="field-row">
+      <div class="field"><label>Character Name</label><input type="text" data-key="name"></div>
+      <div class="field"><label>Player</label><input type="text" data-key="player"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Species</label>
+        <select data-key="species">
+          <option value="">--</option>
+          <option>Human</option>
+          <option>Ghoul</option>
+          <option>Cambion</option>
+          <option>Hybrid</option>
+          <option>Fiend</option>
+          <option>Devil</option>
+        </select>
+      </div>
+      <div class="field"><label>Predator Type</label><input type="text" data-key="predatorType"></div>
+      <div class="field field-narrow"><label>Fear Rating</label><input type="number" min="0" max="5" data-key="fearRating"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Name (Fear Source)</label><input type="text" data-key="fearName"></div>
+      <div class="field"><label>Bane</label><input type="text" data-key="bane"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Nature (Archetype)</label><input type="text" data-key="nature"></div>
+      <div class="field"><label>Demeanor (Archetype)</label><input type="text" data-key="demeanor"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Humanity</div>
+    <div class="tracker-row">
+      <span class="tracker-label">Humanity</span>
+      <div class="tracker-boxes" id="humanity-track"></div>
+      <span class="tracker-value" id="humanity-value">7</span>
+    </div>
+    <div class="tracker-row">
+      <span class="tracker-label">Stains</span>
+      <div class="tracker-boxes" id="stain-track"></div>
+      <span class="tracker-value" id="stain-value">0</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Touchstones</div>
+    <div class="list-section" id="touchstone-list"></div>
+    <button class="btn-add" onclick="addListItem('touchstone-list', 'touchstones')">+ Add Touchstone</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Convictions</div>
+    <div class="list-section" id="conviction-list"></div>
+    <button class="btn-add" onclick="addListItem('conviction-list', 'convictions')">+ Add Conviction</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Pride</div>
+    <div class="field-row">
+      <div class="field"><label>Pride Statement</label><input type="text" data-key="pride" placeholder="I am..."></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Iconic Item</div>
+    <div class="field-row">
+      <div class="field"><label>Item</label><input type="text" data-key="iconicItem"></div>
+      <div class="field"><label>Description</label><input type="text" data-key="iconicItemDesc"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ATTRIBUTES & SKILLS TAB -->
+<div class="tab-content" id="tab-stats">
+  <div class="section" id="body-section">
+    <div class="attribute-group">
+      <div class="attribute-header">
+        <span class="attribute-name">Body</span>
+        <div class="dot-tracker"><div class="dots" data-dots="attr-body" data-max="5"></div></div>
+      </div>
+      <div class="broad-skill">
+        <span class="broad-skill-name">Athletics</span>
+        <div class="dot-tracker"><div class="dots" data-dots="broad-athletics" data-max="2"></div></div>
+      </div>
+      <div class="focused-skill"><span class="focused-skill-name">Stamina</span><div class="dot-tracker"><div class="dots" data-dots="focus-stamina" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Strength</span><div class="dot-tracker"><div class="dots" data-dots="focus-strength" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Throw</span><div class="dot-tracker"><div class="dots" data-dots="focus-throw" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Climb</span><div class="dot-tracker"><div class="dots" data-dots="focus-climb" data-max="5"></div></div></div>
+
+      <div class="broad-skill">
+        <span class="broad-skill-name">Combat</span>
+        <div class="dot-tracker"><div class="dots" data-dots="broad-combat" data-max="2"></div></div>
+      </div>
+      <div class="focused-skill"><span class="focused-skill-name">Weapon</span><div class="dot-tracker"><div class="dots" data-dots="focus-weapon" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Brawl</span><div class="dot-tracker"><div class="dots" data-dots="focus-brawl" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Block</span><div class="dot-tracker"><div class="dots" data-dots="focus-block" data-max="5"></div></div></div>
+
+      <div class="broad-skill">
+        <span class="broad-skill-name">Acrobatics</span>
+        <div class="dot-tracker"><div class="dots" data-dots="broad-acrobatics" data-max="2"></div></div>
+      </div>
+      <div class="focused-skill"><span class="focused-skill-name">Jump</span><div class="dot-tracker"><div class="dots" data-dots="focus-jump" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Dodge</span><div class="dot-tracker"><div class="dots" data-dots="focus-dodge" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Stunt</span><div class="dot-tracker"><div class="dots" data-dots="focus-stunt" data-max="5"></div></div></div>
+
+      <div class="broad-skill">
+        <span class="broad-skill-name">Dexterity</span>
+        <div class="dot-tracker"><div class="dots" data-dots="broad-dexterity" data-max="2"></div></div>
+      </div>
+      <div class="focused-skill"><span class="focused-skill-name">Pilot</span><div class="dot-tracker"><div class="dots" data-dots="focus-pilot" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Sneak</span><div class="dot-tracker"><div class="dots" data-dots="focus-sneak" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Deft</span><div class="dot-tracker"><div class="dots" data-dots="focus-deft" data-max="5"></div></div></div>
+    </div>
+  </div>
+
+  <div class="section" id="mind-section">
+    <div class="attribute-group">
+      <div class="attribute-header">
+        <span class="attribute-name">Mind</span>
+        <div class="dot-tracker"><div class="dots" data-dots="attr-mind" data-max="5"></div></div>
+      </div>
+      <div class="broad-skill">
+        <span class="broad-skill-name">Reason</span>
+        <div class="dot-tracker"><div class="dots" data-dots="broad-reason" data-max="2"></div></div>
+      </div>
+      <div class="focused-skill"><span class="focused-skill-name">Firearm</span><div class="dot-tracker"><div class="dots" data-dots="focus-firearm" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Navigation</span><div class="dot-tracker"><div class="dots" data-dots="focus-navigation" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Survival</span><div class="dot-tracker"><div class="dots" data-dots="focus-survival" data-max="5"></div></div></div>
+
+      <div class="broad-skill">
+        <span class="broad-skill-name">Know</span>
+        <div class="dot-tracker"><div class="dots" data-dots="broad-know" data-max="2"></div></div>
+      </div>
+      <div class="focused-skill"><span class="focused-skill-name">Nature</span><div class="dot-tracker"><div class="dots" data-dots="focus-nature" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">History</span><div class="dot-tracker"><div class="dots" data-dots="focus-history" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Occultism</span><div class="dot-tracker"><div class="dots" data-dots="focus-occultism" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Investigation</span><div class="dot-tracker"><div class="dots" data-dots="focus-investigation" data-max="5"></div></div></div>
+
+      <div class="broad-skill">
+        <span class="broad-skill-name">Tech</span>
+        <div class="dot-tracker"><div class="dots" data-dots="broad-tech" data-max="2"></div></div>
+      </div>
+      <div class="focused-skill"><span class="focused-skill-name">Coding</span><div class="dot-tracker"><div class="dots" data-dots="focus-coding" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Security</span><div class="dot-tracker"><div class="dots" data-dots="focus-security" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Repair</span><div class="dot-tracker"><div class="dots" data-dots="focus-repair" data-max="5"></div></div></div>
+
+      <div class="broad-skill">
+        <span class="broad-skill-name">Medicine</span>
+        <div class="dot-tracker"><div class="dots" data-dots="broad-medicine" data-max="2"></div></div>
+      </div>
+      <div class="focused-skill"><span class="focused-skill-name">Surgery</span><div class="dot-tracker"><div class="dots" data-dots="focus-surgery" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">First Aid</span><div class="dot-tracker"><div class="dots" data-dots="focus-firstaid" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Diagnosis</span><div class="dot-tracker"><div class="dots" data-dots="focus-diagnosis" data-max="5"></div></div></div>
+    </div>
+  </div>
+
+  <div class="section" id="spirit-section">
+    <div class="attribute-group">
+      <div class="attribute-header">
+        <span class="attribute-name">Spirit</span>
+        <div class="dot-tracker"><div class="dots" data-dots="attr-spirit" data-max="5"></div></div>
+      </div>
+      <div class="broad-skill">
+        <span class="broad-skill-name">Perception</span>
+        <div class="dot-tracker"><div class="dots" data-dots="broad-perception" data-max="2"></div></div>
+      </div>
+      <div class="focused-skill"><span class="focused-skill-name">Notice</span><div class="dot-tracker"><div class="dots" data-dots="focus-notice" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Track</span><div class="dot-tracker"><div class="dots" data-dots="focus-track" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Insight</span><div class="dot-tracker"><div class="dots" data-dots="focus-insight" data-max="5"></div></div></div>
+
+      <div class="broad-skill">
+        <span class="broad-skill-name">Resolve</span>
+        <div class="dot-tracker"><div class="dots" data-dots="broad-resolve" data-max="2"></div></div>
+      </div>
+      <div class="focused-skill"><span class="focused-skill-name">Leadership</span><div class="dot-tracker"><div class="dots" data-dots="focus-leadership" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Intimidate</span><div class="dot-tracker"><div class="dots" data-dots="focus-intimidate" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Endure</span><div class="dot-tracker"><div class="dots" data-dots="focus-endure" data-max="5"></div></div></div>
+
+      <div class="broad-skill">
+        <span class="broad-skill-name">Personal</span>
+        <div class="dot-tracker"><div class="dots" data-dots="broad-personal" data-max="2"></div></div>
+      </div>
+      <div class="focused-skill"><span class="focused-skill-name">Etiquette</span><div class="dot-tracker"><div class="dots" data-dots="focus-etiquette" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Streetwise</span><div class="dot-tracker"><div class="dots" data-dots="focus-streetwise" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Politics</span><div class="dot-tracker"><div class="dots" data-dots="focus-politics" data-max="5"></div></div></div>
+
+      <div class="broad-skill">
+        <span class="broad-skill-name">Charm</span>
+        <div class="dot-tracker"><div class="dots" data-dots="broad-charm" data-max="2"></div></div>
+      </div>
+      <div class="focused-skill"><span class="focused-skill-name">Performance</span><div class="dot-tracker"><div class="dots" data-dots="focus-performance" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Deception</span><div class="dot-tracker"><div class="dots" data-dots="focus-deception" data-max="5"></div></div></div>
+      <div class="focused-skill"><span class="focused-skill-name">Persuasion</span><div class="dot-tracker"><div class="dots" data-dots="focus-persuasion" data-max="5"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- COMBAT TAB -->
+<div class="tab-content" id="tab-combat">
+  <div class="two-col">
+    <div class="section">
+      <div class="section-title">Health</div>
+      <div class="tracker-row">
+        <span class="tracker-label">HP</span>
+        <div class="hp-display">
+          <input type="number" min="0" data-key="hpCurrent" value="0">
+          <span>/</span>
+          <input type="number" min="0" data-key="hpMax" value="0">
+        </div>
+      </div>
+      <div class="tracker-row">
+        <span class="tracker-label">Hit Dice</span>
+        <div class="hp-display">
+          <input type="number" min="0" data-key="hitDiceCurrent" value="0">
+          <span>/</span>
+          <input type="number" min="0" data-key="hitDiceMax" value="0">
+        </div>
+      </div>
+      <div class="death-box-container" style="margin-top: 12px;">
+        <div class="death-box" id="death-box" onclick="toggleDeathBox()"></div>
+        <span class="death-box-label">Death Box</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Resources</div>
+      <div class="tracker-row">
+        <span class="tracker-label">Blood Points</span>
+        <div class="hp-display">
+          <input type="number" min="0" data-key="bpCurrent" value="0">
+          <span>/</span>
+          <input type="number" min="0" data-key="bpMax" value="0">
+        </div>
+      </div>
+      <div class="tracker-row">
+        <span class="tracker-label">Hunger</span>
+        <div class="tracker-boxes" id="hunger-track"></div>
+        <span class="tracker-value" id="hunger-value">0</span>
+      </div>
+      <div class="tracker-row">
+        <span class="tracker-label">Willpower</span>
+        <div class="hp-display">
+          <input type="number" min="0" data-key="wpCurrent" value="0">
+          <span>/</span>
+          <input type="number" min="0" data-key="wpMax" value="0">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="section">
+      <div class="section-title">Combat Stats</div>
+      <div class="field-row">
+        <div class="field field-narrow"><label>AP</label><input type="number" min="0" data-key="ap" value="2"></div>
+        <div class="field field-narrow"><label>Speed</label><input type="number" min="0" data-key="speed" value="30"></div>
+        <div class="field field-narrow"><label>Body Length</label><input type="text" data-key="bodyLength" value="5 ft"></div>
+      </div>
+      <div class="field-row">
+        <div class="field field-narrow"><label>Block DC</label><input type="number" min="0" data-key="blockDC" value="0"></div>
+        <div class="field field-narrow"><label>Dodge DC</label><input type="number" min="0" data-key="dodgeDC" value="0"></div>
+        <div class="field field-narrow"><label>Terrify DC</label><input type="number" min="0" data-key="terrifyDC" value="0"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Damage Response</div>
+      <div class="field-row">
+        <div class="field"><label>Physical</label><input type="text" data-key="drPhysical" value="Resistant"></div>
+        <div class="field"><label>Energy</label><input type="text" data-key="drEnergy" value="Standard"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Disruptive</label><input type="text" data-key="drDisruptive" value="Standard"></div>
+        <div class="field"><label>Psychic</label><input type="text" data-key="drPsychic" value="Standard"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Weapons</div>
+    <div class="list-section" id="weapon-list"></div>
+    <button class="btn-add" onclick="addWeapon()">+ Add Weapon</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Active Conditions</div>
+    <div class="list-section" id="condition-list"></div>
+    <button class="btn-add" onclick="addListItem('condition-list', 'conditions')">+ Add Condition</button>
+  </div>
+</div>
+
+<!-- DOMAINS TAB -->
+<div class="tab-content" id="tab-domains">
+  <div class="section">
+    <div class="section-title">Innate Domains</div>
+    <div id="innate-domain-list"></div>
+    <button class="btn-add" onclick="addDomain('innate-domain-list', 'innateDomains', 'Innate')">+ Add Innate Domain</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Learned Domains</div>
+    <div id="learned-domain-list"></div>
+    <button class="btn-add" onclick="addDomain('learned-domain-list', 'learnedDomains', 'Learned')">+ Add Learned Domain</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Domain Abilities (Quick Reference)</div>
+    <div class="list-section" id="domain-ability-list"></div>
+    <button class="btn-add" onclick="addListItem('domain-ability-list', 'domainAbilities')">+ Add Ability Note</button>
+  </div>
+</div>
+
+<!-- MERITS & FLAWS TAB -->
+<div class="tab-content" id="tab-merits">
+  <div class="section">
+    <div class="section-title">Merits</div>
+    <div class="list-section" id="merit-list"></div>
+    <button class="btn-add" onclick="addMeritFlaw('merit-list', 'merits')">+ Add Merit</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Flaws</div>
+    <div class="list-section" id="flaw-list"></div>
+    <button class="btn-add" onclick="addMeritFlaw('flaw-list', 'flaws')">+ Add Flaw</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Talents</div>
+    <div class="list-section" id="talent-list"></div>
+    <button class="btn-add" onclick="addListItem('talent-list', 'talents')">+ Add Talent</button>
+  </div>
+</div>
+
+<!-- INVENTORY TAB -->
+<div class="tab-content" id="tab-inventory">
+  <div class="section">
+    <div class="section-title">Wealth</div>
+    <div class="field-row">
+      <div class="field"><label>Cash on Hand ($)</label><input type="number" min="0" data-key="cash" value="0"></div>
+      <div class="field"><label>Weekly Income ($)</label><input type="number" data-key="weeklyIncome" value="0"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Equipment</div>
+    <div class="list-section" id="equipment-list"></div>
+    <button class="btn-add" onclick="addListItem('equipment-list', 'equipment')">+ Add Item</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Cursed Objects</div>
+    <div class="list-section" id="cursed-list"></div>
+    <button class="btn-add" onclick="addListItem('cursed-list', 'cursedObjects')">+ Add Cursed Object</button>
+  </div>
+</div>
+
+<!-- NOTES TAB -->
+<div class="tab-content" id="tab-notes">
+  <div class="section">
+    <div class="section-title">Character Notes</div>
+    <textarea class="notes-area" data-key="notes" placeholder="Backstory, session notes, plans..."></textarea>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Contacts &amp; Relationships</div>
+    <textarea class="notes-area" data-key="contacts" placeholder="NPCs, allies, enemies..." style="min-height:120px;"></textarea>
+  </div>
+
+  <div class="section">
+    <div class="section-title">XP</div>
+    <div class="field-row">
+      <div class="field field-narrow"><label>Current XP</label><input type="number" min="0" data-key="xpCurrent" value="0"></div>
+      <div class="field field-narrow"><label>Total Earned</label><input type="number" min="0" data-key="xpTotal" value="0"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─── State ───
+  const state = {
+    dots: {},
+    humanity: 7,
+    stains: 0,
+    hunger: 0,
+    deathBox: false,
+    touchstones: [],
+    convictions: [],
+    conditions: [],
+    domainAbilities: [],
+    innateDomains: [],
+    learnedDomains: [],
+    merits: [],
+    flaws: [],
+    talents: [],
+    equipment: [],
+    cursedObjects: [],
+    weapons: [],
+    fields: {}
+  };
+
+  // ─── Tabs ───
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ─── Dot Trackers ───
+  function initDots() {
+    document.querySelectorAll('[data-dots]').forEach(container => {
+      const key = container.dataset.dots;
+      const max = parseInt(container.dataset.max) || 5;
+      if (state.dots[key] === undefined) state.dots[key] = 0;
+      container.innerHTML = '';
+      for (let i = 1; i <= max; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot' + (i <= state.dots[key] ? ' filled' : '');
+        dot.addEventListener('click', () => {
+          state.dots[key] = (state.dots[key] === i) ? i - 1 : i;
+          initDots();
+          save();
+        });
+        container.appendChild(dot);
+      }
+    });
+  }
+
+  // ─── Humanity Track ───
+  function initHumanityTrack() {
+    const track = document.getElementById('humanity-track');
+    track.innerHTML = '';
+    for (let i = 1; i <= 10; i++) {
+      const box = document.createElement('div');
+      box.className = 'tracker-box' + (i <= state.humanity ? ' filled' : '');
+      box.addEventListener('click', () => {
+        state.humanity = (state.humanity === i) ? i - 1 : i;
+        initHumanityTrack();
+        save();
+      });
+      track.appendChild(box);
+    }
+    document.getElementById('humanity-value').textContent = state.humanity;
+  }
+
+  // ─── Stain Track ───
+  function initStainTrack() {
+    const track = document.getElementById('stain-track');
+    track.innerHTML = '';
+    const stainSlots = 10 - state.humanity;
+    for (let i = 1; i <= stainSlots; i++) {
+      const box = document.createElement('div');
+      box.className = 'tracker-box' + (i <= state.stains ? ' stain' : '');
+      if (i <= state.stains) box.textContent = '/';
+      box.style.color = i <= state.stains ? 'var(--danger)' : 'transparent';
+      box.addEventListener('click', () => {
+        state.stains = (state.stains === i) ? i - 1 : i;
+        initStainTrack();
+        save();
+      });
+      track.appendChild(box);
+    }
+    document.getElementById('stain-value').textContent = state.stains;
+  }
+
+  // ─── Hunger Track ───
+  function initHungerTrack() {
+    const track = document.getElementById('hunger-track');
+    track.innerHTML = '';
+    for (let i = 1; i <= 5; i++) {
+      const box = document.createElement('div');
+      box.className = 'tracker-box' + (i <= state.hunger ? ' filled' : '');
+      box.style.background = i <= state.hunger ? 'var(--hunger)' : '';
+      box.style.borderColor = i <= state.hunger ? 'var(--hunger)' : '';
+      box.addEventListener('click', () => {
+        state.hunger = (state.hunger === i) ? i - 1 : i;
+        initHungerTrack();
+        save();
+      });
+      track.appendChild(box);
+    }
+    document.getElementById('hunger-value').textContent = state.hunger;
+  }
+
+  // ─── Death Box ───
+  function toggleDeathBox() {
+    state.deathBox = !state.deathBox;
+    const el = document.getElementById('death-box');
+    el.classList.toggle('marked', state.deathBox);
+    el.textContent = state.deathBox ? 'X' : '';
+    save();
+  }
+
+  function renderDeathBox() {
+    const el = document.getElementById('death-box');
+    el.classList.toggle('marked', state.deathBox);
+    el.textContent = state.deathBox ? 'X' : '';
+  }
+
+  // ─── List Management ───
+  function addListItem(containerId, stateKey) {
+    state[stateKey].push('');
+    renderList(containerId, stateKey);
+    save();
+  }
+
+  function renderList(containerId, stateKey) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    state[stateKey].forEach((item, idx) => {
+      const row = document.createElement('div');
+      row.className = 'list-item';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = item;
+      input.addEventListener('input', () => { state[stateKey][idx] = input.value; save(); });
+      const btn = document.createElement('button');
+      btn.className = 'btn-remove';
+      btn.textContent = 'x';
+      btn.addEventListener('click', () => { state[stateKey].splice(idx, 1); renderList(containerId, stateKey); save(); });
+      row.appendChild(input);
+      row.appendChild(btn);
+      container.appendChild(row);
+    });
+  }
+
+  // ─── Weapons ───
+  function addWeapon() {
+    state.weapons.push({ name: '', damage: '', type: '', traits: '' });
+    renderWeapons();
+    save();
+  }
+
+  function renderWeapons() {
+    const container = document.getElementById('weapon-list');
+    container.innerHTML = '';
+    state.weapons.forEach((w, idx) => {
+      const row = document.createElement('div');
+      row.className = 'list-item';
+      row.style.flexWrap = 'wrap';
+
+      const mkInput = (key, placeholder, width) => {
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.value = w[key];
+        inp.placeholder = placeholder;
+        inp.style.flex = width;
+        inp.addEventListener('input', () => { state.weapons[idx][key] = inp.value; save(); });
+        return inp;
+      };
+
+      row.appendChild(mkInput('name', 'Name', '2'));
+      row.appendChild(mkInput('damage', 'Dmg', '0.5'));
+      row.appendChild(mkInput('type', 'Type', '1'));
+      row.appendChild(mkInput('traits', 'Traits', '2'));
+
+      const btn = document.createElement('button');
+      btn.className = 'btn-remove';
+      btn.textContent = 'x';
+      btn.addEventListener('click', () => { state.weapons.splice(idx, 1); renderWeapons(); save(); });
+      row.appendChild(btn);
+      container.appendChild(row);
+    });
+  }
+
+  // ─── Domains ───
+  function addDomain(containerId, stateKey, type) {
+    state[stateKey].push({ name: '', level: 0 });
+    renderDomains(containerId, stateKey);
+    save();
+  }
+
+  function renderDomains(containerId, stateKey) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    state[stateKey].forEach((d, idx) => {
+      const row = document.createElement('div');
+      row.className = 'domain-entry';
+
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.value = d.name;
+      nameInput.placeholder = 'Domain Name';
+      nameInput.style.background = 'var(--bg-input)';
+      nameInput.style.border = '1px solid var(--border)';
+      nameInput.style.color = 'var(--text-primary)';
+      nameInput.style.padding = '6px 8px';
+      nameInput.style.borderRadius = '3px';
+      nameInput.style.flex = '1';
+      nameInput.style.fontFamily = 'inherit';
+      nameInput.addEventListener('input', () => { state[stateKey][idx].name = nameInput.value; save(); });
+
+      const dotsDiv = document.createElement('div');
+      dotsDiv.style.display = 'flex';
+      dotsDiv.style.gap = '4px';
+      dotsDiv.style.marginLeft = '12px';
+      for (let i = 1; i <= 5; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot' + (i <= d.level ? ' filled' : '');
+        dot.addEventListener('click', () => {
+          state[stateKey][idx].level = (d.level === i) ? i - 1 : i;
+          renderDomains(containerId, stateKey);
+          save();
+        });
+        dotsDiv.appendChild(dot);
+      }
+
+      const btn = document.createElement('button');
+      btn.className = 'btn-remove';
+      btn.textContent = 'x';
+      btn.style.marginLeft = '8px';
+      btn.addEventListener('click', () => { state[stateKey].splice(idx, 1); renderDomains(containerId, stateKey); save(); });
+
+      row.appendChild(nameInput);
+      row.appendChild(dotsDiv);
+      row.appendChild(btn);
+      container.appendChild(row);
+    });
+  }
+
+  // ─── Merits & Flaws ───
+  function addMeritFlaw(containerId, stateKey) {
+    state[stateKey].push({ name: '', value: '', desc: '' });
+    renderMeritsFlaws(containerId, stateKey);
+    save();
+  }
+
+  function renderMeritsFlaws(containerId, stateKey) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    state[stateKey].forEach((m, idx) => {
+      const row = document.createElement('div');
+      row.className = 'list-item';
+      row.style.flexWrap = 'wrap';
+
+      const mkInput = (key, placeholder, flex) => {
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.value = m[key];
+        inp.placeholder = placeholder;
+        inp.style.flex = flex;
+        inp.addEventListener('input', () => { state[stateKey][idx][key] = inp.value; save(); });
+        return inp;
+      };
+
+      row.appendChild(mkInput('name', 'Name', '2'));
+      row.appendChild(mkInput('value', 'Pts', '0.4'));
+      row.appendChild(mkInput('desc', 'Description', '3'));
+
+      const btn = document.createElement('button');
+      btn.className = 'btn-remove';
+      btn.textContent = 'x';
+      btn.addEventListener('click', () => { state[stateKey].splice(idx, 1); renderMeritsFlaws(containerId, stateKey); save(); });
+      row.appendChild(btn);
+      container.appendChild(row);
+    });
+  }
+
+  // ─── Field Persistence ───
+  function initFields() {
+    document.querySelectorAll('[data-key]').forEach(el => {
+      const key = el.dataset.key;
+      if (state.fields[key] !== undefined) {
+        el.value = state.fields[key];
+      }
+      el.addEventListener('input', () => {
+        state.fields[key] = el.value;
+        save();
+      });
+      el.addEventListener('change', () => {
+        state.fields[key] = el.value;
+        save();
+      });
+      if (state.fields[key] === undefined) {
+        state.fields[key] = el.value;
+      }
+    });
+  }
+
+  function restoreFields() {
+    document.querySelectorAll('[data-key]').forEach(el => {
+      const key = el.dataset.key;
+      if (state.fields[key] !== undefined) {
+        el.value = state.fields[key];
+      }
+    });
+  }
+
+  // ─── Save / Load ───
+  const STORAGE_KEY = 'diabolical-character-sheet';
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function load() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      try {
+        const saved = JSON.parse(raw);
+        Object.assign(state, saved);
+      } catch (e) { /* ignore */ }
+    }
+  }
+
+  function exportSheet() {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const name = state.fields.name || 'character';
+    a.download = name.replace(/\s+/g, '_').toLowerCase() + '_sheet.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function importSheet() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.addEventListener('change', () => {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const imported = JSON.parse(reader.result);
+          Object.assign(state, imported);
+          save();
+          renderAll();
+        } catch (e) {
+          alert('Failed to import: invalid file.');
+        }
+      };
+      reader.readAsText(file);
+    });
+    input.click();
+  }
+
+  // ─── Render All ───
+  function renderAll() {
+    initDots();
+    initHumanityTrack();
+    initStainTrack();
+    initHungerTrack();
+    renderDeathBox();
+    renderList('touchstone-list', 'touchstones');
+    renderList('conviction-list', 'convictions');
+    renderList('condition-list', 'conditions');
+    renderList('domain-ability-list', 'domainAbilities');
+    renderList('talent-list', 'talents');
+    renderList('equipment-list', 'equipment');
+    renderList('cursed-list', 'cursedObjects');
+    renderWeapons();
+    renderDomains('innate-domain-list', 'innateDomains');
+    renderDomains('learned-domain-list', 'learnedDomains');
+    renderMeritsFlaws('merit-list', 'merits');
+    renderMeritsFlaws('flaw-list', 'flaws');
+    restoreFields();
+  }
+
+  // ─── Init ───
+  load();
+  initFields();
+  renderAll();
+</script>
+</body>
+</html>
