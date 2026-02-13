@@ -245,10 +245,6 @@
   }
   .condition-desc:focus { outline: none; border-color: var(--border-focus); }
 
-  /* Bane severity fix */
-  .field-sev { flex: 0 0 70px; min-width: 70px; }
-  .field-sev input { text-align: center; }
-
   @media (max-width: 800px) {
     .attr-columns { grid-template-columns: 1fr; }
     .two-col { grid-template-columns: 1fr; }
@@ -305,7 +301,7 @@
     <div class="field-row">
       <div class="field"><label>Name (Fear Source)</label><input type="text" data-key="fearName"></div>
       <div class="field"><label>Bane</label><input type="text" data-key="bane"></div>
-      <div class="field-sev"><label>Severity</label><input type="number" min="0" max="5" data-key="baneSeverity"></div>
+      <div class="field field-narrow"><label>Severity</label><input type="number" min="0" max="5" data-key="baneSeverity"></div>
     </div>
   </div>
 
@@ -493,7 +489,7 @@
       <div class="section-title">Combat Stats</div>
       <div class="field-row">
         <div class="field field-narrow"><label>AP</label><input type="number" min="0" data-key="ap" value="2"></div>
-        <div class="field field-narrow"><label>Speed</label><input type="number" min="0" data-key="speed" value="0" id="speed-max" readonly style="opacity:0.7;cursor:default;" title="Auto: Body + Mind"></div>
+        <div class="field field-narrow"><label>Move Speed</label><input type="number" min="0" data-key="moveSpeed" value="30"></div>
       </div>
       <div class="field-row">
         <div class="field field-narrow"><label>Body Length</label><input type="text" data-key="bodyLength" value="5 ft"></div>
@@ -517,6 +513,12 @@
           <input type="number" min="0" data-key="wpCurrent" value="0">
           <span>/</span>
           <input type="number" min="0" data-key="wpMax" value="0" readonly style="opacity:0.7;cursor:default;" title="Auto: Mind + Spirit">
+        </div>
+      </div>
+      <div class="tracker-row">
+        <span class="tracker-label">Speed</span>
+        <div class="hp-display">
+          <input type="number" min="0" data-key="speed" value="0" id="speed-display" readonly style="opacity:0.7;cursor:default;" title="Auto: Body + Mind">
         </div>
       </div>
     </div>
@@ -880,26 +882,33 @@
 
   // ─── Conditions (dropdown + description) ───
   const CONDITION_DATA = {
-    'Blinded': 'Cannot see. Auto-fail sight-based checks. Attacks have disadvantage; attackers have advantage.',
-    'Charmed': 'Cannot attack the charmer. The charmer has advantage on social checks against you.',
-    'Deafened': 'Cannot hear. Auto-fail hearing-based checks.',
-    'Frightened': 'Disadvantage on checks while the source of fear is in line of sight. Cannot willingly move closer to the source.',
-    'Grappled': 'Speed is 0. Ends if the grappler is incapacitated or you are moved out of reach.',
-    'Incapacitated': 'Cannot take actions or reactions.',
-    'Invisible': 'Cannot be seen without special senses. Advantage on attacks; attacks against you have disadvantage.',
-    'Paralyzed': 'Incapacitated and cannot move or speak. Auto-fail Body and Dexterity saves. Attacks have advantage; melee hits are crits.',
-    'Poisoned': 'Disadvantage on attack rolls and ability checks.',
-    'Prone': 'Disadvantage on attacks. Melee attacks against you have advantage; ranged attacks have disadvantage. Standing costs half your speed.',
-    'Restrained': 'Speed is 0. Attacks against you have advantage; your attacks have disadvantage. Disadvantage on Dexterity saves.',
-    'Stunned': 'Incapacitated, cannot move, can only speak falteringly. Auto-fail Body and Dexterity saves. Attacks have advantage.',
-    'Unconscious': 'Incapacitated, cannot move or speak, unaware of surroundings. Drop what you are holding, fall prone. Attacks have advantage; melee hits are crits.',
-    'Exhaustion (1)': 'Disadvantage on ability checks.',
-    'Exhaustion (2)': 'Speed halved.',
-    'Exhaustion (3)': 'Disadvantage on attacks and saves.',
-    'Exhaustion (4)': 'HP maximum halved.',
-    'Exhaustion (5)': 'Speed reduced to 0.',
-    'Frenzy': 'Must attack the nearest creature each turn. Cannot distinguish friend from foe.',
-    'Staggered': 'Can only take one action or bonus action per turn, not both. Cannot take reactions.',
+    'Blinded': 'Cannot see, and automatically fails any rolls that rely on sight. Makes melee attacks at -2, and ranged attacks at -4. Attacks against this creature are made at +2.',
+    'Deafened': 'Cannot hear, and automatically fails any rolls that rely on hearing.',
+    'Grappled': 'Movement Speed reduced to 0. Ends when the grappler is incapacitated or the creature moves beyond its reach. Suffers a -2 deficit to Dodge checks.',
+    'Incapacitated': 'Cannot move or take actions or reactions. Still aware of surroundings. Can still speak.',
+    'Invisible': 'Cannot be seen without mystic assistance. Does not appear on cameras or most security systems. Can hide whenever they wish for just 1AP as if in pitch-black. All others are still aware of their location. Attacks against this creature are made at -2. Makes attacks at +2.',
+    'Paralyzed': 'Is Incapacitated and cannot speak. Attacks against this creature are made at +2. Takes an extra 10 damage from all attacks.',
+    'Hidden': 'Attacks against this creature are made at -2. Makes attacks at +2. Others are unaware of the creature\'s location. Ends when the creature takes any action or makes a noise.',
+    'Prone': 'Moves at half speed. Makes attacks at -2. Attacks from within 5 feet are made at +2. Attacks from further than 5 feet are made at -2. Ends when the creature stands up (costs half of their total movement speed). Suffers a -2 deficit to rolls to avoid becoming Grappled.',
+    'Restrained': 'Movement Speed reduced to 0. Makes attacks at -2. Attacks against this creature are made at +2. Suffers a -4 deficit to Dodge checks.',
+    'Unconscious': 'Is Incapacitated and cannot speak. Is unaware of surroundings. Cannot be Donated to. Cannot be woken up during combat.',
+    'Slowed': 'For every level of Slowed, Movement Speed is reduced by 10. (Stacks)',
+    'Stunned': 'Is Incapacitated and can speak only falteringly. Attacks against this creature are made at +2.',
+    'Pinned': 'Movement Speed reduced to 0. Ends when the creature spends 1AP to end it.',
+    'Agony': 'Takes an amount of damage indicated by the effect that inflicted the condition at the start of each turn. Agony level lowers by one at the end of each turn. Can use a Full Round action to halve Agony Level. Cannot be inflicted with any more levels of Agony.',
+    'Malady': 'Takes an amount of damage equal to Malady level at the start of each turn. Damage type is determined by the effect that inflicted the condition. Malady level lowers by one at the end of each turn. (Stacks)',
+    'Bleeding': 'Loses an amount of Blood Points equal to Bleeding level at the start of each turn. Another creature within five feet can spend 2AP to increase their BP by the creature\'s Bleeding level (once per turn). All Bleeding levels end if the creature receives mystic healing.',
+    'Dazed': 'Cannot take reactions.',
+    'Lethargic': 'AP is reduced to 1.',
+    'Sapped': 'AP is reduced by 1. Can be Sapped by more than one source at a time.',
+    'Unfocused': 'Cannot add their Focused skill score to any rolls (including damage rolls).',
+    'Bound': 'Is Incapacitated. Automatically fails all Rouse Checks.',
+    'Impaired': 'Suffers a deficit to all pools equal to Impaired level. Can be Impaired by more than one source at a time.',
+    'Turned': 'Must move away from the source using the fastest available means. Cannot take actions other than Sprinting. Cannot take reactions. Cannot willingly move to a space within 20 feet of the source. Ends upon taking damage.',
+    'Dismembered (Arm)': '-2 deficit to Block score, or -4 with all arms missing. Cannot dual-wield, wield two-handed weapons, or reload firearms with only one arm.',
+    'Dismembered (Leg)': 'Movement speed halved, or reduced to 0 with all legs missing. Cannot Sprint or cross difficult terrain.',
+    'Downed': 'The result of being reduced to 0HP with an unmarked Death Box. Also inflicted by non-lethal damage. Is Incapacitated. Taking any more damage renders them Unconscious. Being Donated to ends the condition.',
+    'Dead': 'Is Unconscious. Cannot regain hit points.',
     'Custom': ''
   };
 
@@ -1000,7 +1009,7 @@
     }
 
     // Speed = Body + Mind
-    const speedEl = document.getElementById('speed-max');
+    const speedEl = document.getElementById('speed-display');
     if (speedEl) {
       const speed = body + mind;
       speedEl.value = speed;
