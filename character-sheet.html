@@ -302,7 +302,7 @@
   <button class="tab-btn active" data-tab="stats">Stats</button>
   <button class="tab-btn" data-tab="info">Info</button>
   <button class="tab-btn" data-tab="domains">Domains</button>
-  <button class="tab-btn" data-tab="merits">Merits &amp; Flaws</button>
+  <button class="tab-btn" data-tab="merits">Features</button>
   <button class="tab-btn" data-tab="inventory">Inventory</button>
   <button class="tab-btn" data-tab="notes">Notes</button>
 </div>
@@ -329,12 +329,35 @@
           <option>Devil</option>
         </select>
       </div>
-      <div class="field"><label>Predator Type</label><input type="text" data-key="predatorType"></div>
+      <div class="field"><label>Predator Type</label>
+        <select data-key="predatorType" id="predator-type-select">
+          <option value="">--</option>
+          <option>Alleycat</option><option>Bagger</option><option>Blood Leech</option>
+          <option>Cleaver</option><option>Consensualist</option><option>Extortionist</option>
+          <option>Farmer</option><option>Grim Reaper</option><option>Pursuer</option>
+          <option>Sandman</option><option>Scene Queen</option><option>Siren</option>
+          <option>Osiris (NPC)</option><option>Trapdoor (NPC)</option>
+          <option>Montero (NPC)</option><option>Roadside Killer (NPC)</option>
+        </select>
+      </div>
       <div class="field field-narrow"><label>Fear Rating</label><input type="number" min="0" max="5" data-key="fearRating"></div>
     </div>
     <div class="field-row">
       <div class="field"><label>Name (Fear Source)</label><input type="text" data-key="fearName"></div>
-      <div class="field"><label>Bane</label><input type="text" data-key="bane"></div>
+      <div class="field"><label>Bane</label>
+        <select data-key="bane" id="bane-select">
+          <option value="">--</option>
+          <option>Aesthetic Fixation</option><option>Asceticism</option>
+          <option>Accursed Courtesy</option><option>Abhors the Light</option>
+          <option>Blood Addiction</option><option>Blessed Banishment</option>
+          <option>Callousness</option><option>Distorted Image</option>
+          <option>Delicious</option><option>Gnawing Hunger</option>
+          <option>Grounded</option><option>Folkloric Block</option>
+          <option>Rarefied Tastes</option><option>Sacrosanct</option>
+          <option>Starving Decay</option><option>Survival Instincts</option>
+          <option>Violent Temper</option>
+        </select>
+      </div>
       <div class="field field-narrow"><label>Severity</label><input type="number" min="0" max="5" data-key="baneSeverity"></div>
     </div>
   </div>
@@ -613,6 +636,7 @@
       <div class="tracker-boxes" id="stain-track"></div>
       <span class="tracker-value" id="stain-value">0</span>
     </div>
+    <div id="humanity-effects" style="margin-top:10px;padding:8px 10px;background:var(--bg-tertiary);border-radius:3px;font-size:0.8rem;color:var(--text-secondary);line-height:1.5;"></div>
   </div>
 
   <div class="section">
@@ -658,8 +682,21 @@
   </div>
 </div>
 
-<!-- MERITS & FLAWS TAB -->
+<!-- FEATURES TAB -->
 <div class="tab-content" id="tab-merits">
+  <div class="two-col">
+    <div class="section">
+      <div class="section-title">Predator Type</div>
+      <div id="predator-type-desc" style="font-size:0.8rem;color:var(--text-secondary);line-height:1.5;min-height:40px;"></div>
+      <div id="predator-type-benefits" style="margin-top:8px;font-size:0.8rem;color:var(--text-primary);line-height:1.6;"></div>
+      <button class="btn-add" onclick="applyPredatorType()" id="apply-predator-btn" style="margin-top:8px;">Apply Predator Type Benefits</button>
+    </div>
+    <div class="section">
+      <div class="section-title">Bane</div>
+      <div id="bane-desc" style="font-size:0.8rem;color:var(--text-secondary);line-height:1.5;min-height:40px;"></div>
+    </div>
+  </div>
+
   <div class="section">
     <div class="section-title">Merits</div>
     <div class="list-section" id="merit-list"></div>
@@ -675,7 +712,7 @@
   <div class="section">
     <div class="section-title">Talents</div>
     <div class="list-section" id="talent-list"></div>
-    <button class="btn-add" onclick="addListItem('talent-list', 'talents')">+ Add Talent</button>
+    <button class="btn-add" onclick="addTalent()">+ Add Talent</button>
   </div>
 </div>
 
@@ -787,6 +824,7 @@
         state.humanity = (state.humanity === i) ? i - 1 : i;
         initHumanityTrack();
         initStainTrack();
+        updateHumanityEffects();
         save();
       });
       track.appendChild(box);
@@ -1101,6 +1139,225 @@
     });
   }
 
+  // ─── Bane Data ───
+  const BANE_DATA = {
+    'Aesthetic Fixation': 'A desire for beauty takes control over the Devil and when in lesser surroundings they suffer. When they are within settings they find less than beautiful, they take a penalty to all dice pools equal to their Bane Severity.',
+    'Asceticism': 'Whenever their Hunger is below three, the Devil suffers a penalty equal to their Bane Severity to all dice pools.',
+    'Accursed Courtesy': 'If they wish to enter a place of residence uninvited the Devil must spend Willpower equal to their Bane Severity. This penalty also applies to all dice pools while they are in the residence uninvited. The invitation can only be made by someone who lives there; this does not occur in uninhabited homes or public places.',
+    'Abhors the Light': 'When the Devil is exposed to direct sunlight illumination, they receive a penalty equal to their Bane Severity to all dice pools.',
+    'Blood Addiction': 'When the Devil slakes at least one Hunger level from another devil, they must make a Willpower test at difficulty 2 plus Bane Severity. If they fail, they must gorge themselves on vitae, and become unable to take any action but Drink until they are at Hunger 1.',
+    'Blessed Banishment': 'The Devil cannot enter any space deemed holy by its primary residents unless they spend Willpower equal to their Bane Severity. Churches, mosques, temples, synagogues, monasteries, etc. This penalty also applies to all dice pools while they are in the space.',
+    'Callousness': 'Whenever making a Remorse test remove a number of dice equal to the Bane Severity. The dice pool cannot be reduced below 1.',
+    'Distorted Image': 'In reflections or recordings the Devil appears distorted. Those who know what Devils are recognize it; others know something is wrong. Modern communication technology (including phone calls) requires a Technology test at Difficulty 2 + Bane Severity.',
+    'Delicious': "The Devil's blood is incredible to consume. When another devil Drinks from the Devil, they must make a Willpower test at difficulty 2 plus the drunk-from's Bane Severity. If they fail, they must gorge themselves on vitae. Hybrids cannot take this.",
+    'Gnawing Hunger': 'Subtract dice equal to the Bane Severity in any roll to resist Hunger Frenzy. The pool cannot be reduced below one die.',
+    'Grounded': 'The Devil must select a specific charge (physical location, a group of people, or something esoteric). Each night they must Slumber surrounded by their charge; if they do not, they sustain aggravated Willpower damage equal to their Bane Severity upon waking.',
+    'Folkloric Block': 'The Devil cannot cross any sort of barrier that traditionally blocks evil unless they spend Willpower equal to twice their Bane Severity. Examples: running water, salt lines, clouds of burnt sage.',
+    'Rarefied Tastes': 'When the Devil drinks the blood of a mortal who does not fall within their preference, they must spend Willpower equal to their Bane Severity or be forced to spit it out. Regardless, the blood does not slake their hunger. With a Know (Investigation) test, they can sense if a mortal fits their preference.',
+    'Sacrosanct': 'The Devil must spend Willpower equal to their Bane Severity or move away from any object used to ward off evil. If such an object is brandished by someone with True Faith, they must roll against Terror Frenzy. Examples: Evil Eye, wind chimes, cross, ankh, dreamcatcher.',
+    'Starving Decay': 'Whenever their Hunger is above three, the Devil suffers a penalty equal to their Bane Severity to all dice pools.',
+    'Survival Instincts': 'Subtract dice equal to the Bane Severity in any roll to resist Terror Frenzy. The pool cannot be reduced below one die.',
+    'Violent Temper': 'Subtract dice equal to the Bane Severity in any roll to resist Fury Frenzy. The pool cannot be reduced below one die.'
+  };
+
+  // ─── Talent Data ───
+  const TALENT_DATA = {
+    'Animal Empathy': "You're good with animals. You instinctively know how an animal you can see is feeling, and they will respond to you more favorably. With practice, you might learn to communicate with them.",
+    'Soul Sight': "By focusing, you can sense a person's aura, determining their current and general emotional state. Useful for manipulation. A practiced devil can detect motivations in mortals and a vague notion of alignment in devils.",
+    'Sharp Nose': "Your senses are very sharp; you can smell the nature of blood flowing through someone's veins. If you focus, you can detect illnesses, specific drugs, poisons, and even Vitae in high concentrations.",
+    'Telepathy': 'You can communicate simple ideas and feelings to people you can see, and they can communicate back. Practiced telepaths can have full mental conversations. Targets immediately know someone is touching their mind.',
+    'Mesmerize': 'By making eye contact with a mortal, you can push them into a gentle trance. In this state, you may push them very slightly in directions they are already leaning.',
+    'Awe-Inspiring': "People like you. Mortals, specifically. These devilish charms don't work on fellow Fallen. Your presence is potent, your charms undeniable. The weak lean towards your point of view more easily.",
+    'Serendipity': 'You have the supernatural knack to be in the right place at the right time.',
+    'Custom': ''
+  };
+
+  // ─── Predator Type Data ───
+  const PREDATOR_TYPE_DATA = {
+    'Alleycat': {
+      desc: 'An Alleycat feeds by brute force and outright attack, from whomever they can when they can. Intimidation or Persuasion keeps victims from reporting attacks.',
+      pool: 'Combat + Brawl (force/threat) or Personal + Streetwise (find criminals)',
+      benefits: [
+        'Gain one level in either Intimidation or Brawl',
+        'Gain one level of either Celerity or Potence',
+        'Lose one level of Humanity',
+        'Gain Contacts (3): Street-level criminals',
+        'Gain Flaw: Hunted (a person you wronged)'
+      ]
+    },
+    'Bagger': {
+      desc: 'Baggers consume preserved, unfractionated, or rancid blood through Iron Gullet, feeding from blood bags, corpses, or black market sources.',
+      pool: 'Personal + Streetwise (find/purchase goods)',
+      benefits: [
+        'Gain one level in either Deft or Streetwise',
+        'Gain Talent: Sharp Nose',
+        'Gain Merit: Iron Gullet',
+        'Gain Flaw: Hunted (someone who believes you owe them)'
+      ]
+    },
+    'Blood Leech': {
+      desc: 'Blood Leeches reject mortal blood and instead feed upon the vitae of other devils through hunting, coercion, or taking Blood as payment.',
+      pool: 'Not abstracted to a dice pool',
+      benefits: [
+        'Gain one level in either Brawl or Sneak',
+        'Gain one level of Fortitude or Potence',
+        'Lose one level of Humanity',
+        'Increase blood point maximum by 5',
+        'Gain Flaw: Infamous (Devil-Murderer) or Shunned (Diabolical)',
+        'Gain Flaw: Prey Exclusion (Mortals)'
+      ]
+    },
+    'Cleaver': {
+      desc: 'Cleavers feed from close family, friends, or those close to someone else, covertly stealing blood while maintaining ties.',
+      pool: 'Charm + Deception (condition victims without blowing cover)',
+      benefits: [
+        'Gain one level in either Persuasion or Deception',
+        'Gain Talent: Mesmerize or Soul Sight',
+        'Gain Flaw: Dark Secret (Cleaver)',
+        'Gain Herd (2)'
+      ]
+    },
+    'Consensualist': {
+      desc: 'Consensualists never feed against free will, instead using charity blood drives, kink community cover, or outright admission of their nature.',
+      pool: 'Charm + Persuasion (consent under guise of medical work or mutual kink)',
+      benefits: [
+        'Gain one level in either Diagnosis or Persuasion',
+        'Gain Talent: Soul Sight or Telepathy',
+        'Gain one level of Humanity',
+        'Gain Flaw: Dark Secret (Consensualist)',
+        'Gain Flaw: Prey Exclusion (Non-consenting)'
+      ]
+    },
+    'Extortionist': {
+      desc: 'Extortionists acquire blood in exchange for services like protection or security, though the service is often just a method to get close.',
+      pool: 'Resolve + Intimidation (coercion)',
+      benefits: [
+        'Gain one level in either Intimidation or Security',
+        'Gain one level of Fortitude or Potence',
+        'Spend three levels between Contacts and Wealth',
+        'Gain Flaw: Disliked (police or escaped victim\'s group)'
+      ]
+    },
+    'Farmer': {
+      desc: 'Farmers only feed from animals. The Umbra gnaws at them, but they avoid killing mortals except on bad nights. Cannot be taken at Fear Rating 3+.',
+      pool: 'Know + Nature (find and catch the animal)',
+      benefits: [
+        'Gain one level in either Nature or Survival',
+        'Gain Talent: Animal Empathy',
+        'Gain one level of Humanity',
+        'Gain Flaw: Farmer'
+      ]
+    },
+    'Grim Reaper': {
+      desc: 'Grim Reapers hunt in hospice care facilities and assisted living homes, feeding from those near the end of their lives.',
+      pool: 'Medicine + Diagnosis (find victims)',
+      benefits: [
+        'Gain one level in either Diagnosis or Etiquette',
+        'Gain Talent: Sharp Nose',
+        'Gain Contacts (1): Medical community',
+        'Gain one level of Humanity',
+        'Gain Flaw: Prey Exclusion (Healthy Mortals)'
+      ]
+    },
+    'Pursuer': {
+      desc: 'Pursuers stalk their victim, learning habits and routines, determining if they will be missed, and striking when the time is right.',
+      pool: 'Know + Investigation (find a victim no one will miss) or Perception + Track (stalking)',
+      benefits: [
+        'Gain one level in either Investigation or Track',
+        'Gain Talent: Sharp Nose or Serendipity',
+        'Gain Merit: Bloodhound',
+        'Gain Contacts (1): Morally flexible locals',
+        'Lose one level of Humanity'
+      ]
+    },
+    'Sandman': {
+      desc: 'Sandmen hunt sleeping mortals using stealth or Domains. Rarely caught, though when they are, problems occur.',
+      pool: 'Dexterity + Sneak (casing, breaking in, feeding without a trace)',
+      benefits: [
+        'Gain one level in either Surgery or Sneak',
+        'Gain Talent: Mesmerize or Serendipity',
+        'Gain Wealth (2)'
+      ]
+    },
+    'Scene Queen': {
+      desc: 'Scene Queens hunt within a specific subculture, using status to feed from adoring fans. The scene can be anything from street culture to high fashion.',
+      pool: 'Charm + Persuasion (conditioning, isolation, gaslighting)',
+      benefits: [
+        'Gain one level in either Etiquette, Leadership, or Streetwise',
+        'Gain Talent: Awe-Inspiring or Serendipity',
+        'Gain Fame (1): Your subculture',
+        'Gain Contacts (1): Your subculture',
+        'Gain Flaw: Disliked (outside subculture) or Prey Exclusion (different subculture)'
+      ]
+    },
+    'Siren': {
+      desc: 'Sirens feed using sex or sexual interest, utilizing Domains and seduction through clubs and one-night stands.',
+      pool: 'Charm + Performance (feeding under guise of sexual acts)',
+      benefits: [
+        'Gain one level in either Persuasion or Performance',
+        'Gain Talent: Mesmerize or Soul Sight',
+        'Gain Merit: Good-Looking (1)',
+        'Risk: May acquire the Herpes Flaw through non-roleplayed hunting'
+      ]
+    },
+    'Osiris (NPC)': {
+      desc: 'Osiris are celebrities - musicians, writers, priests, cult leaders - who feed from fans or worshippers.',
+      pool: 'Charm + Persuasion or Resolve + Intimidation',
+      benefits: [
+        'Gain one level in either Occultism or Performance',
+        'Gain Talent: Awe-Inspiring or Soul Sight',
+        'Spend three levels between Fame and Herd',
+        'Gain Flaw: Disliked (Cops)'
+      ]
+    },
+    'Trapdoor (NPC)': {
+      desc: 'Trapdoors build a nest and lure prey inside - an amusement park, abandoned house, underground club.',
+      pool: 'Perception + Notice or Dexterity + Sneak',
+      benefits: [
+        'Gain one level in either Performance or Security',
+        'Gain Talent: Telepathy',
+        'Gain Haven (1)',
+        'Gain Retainers/Herd (1) or second Haven level',
+        'Gain Haven Flaw: Creepy or Haunted'
+      ]
+    },
+    'Montero (NPC)': {
+      desc: 'Monteros use retainers to drive victims towards them, through long cons, flash mobs, or gang pursuits.',
+      pool: 'Reason + Navigation or Resolve + Endure',
+      benefits: [
+        'Gain one level in either Leadership or Sneak',
+        'Gain one level of Celerity or Kinetics',
+        'Gain Retainers (2)',
+        'Lose one level of Humanity'
+      ]
+    },
+    'Roadside Killer (NPC)': {
+      desc: 'Always on the move, hunting those who won\'t be missed alongside the road. May pose as truck drivers or hitchhikers.',
+      pool: 'Charm + Persuasion or Dexterity + Automobile',
+      benefits: [
+        'Gain one level in either Survival or Automobile',
+        'Gain one level of Fortitude or Potence',
+        'Gain migrating Herd (2)',
+        'Gain Flaw: Prey Exclusion (locals)'
+      ]
+    }
+  };
+
+  // ─── Humanity Effects Data ───
+  const HUMANITY_EFFECTS = {
+    10: { desc: 'Humans with this score are rare, making Devils with this score even rarer.', effects: ['Homogenize not needed; appear as a normal healthy human', 'Heal WP damage naturally (1 per peaceful night)', 'Homogenize bonus: 6D', 'Torpor: One night'] },
+    9: { desc: 'More humane than most humans, acting and thinking as mortals in an unconscious way.', effects: ['Appear mostly human without Homogenize (subtle tell only)', 'Heal WP damage naturally', 'Homogenize bonus: 6D', 'Torpor: Three days'] },
+    8: { desc: 'Still able to comprehend and feel the pain from the anguish they cause.', effects: ['Homogenize bonus: 5D', 'Fiends at or above this level do not take double damage from Holy sources', 'Torpor: One week'] },
+    7: { desc: 'Can pass for mortal. Murder is wrong, but speeding and dodging taxes are fine.', effects: ['Homogenize bonus: 5D', 'Cambions at or above this level do not take double damage from Holy sources', 'Torpor: Two weeks'] },
+    6: { desc: 'Not horrific monsters, but will do what they need to survive regardless.', effects: ['-1D penalty to Persuasion and Etiquette vs mortals', 'Homogenize requires a Rouse Check', 'Homogenize bonus: 4D', 'Torpor: One month'] },
+    5: { desc: 'Only care for Touchstones. May manifest minor physical eeriness even with Homogenize.', effects: ['-1D penalty to all Personal and Charm checks vs mortals (including art/humanities)', 'Homogenize bonus: 4D', 'Torpor: One year'] },
+    4: { desc: 'Accepted the downward spiral. Killing is acceptable. Physically strange and unsettling.', effects: ['-2D penalty to interact with mortals', 'Homogenize bonus: 3D', 'Torpor: One decade'] },
+    3: { desc: 'Scraping near the bottom. The safe route, the pragmatic route. Like an animal.', effects: ['-4D penalty to interact with mortals', 'Homogenize bonus: 3D', 'Torpor: Five decades'] },
+    2: { desc: 'Twisted hobbies that please only them. No care for others.', effects: ['-6D penalty to interact with mortals (-4D with Homogenize)', 'Homogenize bonus: 2D', 'Torpor: One century'] },
+    1: { desc: 'Teetering on the edge of Abstraction. Only survival matters.', effects: ['-8D penalty to interact with mortals (-5D with Homogenize)', 'Homogenize bonus: 1D', 'Torpor: Five centuries'] },
+    0: { desc: 'The Umbra has taken control. Final Frenzy: Wassail.', effects: ['All Athletics, Block, and Brawl checks at 10D during Wassail', 'If alive at the end of frenzy, becomes an Abstraction'] }
+  };
+
   // ─── Touchstones & Convictions (paired) ───
   function addTouchstoneConviction() {
     state.touchstoneConvictions.push({ touchstone: '', conviction: '' });
@@ -1330,6 +1587,162 @@
     });
   }
 
+  // ─── Talents (dropdown with auto-fill) ───
+  function addTalent() {
+    state.talents.push({ name: '', desc: '' });
+    renderTalents();
+    save();
+  }
+
+  function renderTalents() {
+    const container = document.getElementById('talent-list');
+    container.innerHTML = '';
+    // Migrate old string-based talents
+    state.talents = state.talents.map(t => typeof t === 'string' ? { name: 'Custom', desc: t } : t);
+    state.talents.forEach((t, idx) => {
+      const entry = document.createElement('div');
+      entry.className = 'mf-entry';
+      const top = document.createElement('div');
+      top.className = 'mf-top';
+
+      const sel = document.createElement('select');
+      const optBlank = document.createElement('option');
+      optBlank.value = '';
+      optBlank.textContent = '-- Select Talent --';
+      sel.appendChild(optBlank);
+      Object.keys(TALENT_DATA).forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        if (t.name === name) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      if (t.name && !TALENT_DATA[t.name]) {
+        const opt = document.createElement('option');
+        opt.value = t.name;
+        opt.textContent = t.name;
+        opt.selected = true;
+        sel.appendChild(opt);
+      }
+      sel.addEventListener('change', () => {
+        state.talents[idx].name = sel.value;
+        if (sel.value && TALENT_DATA[sel.value]) {
+          state.talents[idx].desc = TALENT_DATA[sel.value];
+        }
+        renderTalents();
+        save();
+      });
+      top.appendChild(sel);
+
+      const btn = document.createElement('button');
+      btn.className = 'btn-remove';
+      btn.textContent = 'x';
+      btn.addEventListener('click', () => { state.talents.splice(idx, 1); renderTalents(); save(); });
+      top.appendChild(btn);
+      entry.appendChild(top);
+
+      if (t.name) {
+        const desc = document.createElement('textarea');
+        desc.className = 'mf-desc';
+        desc.value = t.desc || '';
+        desc.placeholder = 'Talent description...';
+        desc.addEventListener('input', () => { state.talents[idx].desc = desc.value; save(); });
+        entry.appendChild(desc);
+      }
+      container.appendChild(entry);
+    });
+  }
+
+  // ─── Bane & Predator Type Displays ───
+  function updateBaneDisplay() {
+    const el = document.getElementById('bane-desc');
+    if (!el) return;
+    const bane = state.fields['bane'] || '';
+    el.textContent = BANE_DATA[bane] || (bane ? 'Custom bane selected.' : 'Select a Bane in the Identity section to see its description.');
+  }
+
+  function updatePredatorDisplay() {
+    const descEl = document.getElementById('predator-type-desc');
+    const benEl = document.getElementById('predator-type-benefits');
+    if (!descEl || !benEl) return;
+    const pt = state.fields['predatorType'] || '';
+    const data = PREDATOR_TYPE_DATA[pt];
+    if (data) {
+      descEl.textContent = data.desc;
+      benEl.innerHTML = '<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--accent-glow);margin-bottom:4px;">Pool: ' + data.pool + '</div>' +
+        data.benefits.map(b => '<div style="padding:2px 0;border-bottom:1px solid var(--border);">' + b + '</div>').join('');
+    } else {
+      descEl.textContent = pt ? 'Custom predator type.' : 'Select a Predator Type in the Identity section to see its description.';
+      benEl.innerHTML = '';
+    }
+  }
+
+  function updateHumanityEffects() {
+    const el = document.getElementById('humanity-effects');
+    if (!el) return;
+    const h = state.humanity;
+    const data = HUMANITY_EFFECTS[h];
+    if (data) {
+      el.innerHTML = '<div style="margin-bottom:4px;color:var(--text-primary);font-style:italic;">' + data.desc + '</div>' +
+        data.effects.map(e => '<div style="padding:1px 0;">\u2022 ' + e + '</div>').join('');
+    } else {
+      el.textContent = '';
+    }
+  }
+
+  // ─── Apply Predator Type Benefits ───
+  function applyPredatorType() {
+    const pt = state.fields['predatorType'] || '';
+    const data = PREDATOR_TYPE_DATA[pt];
+    if (!data) { alert('Select a Predator Type first.'); return; }
+    if (!confirm('This will add the Predator Type benefits (merits, flaws, talents) to your sheet. Skill/Domain/Humanity changes must be applied manually. Continue?')) return;
+
+    data.benefits.forEach(b => {
+      const bl = b.toLowerCase();
+      if (bl.includes('gain talent:')) {
+        const talentPart = b.split('Talent:')[1].trim();
+        const names = talentPart.split(' or ').map(s => s.trim());
+        const name = names[0];
+        if (!state.talents.find(t => t.name === name)) {
+          state.talents.push({ name, desc: TALENT_DATA[name] || '' });
+        }
+      } else if (bl.includes('gain merit:') || bl.includes('gain the feeding merit:') || bl.includes('gain the looks merit:')) {
+        const meritPart = b.replace(/Gain (the )?(Feeding |Looks )?Merit:\s*/i, '').trim();
+        const cleanName = meritPart.replace(/\s*\(\d+\)/, '').trim();
+        if (!state.merits.find(m => m.name === cleanName)) {
+          const mdata = MERIT_DATA[cleanName];
+          state.merits.push({ name: cleanName, value: mdata ? mdata.pts : '', desc: mdata ? mdata.desc : meritPart });
+        }
+      } else if (bl.includes('gain flaw:') || bl.includes('gain the feeding flaw:') || bl.includes('gain social flaw') || bl.includes('gain the infamous') || bl.includes('gain the dark secret')) {
+        const flawPart = b.replace(/Gain (the )?(Social |Feeding )?Flaw:?\s*/i, '').trim();
+        const parenMatch = flawPart.match(/^([^(]+)/);
+        const cleanName = parenMatch ? parenMatch[1].trim() : flawPart;
+        const knownFlaw = Object.keys(FLAW_DATA).find(f => cleanName.toLowerCase().startsWith(f.toLowerCase()));
+        if (knownFlaw && !state.flaws.find(f => f.name === knownFlaw)) {
+          state.flaws.push({ name: knownFlaw, value: FLAW_DATA[knownFlaw].pts, desc: FLAW_DATA[knownFlaw].desc + (flawPart !== knownFlaw ? ' [' + flawPart + ']' : '') });
+        } else if (!knownFlaw && !state.flaws.find(f => f.desc.includes(cleanName))) {
+          state.flaws.push({ name: 'Custom', value: '', desc: flawPart });
+        }
+      } else if (bl.includes('gain contacts') || bl.includes('gain fame') || bl.includes('gain wealth')) {
+        const meritMatch = b.match(/(Contacts|Fame|Wealth)\s*\((\d+)\)/i);
+        if (meritMatch) {
+          const mName = meritMatch[1];
+          const detail = b.replace(/Gain\s*/i, '').trim();
+          if (!state.merits.find(m => m.name === mName && m.desc.includes(detail))) {
+            const mdata = MERIT_DATA[mName];
+            state.merits.push({ name: mName, value: mdata ? mdata.pts : '', desc: (mdata ? mdata.desc : '') + ' [' + detail + ']' });
+          }
+        }
+      }
+    });
+
+    renderTalents();
+    renderMeritsFlaws('merit-list', 'merits');
+    renderMeritsFlaws('flaw-list', 'flaws');
+    save();
+    alert('Predator Type benefits applied! Remember to manually adjust skills, domains, and humanity.');
+  }
+
   // ─── Field Persistence ───
   function initFields() {
     document.querySelectorAll('[data-key]').forEach(el => {
@@ -1414,7 +1827,7 @@
     renderTouchstoneConvictions();
     renderConditions();
     renderList('domain-ability-list', 'domainAbilities');
-    renderList('talent-list', 'talents');
+    renderTalents();
     renderList('equipment-list', 'equipment');
     renderList('cursed-list', 'cursedObjects');
     renderWeapons();
@@ -1424,12 +1837,21 @@
     renderMeritsFlaws('flaw-list', 'flaws');
     restoreFields();
     updateDerivedStats();
+    updateHumanityEffects();
+    updateBaneDisplay();
+    updatePredatorDisplay();
   }
 
   // ─── Init ───
   load();
   initFields();
   renderAll();
+
+  // Hook Bane and Predator Type selects to update displays
+  const baneSelect = document.getElementById('bane-select');
+  if (baneSelect) baneSelect.addEventListener('change', () => { updateBaneDisplay(); });
+  const ptSelect = document.getElementById('predator-type-select');
+  if (ptSelect) ptSelect.addEventListener('change', () => { updatePredatorDisplay(); });
 </script>
 </body>
 </html>
