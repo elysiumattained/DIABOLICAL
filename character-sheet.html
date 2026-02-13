@@ -245,6 +245,40 @@
   }
   .condition-desc:focus { outline: none; border-color: var(--border-focus); }
 
+  /* Touchstone/Conviction paired entry */
+  .tc-entry { padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .tc-entry:last-child { border-bottom: none; }
+  .tc-row { display: flex; align-items: center; gap: 8px; }
+  .tc-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); min-width: 75px; }
+  .tc-row input {
+    flex: 1; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 5px 8px; font-size: 0.85rem; border-radius: 3px; font-family: inherit;
+  }
+  .tc-row input:focus { outline: none; border-color: var(--border-focus); }
+  .tc-entry .tc-row:first-child { margin-bottom: 4px; }
+
+  /* Merit/Flaw dropdown entry */
+  .mf-entry { padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .mf-entry:last-child { border-bottom: none; }
+  .mf-top { display: flex; align-items: center; gap: 8px; }
+  .mf-top select {
+    flex: 2; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 6px 8px; font-size: 0.85rem; border-radius: 3px; font-family: inherit;
+  }
+  .mf-top select:focus { outline: none; border-color: var(--border-focus); }
+  .mf-top input {
+    background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 6px 8px; font-size: 0.85rem; border-radius: 3px; font-family: inherit;
+  }
+  .mf-top input:focus { outline: none; border-color: var(--border-focus); }
+  .mf-pts { width: 55px; flex: none; text-align: center; }
+  .mf-desc {
+    width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 6px 8px; font-size: 0.8rem; border-radius: 3px; font-family: inherit; resize: vertical;
+    min-height: 36px; margin-top: 4px;
+  }
+  .mf-desc:focus { outline: none; border-color: var(--border-focus); }
+
   @media (max-width: 800px) {
     .attr-columns { grid-template-columns: 1fr; }
     .two-col { grid-template-columns: 1fr; }
@@ -479,6 +513,14 @@
           <input type="number" min="0" data-key="hitDiceMax" value="0" readonly style="opacity:0.7;cursor:default;" title="Auto: Body + Spirit">
         </div>
       </div>
+      <div class="tracker-row">
+        <span class="tracker-label">Regenerate</span>
+        <div class="hp-display">
+          <input type="number" min="0" data-key="regenCurrent" value="0">
+          <span>/</span>
+          <input type="number" min="0" data-key="regenMax" value="0">
+        </div>
+      </div>
       <div class="death-box-container" style="margin-top: 12px;">
         <div class="death-box" id="death-box" onclick="toggleDeathBox()"></div>
         <span class="death-box-label">Death Box</span>
@@ -518,7 +560,9 @@
       <div class="tracker-row">
         <span class="tracker-label">Speed</span>
         <div class="hp-display">
-          <input type="number" min="0" data-key="speed" value="0" id="speed-display" readonly style="opacity:0.7;cursor:default;" title="Auto: Body + Mind">
+          <input type="number" min="0" data-key="speedCurrent" value="0">
+          <span>/</span>
+          <input type="number" min="0" data-key="speedMax" value="0" id="speed-display" readonly style="opacity:0.7;cursor:default;" title="Auto: Body + Mind">
         </div>
       </div>
     </div>
@@ -572,15 +616,9 @@
   </div>
 
   <div class="section">
-    <div class="section-title">Touchstones</div>
-    <div class="list-section" id="touchstone-list"></div>
-    <button class="btn-add" onclick="addListItem('touchstone-list', 'touchstones')">+ Add Touchstone</button>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Convictions</div>
-    <div class="list-section" id="conviction-list"></div>
-    <button class="btn-add" onclick="addListItem('conviction-list', 'convictions')">+ Add Conviction</button>
+    <div class="section-title">Touchstones &amp; Convictions</div>
+    <div class="list-section" id="touchstone-conviction-list"></div>
+    <button class="btn-add" onclick="addTouchstoneConviction()">+ Add Touchstone / Conviction</button>
   </div>
 
   <div class="section">
@@ -693,8 +731,7 @@
     stains: 0,
     hunger: 0,
     deathBox: false,
-    touchstones: [],
-    convictions: [],
+    touchstoneConvictions: [],
     conditions: [],
     domainAbilities: [],
     innateDomains: [],
@@ -1008,12 +1045,12 @@
       state.fields['hitDiceMax'] = String(hdMax);
     }
 
-    // Speed = Body + Mind
+    // Speed max = Body + Mind
     const speedEl = document.getElementById('speed-display');
     if (speedEl) {
       const speed = body + mind;
       speedEl.value = speed;
-      state.fields['speed'] = String(speed);
+      state.fields['speedMax'] = String(speed);
     }
   }
 
@@ -1064,7 +1101,158 @@
     });
   }
 
-  // ─── Merits & Flaws ───
+  // ─── Touchstones & Convictions (paired) ───
+  function addTouchstoneConviction() {
+    state.touchstoneConvictions.push({ touchstone: '', conviction: '' });
+    renderTouchstoneConvictions();
+    save();
+  }
+
+  function renderTouchstoneConvictions() {
+    const container = document.getElementById('touchstone-conviction-list');
+    container.innerHTML = '';
+    // Migrate old separate lists if needed
+    if (state.touchstones && state.touchstones.length && !state.touchstoneConvictions.length) {
+      const max = Math.max(state.touchstones.length, state.convictions ? state.convictions.length : 0);
+      for (let i = 0; i < max; i++) {
+        state.touchstoneConvictions.push({
+          touchstone: (state.touchstones && state.touchstones[i]) || '',
+          conviction: (state.convictions && state.convictions[i]) || ''
+        });
+      }
+      delete state.touchstones;
+      delete state.convictions;
+    }
+    state.touchstoneConvictions.forEach((tc, idx) => {
+      const entry = document.createElement('div');
+      entry.className = 'tc-entry';
+
+      const row1 = document.createElement('div');
+      row1.className = 'tc-row';
+      const lbl1 = document.createElement('span');
+      lbl1.className = 'tc-label';
+      lbl1.textContent = 'Touchstone';
+      const inp1 = document.createElement('input');
+      inp1.type = 'text';
+      inp1.value = tc.touchstone;
+      inp1.placeholder = 'Person or group...';
+      inp1.addEventListener('input', () => { state.touchstoneConvictions[idx].touchstone = inp1.value; save(); });
+      row1.appendChild(lbl1);
+      row1.appendChild(inp1);
+
+      const row2 = document.createElement('div');
+      row2.className = 'tc-row';
+      const lbl2 = document.createElement('span');
+      lbl2.className = 'tc-label';
+      lbl2.textContent = 'Conviction';
+      const inp2 = document.createElement('input');
+      inp2.type = 'text';
+      inp2.value = tc.conviction;
+      inp2.placeholder = 'Related conviction...';
+      inp2.addEventListener('input', () => { state.touchstoneConvictions[idx].conviction = inp2.value; save(); });
+      const btn = document.createElement('button');
+      btn.className = 'btn-remove';
+      btn.textContent = 'x';
+      btn.addEventListener('click', () => { state.touchstoneConvictions.splice(idx, 1); renderTouchstoneConvictions(); save(); });
+      row2.appendChild(lbl2);
+      row2.appendChild(inp2);
+      row2.appendChild(btn);
+
+      entry.appendChild(row1);
+      entry.appendChild(row2);
+      container.appendChild(entry);
+    });
+  }
+
+  // ─── Merits & Flaws (dropdown with auto-fill) ───
+  const MERIT_DATA = {
+    'Good-Looking': { pts: '20/lvl', desc: "You're very attractive. Add 1D to associated rolls, and 1 to Reaction Checks for yourself or the coterie if you are the lead. This bonus stacks for every level. (Max 3)" },
+    'Put on Face': { pts: '25', desc: 'Select one skill from: Lead, Intimidate, Persuade, Deceive. Whenever you are Homogenized, you gain a 2D bonus to your selected skill. Cannot be taken multiple times.' },
+    'Iron Gullet': { pts: '40', desc: "You may drink and slake hunger using rancid, old, or otherwise nasty blood. You can even drink from corpses, but only if they've been dead less than 24 hours." },
+    'Bloodhound': { pts: '25', desc: 'You can detect fresh blood within a 10 mile radius and gain a 4D bonus to Track or Navigation checks against a bleeding target.' },
+    'Uncommon Taste': { pts: '20', desc: 'You may slake hunger and regain blood points by consuming human flesh and organs.' },
+    'Bond Resistance': { pts: '15/lvl', desc: 'Add one die to resist the effects of the Bond per level. (Max 3)' },
+    'Short Bond': { pts: '25', desc: 'The base time for any bond you inflict is 10 months instead of 12.' },
+    'Unbondable': { pts: '100', desc: 'Unable to be Bonded.' },
+    'Alleviated Curse': { pts: '60', desc: 'Your Bane Severity is reduced by 1, to a minimum of 1.' },
+    'Loopholes': { pts: '45', desc: 'When you agree to a channeling contract, your blood point maximum reduction is two less than it would be otherwise (minimum of one).' },
+    'Hospitable Soul': { pts: '10/lvl', desc: 'You can attune to one more Cursed Object per level of this Merit.' },
+    'Lightweight': { pts: '20', desc: "You don't weigh much at all. You may jump triple the standard distance. However, whenever you are knocked back, you are knocked back an extra five feet." },
+    'Heavy': { pts: '20', desc: "You are supernaturally dense. You cannot be knocked back. However, you can never jump more than a foot, vertically or horizontally. Can't be taken with Lightweight." },
+    'Attack Specialist': { pts: '100', desc: 'You can perform a full attack using 1AP.' },
+    'Defense Specialist': { pts: '100', desc: 'You can initiate a full defense using 1AP.' },
+    'Hiding Specialist': { pts: '75', desc: 'You can Hide using 1AP.' },
+    'Night Vision': { pts: '25/lvl', desc: 'Level 1: See in non-magical darkness as Dim Light. Level 2: See in magical darkness as Dim Light and ignore all other light conditions. (Max 2)' },
+    'Amphibious': { pts: '15', desc: 'You can breathe in air and water.' },
+    'Adept Climber': { pts: '15', desc: 'You can climb surfaces with heights up to 10 times your Climb score in feet without needing to make a check, even in difficult situations.' },
+    'Like a Cat': { pts: '30/lvl', desc: 'Level 1: Take half damage from falling. Level 2: Take no damage from falling.' },
+    'Quick-Footed': { pts: '75', desc: 'You can Sprint using 1AP.' },
+    'Efficient Vitae': { pts: '10/lvl', desc: 'You gain 1 Maximum Blood Point. Can (and should be) taken multiple times.' },
+    'Additional AP': { pts: '200/lvl', desc: 'You gain 1 AP, permanently.' },
+    'Energy Flux': { pts: '40', desc: 'Whenever you deal a certain type of damage, you may shift the damage type to another in the same category. The energies must be reasonably similar.' },
+    'With One Eye Open': { pts: '15', desc: 'You remain supernaturally aware of your surroundings out to a range of 6BL while Slumbering.' },
+    'Multilingual': { pts: '15/lvl', desc: 'You know one additional common human language per level.' },
+    'Language Specialization': { pts: '20/lvl', desc: 'You know one rare human language per level.' },
+    'High-Functioning Addict': { pts: '20', desc: 'Add 1D to Body, Mind, or Spirit checks (NOT score) if you recently partook in your addiction. Pick one attribute when you take this merit.' },
+    'Light Sleeper': { pts: '40', desc: 'Your Slumber only takes 6 hours. Additionally, you can Rouse at will.' },
+    'Blood Empathy': { pts: '15', desc: "You can instinctively feel when your Regnant is in danger or needs you. Doesn't allow for telepathy. (Ghouls only)" },
+    'Unseemly Scent': { pts: '10/20', desc: "You do not smell like a ghoul. Lower level: indistinguishable from a mortal. Higher level: indistinguishable from a devil. Neither affects blood taste. (Ghouls only)" },
+    'Extroverted': { pts: '20/lvl', desc: "You're a talented public speaker. Add 1D to associated rolls, and 1 to Reaction Checks for yourself or the coterie if you are the lead. Stacks per level. (Max 3)" },
+    'Friend of Authority': { pts: '25', desc: 'Government authorities tend to leave you alone. Police and Criminal Courts will rarely give you trouble.' },
+    'Devilish Clout': { pts: '30', desc: 'While you are present, all allies gain a bonus to Charm checks equal to half your Fear Ranking (rounded up) against devils.' },
+    'Fame': { pts: '25/lvl', desc: 'You are famous among mortals or Diabolical society. Can subtract from tests against relevant folks, and apply to Reaction rolls. Can be bought for Diabolical or Mortal society separately. (Max 5)' },
+    'Contacts': { pts: '10/lvl', desc: 'You know people who can get you things. Select a group (Criminals, Politicians, Cops, etc.). Additional levels change effectiveness and range. (Max 5)' },
+    'Mask': { pts: '20/lvl', desc: 'A fake identity with bank accounts, birth certificate, etc. (Max 2)' },
+    'Zeroed': { pts: '15', desc: "All of the character's past self has been purged from all systems. Must have a level 2 Mask." },
+    'Cobbler': { pts: '50', desc: 'The ability to create or source out Masks. Making a Mask takes 3 days and $2000 per level. Must have a level 2 Mask.' },
+    'Steady Income': { pts: '30/lvl', desc: 'Each level equates to $300 weekly income ($14,400 yearly). Requires active use and significant downtime. (Max 5)' },
+    'Wealth': { pts: '5/lvl', desc: 'Each level equates to $200 of starting cash. (Max 10)' },
+    'Trust Fund': { pts: 'V', desc: 'Worked out with the GM. Money held until certain requirements are met. Point value varies.' },
+    'Tech Whiz': { pts: '15/lvl', desc: "You're good with technology. Add 1D to associated rolls, and Tech-related tasks can be completed in half the time. Stacks per level. (Max 3)" },
+    'Useful Pet': { pts: 'V', desc: 'You have a pet that serves some mechanical purpose. Point value varies based on usefulness.' },
+    'Improvisation Specialist': { pts: '60/lvl', desc: 'Level 1: Use the Immersion Bonus on the roll that triggered it. Level 2: Your Immersion Bonus is +2 instead of +1. (Max 2)' },
+    'Big Pockets': { pts: '30', desc: 'You can carry more things than normal for a creature of your size.' },
+    'Custom': { pts: '', desc: '' }
+  };
+
+  const FLAW_DATA = {
+    'Ugly!': { pts: '10/lvl', desc: 'Lose 1D from associated pools, and -1 to Reaction checks for yourself or the coterie if you are the lead. Stacks per level.' },
+    'Lost in Translation': { pts: '15', desc: 'Exactly as Put on Face, but the opposite. Can be taken with Put on Face, but not for the same skill.' },
+    'Herpes': { pts: '5/20', desc: 'You have herpes. Lower level is oral, higher level is genital. Transmitted to sexual partners.' },
+    "Kronos' Thirst": { pts: '20', desc: 'You may only slake hunger from supernatural sources, such as other devils, contracts, or domains.' },
+    'Farmer': { pts: '10', desc: 'Must spend 2 Willpower points to feed on a human.' },
+    'Organovore': { pts: '25', desc: 'Slake hunger only by consuming human flesh and organs.' },
+    'Prey Exclusion': { pts: 'V', desc: "Select one group. If you drink from that group, you take Stains as if breaking a Tenet. Point benefit varies per GM." },
+    'Bond Junkie': { pts: '10', desc: "Isn't the blood so sweet? Lose one die from all rolls against your Domitor." },
+    'Long Bond': { pts: '10', desc: 'The base time for any bond you inflict is 14 months instead of 12.' },
+    'Bondslave': { pts: '40', desc: 'You fall under a Bond after only one drink instead of 3, and the rate you shake off a bond is halved.' },
+    'Deficient Blood': { pts: '15', desc: 'Unable to Blood Bond other devils. Can still bond mortals, but vitae must be drunk additional times equal to Bane Severity.' },
+    'Twice Cursed': { pts: 'V', desc: 'Take a second Bane. Point value at GM discretion.' },
+    'Staked Still': { pts: '15', desc: 'When your heart is pierced by a wooden stake, you are Bound.' },
+    'Harmless': { pts: '15', desc: 'Difficult for anyone to think of you as a threat. -2 deficit to Intimidation checks and Terrify DC. Cannot be taken by non-phobophages.' },
+    'Brittle Bones': { pts: '20', desc: 'You take double damage from falling.' },
+    'Barely Literate': { pts: '15', desc: 'You barely speak the language. Lose 2D from associated rolls, and learn new languages in twice the normal time.' },
+    'Illiterate': { pts: '30', desc: "You don't speak the language! Lose 4D from associated rolls, and must roll to communicate simple ideas." },
+    'Addiction': { pts: 'V', desc: "Unless you recently partook in your addiction, you must roll a Willpower check to resist taking actions towards it." },
+    'Low-Functioning Addict': { pts: '15', desc: 'Become Impaired 1 if you have not recently partaken in your Addiction. Must take Addiction flaw.' },
+    'Heavy Sleeper': { pts: '20', desc: 'Your Slumber takes 10 hours. Cannot Rouse from Slumber early unless you take at least one point of damage.' },
+    'Baneful Blood': { pts: '30', desc: "You experience the Bane of your first Regnant, at severity 1. (Ghouls only)" },
+    'Living in the Past': { pts: '6', desc: "Unable to grasp modern society's mindset. One or more Convictions reflect outdated views." },
+    'Intolerant': { pts: 'V', desc: 'You dislike people who are different from you. Victims of your Intolerance react at -1 to -5. Point value depends on scope.' },
+    'Disliked': { pts: 'V', desc: 'One mortal group dislikes you. Subtract 1D per level from Personal and Charm checks against them. Scope determines point value.' },
+    'Hunted': { pts: 'V', desc: 'You have garnered the ire of an individual or group. They want you dead. Point value varies based on threat.' },
+    'Infamous': { pts: 'V', desc: "You've done something horrible, and others know. Similar to Dark Secret, but usually worth more." },
+    'Dark Secret': { pts: 'V', desc: "What you've done is a secret to all but a handful of very motivated enemies. Point value depends on the atrocity." },
+    'Known Corpse': { pts: '15', desc: 'People in your old social circles know (or think) that you died recently.' },
+    'Known Hellspawn': { pts: '25', desc: 'Your name, history, associates, and more are in several agency databases. Crusade can recognize you as a devil.' },
+    'Monetary Debt': { pts: '10/lvl', desc: 'Every level equates to -$100 to your weekly income. Consequences vary if unable to make payments.' },
+    'Destitute': { pts: '10', desc: "No money, no home, and nothing of value. Cannot be taken with Wealth, Steady Income, or Trust Fund." },
+    'Archaic': { pts: '20', desc: 'Cannot use computers, cellphones, etc. Tech score cannot rise above 1, and cannot take levels in Coding.' },
+    'Decorative Pet': { pts: '5', desc: 'You have a small pet that is mechanically nothing but a resource drain. -$25 weekly.' },
+    'Compulsive Improv': { pts: '60', desc: "You suffer a -1D to any roll that doesn't benefit from an Immersion Bonus." },
+    'Custom': { pts: '', desc: '' }
+  };
+
   function addMeritFlaw(containerId, stateKey) {
     state[stateKey].push({ name: '', value: '', desc: '' });
     renderMeritsFlaws(containerId, stateKey);
@@ -1072,33 +1260,73 @@
   }
 
   function renderMeritsFlaws(containerId, stateKey) {
+    const data = stateKey === 'merits' ? MERIT_DATA : FLAW_DATA;
     const container = document.getElementById(containerId);
     container.innerHTML = '';
     state[stateKey].forEach((m, idx) => {
-      const row = document.createElement('div');
-      row.className = 'list-item';
-      row.style.flexWrap = 'wrap';
+      const entry = document.createElement('div');
+      entry.className = 'mf-entry';
 
-      const mkInput = (key, placeholder, flex) => {
-        const inp = document.createElement('input');
-        inp.type = 'text';
-        inp.value = m[key];
-        inp.placeholder = placeholder;
-        inp.style.flex = flex;
-        inp.addEventListener('input', () => { state[stateKey][idx][key] = inp.value; save(); });
-        return inp;
-      };
+      const top = document.createElement('div');
+      top.className = 'mf-top';
 
-      row.appendChild(mkInput('name', 'Name', '2'));
-      row.appendChild(mkInput('value', 'Pts', '0.4'));
-      row.appendChild(mkInput('desc', 'Description', '3'));
+      const sel = document.createElement('select');
+      const optBlank = document.createElement('option');
+      optBlank.value = '';
+      optBlank.textContent = '-- Select --';
+      sel.appendChild(optBlank);
+      Object.keys(data).forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        if (m.name === name) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      // If the saved name doesn't match any option (manual edit), keep it
+      if (m.name && !data[m.name]) {
+        const opt = document.createElement('option');
+        opt.value = m.name;
+        opt.textContent = m.name;
+        opt.selected = true;
+        sel.appendChild(opt);
+      }
+      sel.addEventListener('change', () => {
+        state[stateKey][idx].name = sel.value;
+        if (sel.value && data[sel.value]) {
+          state[stateKey][idx].value = data[sel.value].pts;
+          state[stateKey][idx].desc = data[sel.value].desc;
+        }
+        renderMeritsFlaws(containerId, stateKey);
+        save();
+      });
+      top.appendChild(sel);
+
+      const ptsInput = document.createElement('input');
+      ptsInput.type = 'text';
+      ptsInput.className = 'mf-pts';
+      ptsInput.value = m.value || '';
+      ptsInput.placeholder = 'Pts';
+      ptsInput.addEventListener('input', () => { state[stateKey][idx].value = ptsInput.value; save(); });
+      top.appendChild(ptsInput);
 
       const btn = document.createElement('button');
       btn.className = 'btn-remove';
       btn.textContent = 'x';
       btn.addEventListener('click', () => { state[stateKey].splice(idx, 1); renderMeritsFlaws(containerId, stateKey); save(); });
-      row.appendChild(btn);
-      container.appendChild(row);
+      top.appendChild(btn);
+
+      entry.appendChild(top);
+
+      if (m.name) {
+        const desc = document.createElement('textarea');
+        desc.className = 'mf-desc';
+        desc.value = m.desc || '';
+        desc.placeholder = 'Description...';
+        desc.addEventListener('input', () => { state[stateKey][idx].desc = desc.value; save(); });
+        entry.appendChild(desc);
+      }
+
+      container.appendChild(entry);
     });
   }
 
@@ -1183,8 +1411,7 @@
     initStainTrack();
     initHungerTrack();
     renderDeathBox();
-    renderList('touchstone-list', 'touchstones');
-    renderList('conviction-list', 'convictions');
+    renderTouchstoneConvictions();
     renderConditions();
     renderList('domain-ability-list', 'domainAbilities');
     renderList('talent-list', 'talents');
