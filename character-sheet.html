@@ -219,6 +219,35 @@
   /* Compact weapon row */
   .weapon-compact { font-size: 0.8rem; }
   .weapon-compact input { font-size: 0.8rem; padding: 4px 6px; }
+  .weapon-row { display: flex; align-items: center; gap: 6px; padding: 6px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .weapon-row:last-child { border-bottom: none; }
+  .weapon-row input { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary); padding: 4px 6px; font-size: 0.8rem; border-radius: 3px; font-family: inherit; }
+  .weapon-row input:focus { outline: none; border-color: var(--border-focus); }
+  .weapon-row .w-name { flex: 2; min-width: 100px; }
+  .weapon-row .w-narrow { width: 50px; flex: none; text-align: center; }
+  .weapon-row .w-traits { flex: 2; min-width: 80px; }
+
+  /* Condition entry */
+  .condition-entry { padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .condition-entry:last-child { border-bottom: none; }
+  .condition-top { display: flex; align-items: center; gap: 8px; }
+  .condition-top select, .condition-top input {
+    background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 6px 8px; font-size: 0.85rem; border-radius: 3px; font-family: inherit;
+  }
+  .condition-top select:focus, .condition-top input:focus { outline: none; border-color: var(--border-focus); }
+  .condition-top select { flex: 1; }
+  .condition-top input { flex: 1; }
+  .condition-desc {
+    width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 6px 8px; font-size: 0.8rem; border-radius: 3px; font-family: inherit; resize: vertical;
+    min-height: 36px; margin-top: 4px;
+  }
+  .condition-desc:focus { outline: none; border-color: var(--border-focus); }
+
+  /* Bane severity fix */
+  .field-sev { flex: 0 0 70px; min-width: 70px; }
+  .field-sev input { text-align: center; }
 
   @media (max-width: 800px) {
     .attr-columns { grid-template-columns: 1fr; }
@@ -276,7 +305,7 @@
     <div class="field-row">
       <div class="field"><label>Name (Fear Source)</label><input type="text" data-key="fearName"></div>
       <div class="field"><label>Bane</label><input type="text" data-key="bane"></div>
-      <div class="field-xs"><label>Severity</label><input type="number" min="0" max="5" data-key="baneSeverity"></div>
+      <div class="field-sev"><label>Severity</label><input type="number" min="0" max="5" data-key="baneSeverity"></div>
     </div>
   </div>
 
@@ -451,7 +480,7 @@
         <div class="hp-display">
           <input type="number" min="0" data-key="hitDiceCurrent" value="0">
           <span>/</span>
-          <input type="number" min="0" data-key="hitDiceMax" value="0">
+          <input type="number" min="0" data-key="hitDiceMax" value="0" readonly style="opacity:0.7;cursor:default;" title="Auto: Body + Spirit">
         </div>
       </div>
       <div class="death-box-container" style="margin-top: 12px;">
@@ -464,7 +493,7 @@
       <div class="section-title">Combat Stats</div>
       <div class="field-row">
         <div class="field field-narrow"><label>AP</label><input type="number" min="0" data-key="ap" value="2"></div>
-        <div class="field field-narrow"><label>Speed</label><input type="number" min="0" data-key="speed" value="30"></div>
+        <div class="field field-narrow"><label>Speed</label><input type="number" min="0" data-key="speed" value="0" id="speed-max" readonly style="opacity:0.7;cursor:default;" title="Auto: Body + Mind"></div>
       </div>
       <div class="field-row">
         <div class="field field-narrow"><label>Body Length</label><input type="text" data-key="bodyLength" value="5 ft"></div>
@@ -487,7 +516,7 @@
         <div class="hp-display">
           <input type="number" min="0" data-key="wpCurrent" value="0">
           <span>/</span>
-          <input type="number" min="0" data-key="wpMax" value="0">
+          <input type="number" min="0" data-key="wpMax" value="0" readonly style="opacity:0.7;cursor:default;" title="Auto: Mind + Spirit">
         </div>
       </div>
     </div>
@@ -504,7 +533,7 @@
     <div class="section">
       <div class="section-title">Active Conditions</div>
       <div class="list-section" id="condition-list"></div>
-      <button class="btn-add" onclick="addListItem('condition-list', 'conditions')">+ Add Condition</button>
+      <button class="btn-add" onclick="addCondition()">+ Add Condition</button>
     </div>
   </div>
 
@@ -700,6 +729,7 @@
         dot.addEventListener('click', () => {
           state.dots[key] = (state.dots[key] === i) ? i - 1 : i;
           initDots();
+          updateDerivedStats();
           save();
         });
         container.appendChild(dot);
@@ -803,9 +833,9 @@
     });
   }
 
-  // ─── Weapons (compact) ───
+  // ─── Weapons (compact with Pool, Rerolls, Extra Dmg) ───
   function addWeapon() {
-    state.weapons.push({ name: '', damage: '', traits: '' });
+    state.weapons.push({ name: '', damage: '', pool: '', rerolls: '', extraDmg: '', traits: '' });
     renderWeapons();
     save();
   }
@@ -814,22 +844,30 @@
     const container = document.getElementById('weapon-list');
     container.innerHTML = '';
     state.weapons.forEach((w, idx) => {
-      const row = document.createElement('div');
-      row.className = 'list-item';
+      // Migrate old weapon entries
+      if (w.pool === undefined) w.pool = '';
+      if (w.rerolls === undefined) w.rerolls = '';
+      if (w.extraDmg === undefined) w.extraDmg = '';
 
-      const mkInput = (key, placeholder, flex) => {
+      const row = document.createElement('div');
+      row.className = 'weapon-row';
+
+      const mkInput = (key, placeholder, cls) => {
         const inp = document.createElement('input');
         inp.type = 'text';
-        inp.value = w[key];
+        inp.value = w[key] || '';
         inp.placeholder = placeholder;
-        inp.style.flex = flex;
+        inp.className = cls;
         inp.addEventListener('input', () => { state.weapons[idx][key] = inp.value; save(); });
         return inp;
       };
 
-      row.appendChild(mkInput('name', 'Name', '2'));
-      row.appendChild(mkInput('damage', 'Dmg', '0.5'));
-      row.appendChild(mkInput('traits', 'Traits', '2'));
+      row.appendChild(mkInput('name', 'Name', 'w-name'));
+      row.appendChild(mkInput('damage', 'Dmg', 'w-narrow'));
+      row.appendChild(mkInput('pool', 'Pool', 'w-narrow'));
+      row.appendChild(mkInput('rerolls', 'Reroll', 'w-narrow'));
+      row.appendChild(mkInput('extraDmg', '+Dmg', 'w-narrow'));
+      row.appendChild(mkInput('traits', 'Traits', 'w-traits'));
 
       const btn = document.createElement('button');
       btn.className = 'btn-remove';
@@ -838,6 +876,136 @@
       row.appendChild(btn);
       container.appendChild(row);
     });
+  }
+
+  // ─── Conditions (dropdown + description) ───
+  const CONDITION_DATA = {
+    'Blinded': 'Cannot see. Auto-fail sight-based checks. Attacks have disadvantage; attackers have advantage.',
+    'Charmed': 'Cannot attack the charmer. The charmer has advantage on social checks against you.',
+    'Deafened': 'Cannot hear. Auto-fail hearing-based checks.',
+    'Frightened': 'Disadvantage on checks while the source of fear is in line of sight. Cannot willingly move closer to the source.',
+    'Grappled': 'Speed is 0. Ends if the grappler is incapacitated or you are moved out of reach.',
+    'Incapacitated': 'Cannot take actions or reactions.',
+    'Invisible': 'Cannot be seen without special senses. Advantage on attacks; attacks against you have disadvantage.',
+    'Paralyzed': 'Incapacitated and cannot move or speak. Auto-fail Body and Dexterity saves. Attacks have advantage; melee hits are crits.',
+    'Poisoned': 'Disadvantage on attack rolls and ability checks.',
+    'Prone': 'Disadvantage on attacks. Melee attacks against you have advantage; ranged attacks have disadvantage. Standing costs half your speed.',
+    'Restrained': 'Speed is 0. Attacks against you have advantage; your attacks have disadvantage. Disadvantage on Dexterity saves.',
+    'Stunned': 'Incapacitated, cannot move, can only speak falteringly. Auto-fail Body and Dexterity saves. Attacks have advantage.',
+    'Unconscious': 'Incapacitated, cannot move or speak, unaware of surroundings. Drop what you are holding, fall prone. Attacks have advantage; melee hits are crits.',
+    'Exhaustion (1)': 'Disadvantage on ability checks.',
+    'Exhaustion (2)': 'Speed halved.',
+    'Exhaustion (3)': 'Disadvantage on attacks and saves.',
+    'Exhaustion (4)': 'HP maximum halved.',
+    'Exhaustion (5)': 'Speed reduced to 0.',
+    'Frenzy': 'Must attack the nearest creature each turn. Cannot distinguish friend from foe.',
+    'Staggered': 'Can only take one action or bonus action per turn, not both. Cannot take reactions.',
+    'Custom': ''
+  };
+
+  function addCondition() {
+    state.conditions.push({ name: '', desc: '', custom: false });
+    renderConditions();
+    save();
+  }
+
+  function renderConditions() {
+    const container = document.getElementById('condition-list');
+    container.innerHTML = '';
+    state.conditions.forEach((c, idx) => {
+      // Migrate old string-based conditions
+      if (typeof c === 'string') {
+        state.conditions[idx] = { name: 'Custom', desc: c, custom: true };
+        c = state.conditions[idx];
+      }
+
+      const entry = document.createElement('div');
+      entry.className = 'condition-entry';
+
+      const top = document.createElement('div');
+      top.className = 'condition-top';
+
+      const sel = document.createElement('select');
+      const condNames = Object.keys(CONDITION_DATA);
+      const optBlank = document.createElement('option');
+      optBlank.value = '';
+      optBlank.textContent = '-- Select Condition --';
+      sel.appendChild(optBlank);
+      condNames.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        if (c.name === name) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', () => {
+        state.conditions[idx].name = sel.value;
+        if (sel.value && sel.value !== 'Custom' && CONDITION_DATA[sel.value]) {
+          state.conditions[idx].desc = CONDITION_DATA[sel.value];
+          state.conditions[idx].custom = false;
+        } else if (sel.value === 'Custom') {
+          state.conditions[idx].desc = '';
+          state.conditions[idx].custom = true;
+        }
+        renderConditions();
+        save();
+      });
+      top.appendChild(sel);
+
+      const btn = document.createElement('button');
+      btn.className = 'btn-remove';
+      btn.textContent = 'x';
+      btn.addEventListener('click', () => { state.conditions.splice(idx, 1); renderConditions(); save(); });
+      top.appendChild(btn);
+
+      entry.appendChild(top);
+
+      if (c.name) {
+        const desc = document.createElement('textarea');
+        desc.className = 'condition-desc';
+        desc.value = c.desc || '';
+        desc.placeholder = 'Condition description...';
+        desc.addEventListener('input', () => { state.conditions[idx].desc = desc.value; save(); });
+        entry.appendChild(desc);
+      }
+
+      container.appendChild(entry);
+    });
+  }
+
+  // ─── Auto-calculations (WP, Hit Dice, Speed) ───
+  function getAttrDots(attrKey) {
+    return state.dots[attrKey] || 0;
+  }
+
+  function updateDerivedStats() {
+    const body = getAttrDots('attr-body');
+    const mind = getAttrDots('attr-mind');
+    const spirit = getAttrDots('attr-spirit');
+
+    // Willpower max = Mind + Spirit
+    const wpMaxEl = document.querySelector('[data-key="wpMax"]');
+    if (wpMaxEl) {
+      const wpMax = mind + spirit;
+      wpMaxEl.value = wpMax;
+      state.fields['wpMax'] = String(wpMax);
+    }
+
+    // Hit Dice max = Body + Spirit
+    const hdMaxEl = document.querySelector('[data-key="hitDiceMax"]');
+    if (hdMaxEl) {
+      const hdMax = body + spirit;
+      hdMaxEl.value = hdMax;
+      state.fields['hitDiceMax'] = String(hdMax);
+    }
+
+    // Speed = Body + Mind
+    const speedEl = document.getElementById('speed-max');
+    if (speedEl) {
+      const speed = body + mind;
+      speedEl.value = speed;
+      state.fields['speed'] = String(speed);
+    }
   }
 
   // ─── Domains ───
@@ -1008,7 +1176,7 @@
     renderDeathBox();
     renderList('touchstone-list', 'touchstones');
     renderList('conviction-list', 'convictions');
-    renderList('condition-list', 'conditions');
+    renderConditions();
     renderList('domain-ability-list', 'domainAbilities');
     renderList('talent-list', 'talents');
     renderList('equipment-list', 'equipment');
@@ -1019,6 +1187,7 @@
     renderMeritsFlaws('merit-list', 'merits');
     renderMeritsFlaws('flaw-list', 'flaws');
     restoreFields();
+    updateDerivedStats();
   }
 
   // ─── Init ───
