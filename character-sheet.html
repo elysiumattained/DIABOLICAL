@@ -201,12 +201,50 @@
   }
   .btn-add:hover { border-color: var(--accent); color: var(--text-primary); }
 
-  /* Domain entries */
+  /* Domain entries (innate) */
   .domain-entry {
     display: flex; align-items: center; justify-content: space-between;
     padding: 8px 0; border-bottom: 1px solid var(--border);
   }
   .domain-entry:last-child { border-bottom: none; }
+
+  /* Learned Domain system */
+  .learned-domain { margin-bottom: 16px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 4px; }
+  .learned-domain-header {
+    display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+    border-bottom: 1px solid var(--border); cursor: pointer; user-select: none;
+  }
+  .learned-domain-header:hover { background: rgba(139,0,0,0.08); }
+  .ld-name { font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; flex: 1; }
+  .ld-level-select {
+    background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 4px 8px; font-size: 0.85rem; border-radius: 3px; font-family: inherit; width: 60px; text-align: center;
+  }
+  .ld-level-select:focus { outline: none; border-color: var(--border-focus); }
+  .ld-toggle { font-size: 0.7rem; color: var(--text-muted); transition: transform 0.2s; }
+  .ld-toggle.open { transform: rotate(90deg); }
+  .ld-body { display: none; padding: 0 14px 10px; }
+  .ld-body.open { display: block; }
+  .ld-passive { font-size: 0.8rem; color: var(--accent-glow); padding: 6px 0; line-height: 1.4; font-style: italic; }
+  .ld-level-group { margin-bottom: 10px; }
+  .ld-level-title {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-glow);
+    padding: 4px 0; border-bottom: 1px solid var(--border); margin-bottom: 6px;
+  }
+  .ld-ability { margin-bottom: 8px; }
+  .ld-ability-name {
+    font-size: 0.8rem; font-weight: 600; color: var(--text-primary); cursor: pointer;
+    padding: 4px 0; display: flex; align-items: center; gap: 6px;
+  }
+  .ld-ability-name:hover { color: var(--accent-glow); }
+  .ld-ability-toggle { font-size: 0.6rem; color: var(--text-muted); }
+  .ld-ability-details { display: none; padding: 4px 0 4px 12px; border-left: 2px solid var(--border); margin-left: 4px; }
+  .ld-ability-details.open { display: block; }
+  .ld-detail-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; margin-bottom: 4px; }
+  .ld-detail-table td { padding: 2px 8px 2px 0; color: var(--text-secondary); vertical-align: top; }
+  .ld-detail-table td:first-child { color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.65rem; white-space: nowrap; width: 90px; }
+  .ld-desc { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; margin-top: 4px; }
+  .ld-notes { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; margin-top: 2px; font-style: italic; }
 
   /* Notes */
   .notes-area {
@@ -682,7 +720,6 @@
   <div class="section">
     <div class="section-title">Learned Domains</div>
     <div id="learned-domain-list"></div>
-    <button class="btn-add" onclick="addDomain('learned-domain-list', 'learnedDomains')">+ Add Learned Domain</button>
   </div>
 
   <div class="section">
@@ -788,6 +825,7 @@
     domainAbilities: [],
     innateDomains: [],
     learnedDomains: [],
+    learnedDomainLevels: {},
     merits: [],
     flaws: [],
     talents: [],
@@ -1154,6 +1192,403 @@
     });
   }
 
+  // ─── Learned Domain Data ───
+  const LEARNED_DOMAIN_DATA = {
+    'Celerity': {
+      passive: 'Devilish Speed: +5ft movement speed per Celerity level. Fleetness (lvl 2+): Add Celerity level to Acrobatics checks.',
+      levels: {
+        1: [
+          { name: 'Rapid Reflexes I', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You may interact with an object for free, once per turn.', notes: 'This does not include reloading a firearm.' },
+          { name: 'Devilish Speed', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Your movement speed increases by 5 feet per level of Celerity you have.', notes: 'Considered visible if you move further than 60 feet in a turn.' }
+        ],
+        2: [
+          { name: 'Fleetness', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You may add your Celerity level to any Acrobatics check.', notes: '' },
+          { name: 'Rapid Reflexes II', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You may reload a firearm for free, once per turn.', notes: 'This uses the free object interaction from Rapid Reflexes I.' },
+          { name: 'Rush Job', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'Yes', apCost: '--', duration: 'Varies',
+            desc: 'You may perform a skill-related task in a quarter of the required time.', notes: 'Examples: Coding, Security, Repair, Surgery.' }
+        ],
+        3: [
+          { name: 'Rapid Reflexes III', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Gain an additional Reaction.', notes: 'Using this extra reaction breaks the Masquerade.' },
+          { name: 'Quickness', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'No', apCost: '0', duration: 'Immediate',
+            desc: 'Gain an additional ten feet of movement speed until the end of the current turn.', notes: 'This ability may be used more than once per turn.' },
+          { name: 'Traversal', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: '1', duration: 'Current Turn',
+            desc: 'Until the end of this turn, you may move up vertical surfaces or across liquid surfaces at your normal speed.', notes: '' }
+        ],
+        4: [
+          { name: 'Blurred Momentum', pool: 'N/A', opposed: 'N/A', bpCost: 'X', rouse: 'No', apCost: 'R', duration: 'Immediate',
+            desc: 'As a reaction to getting hit, you may expend up to six blood points. For every two blood points spent, the enemy accrues one miss.', notes: '' },
+          { name: 'Unerring Aim', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: '1', duration: 'Current Turn',
+            desc: 'Until the end of your current turn, you may ignore Dodge and Block scores.', notes: '' },
+          { name: 'Tireless', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You may sprint at a speed of 30 miles per hour for up to four hours. You automatically succeed Stamina checks.', notes: '' }
+        ],
+        5: [
+          { name: 'Split Second', pool: 'N/A', opposed: 'N/A', bpCost: '6', rouse: 'Yes', apCost: '0', duration: 'Immediate',
+            desc: 'Gain an additional AP this turn.', notes: 'This ability may be used more than once per turn.' },
+          { name: 'In A Flash', pool: 'N/A', opposed: 'N/A', bpCost: '5', rouse: 'Yes', apCost: 'Full Round', duration: 'Immediate',
+            desc: 'Roll a Half Attack of your choice (Weapon or Brawl), and take the Sprint action. For every enemy you are adjacent to this turn, you may deal damage to them as if they were the target of the attack.', notes: 'Roll the attack once, apply the result to each target individually.' }
+        ]
+      }
+    },
+    'Fortitude': {
+      passive: 'Resilience: Add half your Fortitude level (rounded up) to Fear Rating for HP calculation. Invigorated Vitae (lvl 2+): Add Fortitude level to HP regenerated. Unswayable Mind (lvl 4+): Add Fortitude level to checks resisting mind control.',
+      levels: {
+        1: [
+          { name: 'Resilience', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You may add half your Fortitude level (rounded up) to your Fear Rating when you calculate health.', notes: 'This applies retroactively.' },
+          { name: 'Brace', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'Yes', apCost: '1', duration: 'Current Round',
+            desc: 'Until the end of your next turn, you cannot be moved against your will.', notes: 'Does not allow you to defy gravity, but makes it harder to lift you.' }
+        ],
+        2: [
+          { name: 'Invigorated Vitae', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'No', apCost: 'N/A', duration: 'Passive',
+            desc: 'When you regenerate, you regain additional HP equal to your Fortitude level.', notes: '' },
+          { name: 'Stalwart', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: '1', duration: 'Current Round',
+            desc: 'Until the start of your next turn, all weapon attacks against you automatically accrue one miss.', notes: '' }
+        ],
+        3: [
+          { name: 'Shake It Off', pool: 'Body + Fortitude', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: '1', duration: 'Immediate',
+            desc: 'You may roll to attempt to remove or reduce status effects you are under.', notes: 'Some status effects might not allow this, at GM discretion.' },
+          { name: 'Shatter', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'When you activate Stalwart, any weapon attack that does not manage to damage you results in the destruction of the weapon, unless it is a supernatural object.', notes: 'Does not apply to ranged weapons.' },
+          { name: 'Quick Brace', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You may choose to activate Brace in reaction to being pushed.', notes: '' }
+        ],
+        4: [
+          { name: 'Above It', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'When you fail a Rouse check, you may expend two Willpower to succeed instead.', notes: '' },
+          { name: 'Unswayable Mind', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You may add your Fortitude level to checks to resist methods to sway your mind against your will.', notes: '' },
+          { name: 'Lend Fortitude', pool: 'N/A', opposed: 'N/A', bpCost: 'X', rouse: 'Yes', apCost: '1', duration: 'Immediate',
+            desc: 'You may expend blood points to grant your allies fortitude. For each BP expended, a creature you touch heals for 3 HP.', notes: '' }
+        ],
+        5: [
+          { name: 'Death Defy', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'The first time you would fall to 0 HP, fall to 1 HP instead.', notes: 'Once activated, disabled until the next dawn.' },
+          { name: 'Allguardian', pool: 'N/A', opposed: 'N/A', bpCost: '5', rouse: 'Yes', apCost: 'Full Round', duration: 'Current Round',
+            desc: 'You take half damage until the start of your next turn. Any time an attack may target an ally adjacent to you, you may make yourself the target instead.', notes: '' }
+        ]
+      }
+    },
+    'Potence': {
+      passive: 'Potent Strikes: Brawl base damage = 1 + Potence level; when expending a hit for extra Brawl damage, add half your Potence level (rounded up). Prowess: Add Potence level to Athletics checks.',
+      levels: {
+        1: [
+          { name: 'Potent Strikes', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Your Brawl base damage is equal to 1 + your level in Potence.', notes: 'When you expend a hit to deal additional Brawl damage, add half your Potence level (rounded up).' },
+          { name: 'Prowess', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You may add your Potence level to any Athletics check.', notes: '' }
+        ],
+        2: [
+          { name: 'Might', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'Yes', apCost: '1', duration: '1 minute',
+            desc: 'For the next minute, your carrying capacity is doubled.', notes: 'Stackable for each level above 2. Each stack increases by base carrying capacity.' },
+          { name: 'Concussive Strikes', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You may add the Dazing weapon merit to your unarmed strikes.', notes: '' },
+          { name: 'Not So Fast', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Whenever you make a Brawl attack against a creature with a speed of 0, you score an automatic hit.', notes: '' }
+        ],
+        3: [
+          { name: 'Soaring Leap', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: '1', duration: '1 minute',
+            desc: 'When you make a running jump, you may always jump a distance equal to 1.5x your runway, up to 45 feet.', notes: 'Rounds down to the nearest ten. Example: 10ft lead-up = 15ft jump, 20ft = 30ft, 30ft = 45ft.' },
+          { name: 'Empowered Strikes', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Your Brawl attacks treat Damage Response as if it was one level lower, down to a minimum of two.', notes: '' },
+          { name: 'Relentless Grasp', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Whenever you make a Brawl attack, you may expend two successful hits to grapple the target. It does not cost you any AP, and they cannot avoid the effect.', notes: 'While grappling this way, you cannot Brawl attack another creature.' }
+        ],
+        4: [
+          { name: 'Crushing Grip', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: '1', duration: '1 minute',
+            desc: 'You may climb and free-hang from any non-indestructible surface using your walking speed. Attacks against objects accrue three automatic successes and deal double damage.', notes: 'Moving along a surface leaves behind obvious dents and gouges.' },
+          { name: 'Rock Bottom', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You may add the Knockdown weapon merit to your unarmed strikes.', notes: '' }
+        ],
+        5: [
+          { name: 'Launching Strike', pool: 'Body + Potence', opposed: 'Block', bpCost: '6', rouse: 'Yes', apCost: 'Full Round', duration: 'Immediate',
+            desc: 'Make an attack using Body + Potence. Base damage 7. For each additional hit, deal 5 damage and push the target 1BL away. If the target impacts a creature or object, both take an additional 7 damage.', notes: 'Counts as a Brawl attack. Reroll as if Potence was your focused skill (5 dice). May expend hits for other Brawl abilities.' },
+          { name: 'Shakeup', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Whenever you make a Brawl attack, you may expend two successful hits to force the target to reroll initiative.', notes: 'The target must expend speed as if they had just entered the battle.' }
+        ]
+      }
+    },
+    'Kinetics': {
+      passive: 'Force Bolt: Base damage = 1 + Kinetics level, Range = 4BL + 2BL x Kinetics level. Kinetics acts as your Focused skill for Force Bolt rerolls and spending hits on damage.',
+      levels: {
+        1: [
+          { name: 'Unseen Shove', pool: 'Mind + Kinetics', opposed: 'Body + Block', bpCost: '1', rouse: 'No', apCost: '1', duration: 'Immediate',
+            desc: 'Choose a creature within 30 feet. That creature must beat you in a contested check or be pushed or pulled 5 feet, your choice.', notes: 'A creature can choose to fail.' },
+          { name: 'Force Bolt', pool: 'Mind + Kinetics', opposed: 'N/A', bpCost: '1', rouse: 'No', apCost: '2', duration: 'Immediate',
+            desc: 'Make an attack using Mind + Kinetics. Base damage = 1 + Kinetics level. Range = 4BL + 2BL x Kinetics level.', notes: 'Counts as a Firearm attack action (half attack at 1 AP). Damage type: Force. Kinetics acts as Focused skill for rerolls and spending hits.' }
+        ],
+        2: [
+          { name: 'Dampening', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'Yes', apCost: 'R', duration: 'Immediate',
+            desc: 'As a reaction to taking damage, reduce the damage by your Mind + Kinetics score.', notes: '' },
+          { name: 'Manipulate', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'Yes', apCost: '1', duration: '1 minute',
+            desc: 'Manipulate an object from afar. Objects under 50 lbs can be moved up to your speed per round.', notes: 'Range: 20ft + 10 x Kinetics level. +1 BP per additional 25 lbs. Fine control suffers -3 penalty. Cannot make attacks.' }
+        ],
+        3: [
+          { name: 'Kinetic Battery', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'Yes', apCost: '1', duration: '1 round',
+            desc: 'Until end of your next turn, each hit scored against you adds one die to a reserve pool. Add reserve dice to any attack you make.', notes: 'Only melee/ranged attack hits count. Reserve max add to attack: 10. Reserve vanishes at end of next turn.' },
+          { name: 'Dampening II', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: 'R', duration: 'Passive',
+            desc: 'As a reaction to any ally within 5 feet taking damage, apply Dampening to them.', notes: 'Uses your attributes. No additional Dampening cost.' },
+          { name: 'Force Bolt II', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Whenever you use Force Bolt, you may utilize the Knockback weapon trait.', notes: '' }
+        ],
+        4: [
+          { name: 'Manipulate II', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'When you use Manipulate to exert fine control, you no longer suffer the penalty.', notes: '' },
+          { name: 'Redirect', pool: 'Mind + Kinetics', opposed: 'N/A', bpCost: '4', rouse: 'Yes', apCost: 'R', duration: 'Immediate',
+            desc: 'As a reaction to being hit by a ranged attack, redirect the projectile. Each success alters direction by 30 degrees.', notes: 'Point of redirection is within your space. Original attack pool not rerolled, dodge defenses apply. Range ignored.' },
+          { name: 'Ballistic Buffer', pool: 'N/A', opposed: 'N/A', bpCost: '1 + X', rouse: 'Yes', apCost: '1', duration: '1 minute',
+            desc: 'Choose up to X creatures within 60 feet. For 1 minute, they fall at 10 feet per second and cannot take fall damage.', notes: '' }
+        ],
+        5: [
+          { name: 'Repulse', pool: 'Mind + Kinetics', opposed: 'Body + Block', bpCost: '4', rouse: 'Yes', apCost: '2', duration: 'Immediate',
+            desc: 'A shockwave in a 4BL-foot cone. Creatures caught must contest or take 8 Force damage and be pushed 5 feet per hit scored against them.', notes: '' },
+          { name: 'Bubble', pool: 'N/A', opposed: 'N/A', bpCost: '5', rouse: '1/turn', apCost: '2', duration: '1 minute',
+            desc: 'Project a 15ft spherical bubble at a point within 30 feet. Physically impassible, cannot be moved. Interior cannot be targeted from outside.', notes: 'Bubble has 50 HP. Immune to Disruptive and Psychic damage.' }
+        ]
+      }
+    },
+    'Tulpamancy': {
+      passive: 'Famulus summoned via Beckoning uses Spirit + Tulpamancy for attacks and defense.',
+      levels: {
+        1: [
+          { name: 'Minor Manifestation', pool: 'N/A', opposed: 'N/A', bpCost: '1', rouse: 'No', apCost: '1', duration: '1 minute',
+            desc: 'Manifest a small extension of yourself within 30 feet. Can manipulate objects (1 AP to command).', notes: 'Cannot attack, activate cursed objects, or carry more than 15 lbs. One at a time.' },
+          { name: 'Interference Intuition', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You can instantly sense if a beast you can see is supernaturally affected or summoned.', notes: '' }
+        ],
+        2: [
+          { name: 'Beckoning', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'Yes', apCost: '2', duration: 'Until dismissed/destroyed',
+            desc: 'Summon a Famulus (any animal shape). 1 AP, 8 HP, base damage 3. Attacks/defends with Spirit + Tulpamancy. Speed 30ft. Max size: Small.', notes: 'One Famulus at a time. Lasts until destroyed or dismissed.' },
+          { name: 'Messenger', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'No', apCost: '1', duration: 'Varies',
+            desc: 'Send your Famulus to relay a message to a described target. Fails if the target cannot be found.', notes: 'Famulus travels at 60 mph for this ability.' }
+        ],
+        3: [
+          { name: 'Beckoning II', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: '2', duration: 'Until dismissed/destroyed',
+            desc: 'Famulus: 1 AP, 20 HP, base damage 7. May be Medium. May represent a group.', notes: '' },
+          { name: 'Subsume the Spirit', pool: 'N/A', opposed: 'N/A', bpCost: '1', rouse: 'No', apCost: '1', duration: '1 minute',
+            desc: 'Possess your Famulus. Control them directly and sense what they sense. Your body is stunned.', notes: 'Extend: 2 BP = 1 hour, 3 BP = 8 hours, 4 BP = 24 hours.' },
+          { name: 'Flock of Familiars', pool: 'N/A', opposed: 'N/A', bpCost: '4', rouse: 'Yes', apCost: 'Full Round', duration: '1 minute',
+            desc: 'Summon up to four Tiny creatures within 10 feet. Function as Minions with Resistance and base damage = Tulpamancy level.', notes: 'Flying speed 30ft, carry up to 25 lbs. Other Famulus abilities do not work on these. Cease if 120ft+ away. 2 AP to command in combat.' }
+        ],
+        4: [
+          { name: 'Beckoning III', pool: 'N/A', opposed: 'N/A', bpCost: '4', rouse: 'Yes', apCost: '2', duration: 'Until dismissed/destroyed',
+            desc: 'Famulus: 2 AP, 35 HP, base damage 9, gains an appropriate weapon trait. May be Large.', notes: '' },
+          { name: 'Subsume II', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'While possessing your Famulus, you may activate domain abilities as if they were the invoker.', notes: '' },
+          { name: 'Investiture', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: '1', duration: 'Immediate',
+            desc: 'Consume your Famulus to regain the BP expended to summon them. Must touch them.', notes: 'Works even if Famulus is dead, as long as body is present.' }
+        ],
+        5: [
+          { name: 'Beckoning IV', pool: 'N/A', opposed: 'N/A', bpCost: '5', rouse: 'Yes', apCost: '2', duration: 'Until dismissed/destroyed',
+            desc: 'Famulus: 2 AP, 65 HP, base damage 12. May be Huge.', notes: '' },
+          { name: 'Twin Soul', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Choose a favored Famulus form. You gain a custom merit that the form possesses.', notes: 'One-time choice when you reach Tulpamancy 5. Example: leaping attack from a Lion form.' },
+          { name: 'Dark Draw', pool: 'N/A', opposed: 'N/A', bpCost: '4', rouse: 'Yes', apCost: 'R', duration: 'Immediate',
+            desc: 'As a reaction to taking damage, destroy your Famulus to take 0 damage instead. Leaves no corpse.', notes: '' }
+        ]
+      }
+    }
+  };
+
+  // ─── Learned Domain Rendering ───
+  function initLearnedDomains() {
+    // Initialize state for learned domains if not present
+    if (!state.learnedDomainLevels) state.learnedDomainLevels = {};
+    const container = document.getElementById('learned-domain-list');
+    container.innerHTML = '';
+    const domainNames = ['Celerity', 'Fortitude', 'Potence', 'Kinetics', 'Tulpamancy'];
+    domainNames.forEach(name => {
+      const level = state.learnedDomainLevels[name] || 0;
+      const data = LEARNED_DOMAIN_DATA[name];
+      const wrapper = document.createElement('div');
+      wrapper.className = 'learned-domain';
+
+      // Header
+      const header = document.createElement('div');
+      header.className = 'learned-domain-header';
+      const toggle = document.createElement('span');
+      toggle.className = 'ld-toggle';
+      toggle.textContent = '\u25B6';
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'ld-name';
+      nameSpan.textContent = name;
+      const levelLabel = document.createElement('span');
+      levelLabel.style.cssText = 'font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;';
+      levelLabel.textContent = 'Level';
+      const levelSelect = document.createElement('select');
+      levelSelect.className = 'ld-level-select';
+      for (let i = 0; i <= 5; i++) {
+        const opt = document.createElement('option');
+        opt.value = i; opt.textContent = i;
+        if (i === level) opt.selected = true;
+        levelSelect.appendChild(opt);
+      }
+      levelSelect.addEventListener('click', (e) => e.stopPropagation());
+      levelSelect.addEventListener('change', () => {
+        state.learnedDomainLevels[name] = parseInt(levelSelect.value);
+        save();
+        initLearnedDomains();
+        applyDomainBonuses();
+      });
+      header.appendChild(toggle);
+      header.appendChild(nameSpan);
+      header.appendChild(levelLabel);
+      header.appendChild(levelSelect);
+
+      // Body
+      const body = document.createElement('div');
+      body.className = 'ld-body';
+
+      // Passive
+      if (data.passive && level > 0) {
+        const passiveDiv = document.createElement('div');
+        passiveDiv.className = 'ld-passive';
+        passiveDiv.textContent = data.passive;
+        body.appendChild(passiveDiv);
+      }
+
+      // Level groups
+      for (let lvl = 1; lvl <= level; lvl++) {
+        const abilities = data.levels[lvl];
+        if (!abilities) continue;
+        const group = document.createElement('div');
+        group.className = 'ld-level-group';
+        const title = document.createElement('div');
+        title.className = 'ld-level-title';
+        title.textContent = 'Level ' + lvl;
+        group.appendChild(title);
+
+        abilities.forEach(ab => {
+          const abilityDiv = document.createElement('div');
+          abilityDiv.className = 'ld-ability';
+          const abName = document.createElement('div');
+          abName.className = 'ld-ability-name';
+          const abToggle = document.createElement('span');
+          abToggle.className = 'ld-ability-toggle';
+          abToggle.textContent = '\u25B6';
+          abName.appendChild(abToggle);
+          abName.appendChild(document.createTextNode(' ' + ab.name));
+
+          const details = document.createElement('div');
+          details.className = 'ld-ability-details';
+
+          // Build stat table in reference document order: Pool, Opposed Pool, BP Cost, Rouse Check, AP Cost, Duration
+          let tableHTML = '<table class="ld-detail-table">';
+          const fields = [
+            ['Pool', ab.pool], ['Opposed Pool', ab.opposed], ['BP Cost', ab.bpCost],
+            ['Rouse Check', ab.rouse], ['AP Cost', ab.apCost], ['Duration', ab.duration]
+          ];
+          fields.forEach(([label, val]) => {
+            if (val && val !== 'N/A') {
+              tableHTML += '<tr><td>' + label + '</td><td>' + val + '</td></tr>';
+            }
+          });
+          tableHTML += '</table>';
+          details.innerHTML = tableHTML;
+
+          const descDiv = document.createElement('div');
+          descDiv.className = 'ld-desc';
+          descDiv.textContent = ab.desc;
+          details.appendChild(descDiv);
+
+          if (ab.notes) {
+            const notesDiv = document.createElement('div');
+            notesDiv.className = 'ld-notes';
+            notesDiv.textContent = ab.notes;
+            details.appendChild(notesDiv);
+          }
+
+          abName.addEventListener('click', () => {
+            details.classList.toggle('open');
+            abToggle.textContent = details.classList.contains('open') ? '\u25BC' : '\u25B6';
+          });
+
+          abilityDiv.appendChild(abName);
+          abilityDiv.appendChild(details);
+          group.appendChild(abilityDiv);
+        });
+        body.appendChild(group);
+      }
+
+      if (level === 0) {
+        const emptyMsg = document.createElement('div');
+        emptyMsg.style.cssText = 'font-size:0.8rem;color:var(--text-muted);padding:8px 0;';
+        emptyMsg.textContent = 'Set a level to see abilities.';
+        body.appendChild(emptyMsg);
+      }
+
+      header.addEventListener('click', () => {
+        body.classList.toggle('open');
+        toggle.classList.toggle('open');
+      });
+
+      wrapper.appendChild(header);
+      wrapper.appendChild(body);
+      container.appendChild(wrapper);
+    });
+  }
+
+  // ─── Domain Auto-Bonuses ───
+  function applyDomainBonuses() {
+    if (!state.learnedDomainLevels) return;
+    const celLevel = state.learnedDomainLevels['Celerity'] || 0;
+    const fortLevel = state.learnedDomainLevels['Fortitude'] || 0;
+    const potLevel = state.learnedDomainLevels['Potence'] || 0;
+    const kinLevel = state.learnedDomainLevels['Kinetics'] || 0;
+
+    // Celerity: +5ft per level to Move Speed (adds on top of base 30)
+    const moveEl = document.querySelector('[data-key="moveSpeed"]');
+    if (moveEl) {
+      const baseSpeed = 30;
+      const celBonus = celLevel * 5;
+      moveEl.value = baseSpeed + celBonus;
+      state.fields['moveSpeed'] = String(baseSpeed + celBonus);
+      moveEl.title = 'Base 30' + (celBonus ? ' + Celerity ' + celBonus : '');
+    }
+
+    // Fortitude: Invigorated Vitae (lvl 2+) adds to Regenerate display
+    // Also Resilience (lvl 1+) adds half Fortitude (rounded up) to Fear Rating for HP calc
+    updateFearRatingEffects(); // Recalc regenerate with Fortitude bonus
+
+    // Potence: Update brawl info display - Potent Strikes
+    // We don't auto-add weapons for brawl, but we track it for reference
+
+    // Kinetics: Auto-add/update Force Bolt weapon
+    updateForceBolt(kinLevel);
+  }
+
+  function updateForceBolt(kinLevel) {
+    if (kinLevel >= 1) {
+      const fbName = 'Force Bolt';
+      let fb = state.weapons.find(w => w.name === fbName);
+      const baseDmg = 1 + kinLevel;
+      const range = (4 + 2 * kinLevel) + 'BL';
+      const traits = 'Force' + (kinLevel >= 3 ? ', Knockback' : '');
+      if (!fb) {
+        state.weapons.push({ name: fbName, damage: String(baseDmg), pool: 'Mind+Kin', rerolls: String(kinLevel), extraDmg: String(kinLevel), traits: traits });
+      } else {
+        fb.damage = String(baseDmg);
+        fb.pool = 'Mind+Kin';
+        fb.rerolls = String(kinLevel);
+        fb.extraDmg = String(kinLevel);
+        fb.traits = traits;
+      }
+      renderWeapons();
+    } else {
+      // Remove Force Bolt if Kinetics goes to 0
+      const idx = state.weapons.findIndex(w => w.name === 'Force Bolt');
+      if (idx !== -1) {
+        state.weapons.splice(idx, 1);
+        renderWeapons();
+      }
+    }
+  }
+
   // ─── Bane Data ───
   const BANE_DATA = {
     'Aesthetic Fixation': 'A desire for beauty takes control over the Devil and when in lesser surroundings they suffer. When they are within settings they find less than beautiful, they take a penalty to all dice pools equal to their Bane Severity.',
@@ -1385,11 +1820,11 @@
 
   const SPECIES_SHB = {
     'Human': -1,
-    'Ghoul': -1,
+    'Ghoul': 0,
     'Cambion': 0,
-    'Hybrid': 0,
-    'Fiend': 1,
-    'Devil': -1
+    'Hybrid': 1,
+    'Fiend': 2,
+    'Devil': 3
   };
 
   function updateFearRatingEffects() {
@@ -1409,11 +1844,14 @@
       const tdEl = document.getElementById('terrify-dc-display');
       if (tdEl) { tdEl.value = data.terrifyDC; state.fields['terrifyDC'] = String(data.terrifyDC); }
 
-      // Auto-fill Regenerate (e.g. "2HD+1" or "1HD-1")
+      // Auto-fill Regenerate (e.g. "2HD+1" or "1HD-1") with Fortitude bonus
       const regenEl = document.getElementById('regenerate-display');
+      const fortLevel = (state.learnedDomainLevels && state.learnedDomainLevels['Fortitude']) || 0;
+      const fortBonus = fortLevel >= 2 ? fortLevel : 0; // Invigorated Vitae at Fortitude 2+
       if (regenEl) {
-        const shbStr = shb >= 0 ? (shb > 0 ? '+' + shb : '') : String(shb);
-        const regenText = data.regenDice + 'HD' + (shbStr ? shbStr : '');
+        const totalBonus = shb + fortBonus;
+        const bonusStr = totalBonus >= 0 ? (totalBonus > 0 ? '+' + totalBonus : '') : String(totalBonus);
+        const regenText = data.regenDice + 'HD' + (bonusStr ? bonusStr : '');
         regenEl.value = regenText;
         state.fields['regenerate'] = regenText;
       }
@@ -1426,11 +1864,12 @@
 
       // Update Fear Rating effects display on Features tab
       const effectsEl = document.getElementById('fear-rating-effects');
+      const fortRegenNote = fortBonus > 0 ? ' + Fortitude (+' + fortBonus + ')' : '';
       if (effectsEl) {
         effectsEl.innerHTML =
           '<div style="margin-bottom:6px;color:var(--text-primary);font-weight:600;">Fear Rating ' + fr + '</div>' +
           '<div style="margin-bottom:4px;"><strong>Blood Surge:</strong> ' + data.surgeBonus + ' bonus / ' + data.surgeCost + ' cost</div>' +
-          '<div style="margin-bottom:4px;"><strong>Regenerate:</strong> ' + data.regenDice + 'HD' + (species ? ' + SHB (' + species + ': ' + (shb >= 0 ? '+' : '') + shb + ')' : ' + SHB') + '</div>' +
+          '<div style="margin-bottom:4px;"><strong>Regenerate:</strong> ' + data.regenDice + 'HD' + (species ? ' + SHB (' + species + ': ' + (shb >= 0 ? '+' : '') + shb + ')' : ' + SHB') + fortRegenNote + '</div>' +
           '<div style="margin-bottom:4px;"><strong>Bane Severity:</strong> ' + data.baneSev + '</div>' +
           '<div style="margin-bottom:4px;"><strong>Terrify DC:</strong> ' + data.terrifyDC + '</div>' +
           '<div style="margin-top:8px;color:var(--text-primary);font-style:italic;">' + data.notes + '</div>';
@@ -1917,7 +2356,7 @@
     renderList('cursed-list', 'cursedObjects');
     renderWeapons();
     renderDomains('innate-domain-list', 'innateDomains');
-    renderDomains('learned-domain-list', 'learnedDomains');
+    initLearnedDomains();
     renderMeritsFlaws('merit-list', 'merits');
     renderMeritsFlaws('flaw-list', 'flaws');
     restoreFields();
@@ -1926,6 +2365,7 @@
     updateBaneDisplay();
     updatePredatorDisplay();
     updateFearRatingEffects();
+    applyDomainBonuses();
   }
 
   // ─── Init ───
