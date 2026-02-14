@@ -340,7 +340,17 @@
           <option>Montero (NPC)</option><option>Roadside Killer (NPC)</option>
         </select>
       </div>
-      <div class="field field-narrow"><label>Fear Rating</label><input type="number" min="0" max="5" data-key="fearRating"></div>
+      <div class="field field-narrow"><label>Fear Rating</label>
+        <select data-key="fearRating" id="fear-rating-select">
+          <option value="">--</option>
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
     </div>
     <div class="field-row">
       <div class="field"><label>Name (Fear Source)</label><input type="text" data-key="fearName"></div>
@@ -538,11 +548,7 @@
       </div>
       <div class="tracker-row">
         <span class="tracker-label">Regenerate</span>
-        <div class="hp-display">
-          <input type="number" min="0" data-key="regenCurrent" value="0">
-          <span>/</span>
-          <input type="number" min="0" data-key="regenMax" value="0">
-        </div>
+        <input type="text" data-key="regenerate" id="regenerate-display" style="width:120px;text-align:center;background:var(--bg-input);border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;font-size:0.9rem;border-radius:3px;font-family:inherit;" placeholder="—">
       </div>
       <div class="death-box-container" style="margin-top: 12px;">
         <div class="death-box" id="death-box" onclick="toggleDeathBox()"></div>
@@ -558,7 +564,11 @@
       </div>
       <div class="field-row">
         <div class="field field-narrow"><label>Body Length</label><input type="text" data-key="bodyLength" value="5 ft"></div>
-        <div class="field field-narrow"><label>Terrify DC</label><input type="number" min="0" data-key="terrifyDC" value="0"></div>
+        <div class="field field-narrow"><label>Terrify DC</label><input type="number" min="0" data-key="terrifyDC" id="terrify-dc-display" value="0"></div>
+      </div>
+      <div class="field-row">
+        <div class="field field-narrow"><label>Surge Cost</label><input type="text" data-key="surgeCost" id="surge-cost-display" readonly style="opacity:0.7;cursor:default;" title="Auto from Fear Rating"></div>
+        <div class="field field-narrow"><label>Surge Bonus</label><input type="text" data-key="surgeBonus" id="surge-bonus-display" readonly style="opacity:0.7;cursor:default;" title="Auto from Fear Rating"></div>
       </div>
     </div>
 
@@ -713,6 +723,11 @@
     <div class="section-title">Talents</div>
     <div class="list-section" id="talent-list"></div>
     <button class="btn-add" onclick="addTalent()">+ Add Talent</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Fear Rating Effects</div>
+    <div id="fear-rating-effects" style="font-size:0.8rem;color:var(--text-secondary);line-height:1.6;min-height:40px;"></div>
   </div>
 </div>
 
@@ -1358,6 +1373,76 @@
     0: { desc: 'The Umbra has taken control. Final Frenzy: Wassail.', effects: ['All Athletics, Block, and Brawl checks at 10D during Wassail', 'If alive at the end of frenzy, becomes an Abstraction'] }
   };
 
+  // ─── Fear Rating Data ───
+  const FEAR_RATING_DATA = {
+    0: { surgeBonus: '+1D', surgeCost: '1 BP', regenDice: 1, baneSev: 1, terrifyDC: 0, notes: 'Unable to create Blood Bonds or ghouls. Frenzy only occurs with supernatural forces.' },
+    1: { surgeBonus: '+2D', surgeCost: '1 BP', regenDice: 1, baneSev: 2, terrifyDC: 1, notes: 'Domain lvl 1 reroll on failed Rouse Check.' },
+    2: { surgeBonus: '+2D', surgeCost: '2 BP', regenDice: 2, baneSev: 2, terrifyDC: 2, notes: 'Domain lvl 1 reroll. Animal/bagged blood slakes half. +1D domain bonus.' },
+    3: { surgeBonus: '+3D', surgeCost: '2 BP', regenDice: 2, baneSev: 3, terrifyDC: 3, notes: 'Domain lvl 2 reroll. Animal/bagged blood slakes nothing. +1D domain bonus.' },
+    4: { surgeBonus: '+3D', surgeCost: '3 BP', regenDice: 3, baneSev: 3, terrifyDC: 4, notes: 'Domain lvl 2 reroll. Animal/bagged slakes nothing. Human blood slakes half. +2D domain bonus.' },
+    5: { surgeBonus: '+4D', surgeCost: '3 BP', regenDice: 3, baneSev: 3, terrifyDC: 5, notes: 'Domain lvl 3 reroll. Animal/bagged slakes nothing. Human blood slakes less. +2D domain bonus.' }
+  };
+
+  const SPECIES_SHB = {
+    'Human': -1,
+    'Ghoul': -1,
+    'Cambion': 0,
+    'Hybrid': 0,
+    'Fiend': 1,
+    'Devil': -1
+  };
+
+  function updateFearRatingEffects() {
+    const frVal = state.fields['fearRating'];
+    const fr = (frVal !== undefined && frVal !== '') ? parseInt(frVal) : null;
+    const species = state.fields['species'] || '';
+    const shb = SPECIES_SHB[species] !== undefined ? SPECIES_SHB[species] : 0;
+
+    if (fr !== null && !isNaN(fr) && FEAR_RATING_DATA[fr]) {
+      const data = FEAR_RATING_DATA[fr];
+
+      // Auto-fill Bane Severity
+      const bsEl = document.querySelector('[data-key="baneSeverity"]');
+      if (bsEl) { bsEl.value = data.baneSev; state.fields['baneSeverity'] = String(data.baneSev); }
+
+      // Auto-fill Terrify DC
+      const tdEl = document.getElementById('terrify-dc-display');
+      if (tdEl) { tdEl.value = data.terrifyDC; state.fields['terrifyDC'] = String(data.terrifyDC); }
+
+      // Auto-fill Regenerate (e.g. "2HD+1" or "1HD-1")
+      const regenEl = document.getElementById('regenerate-display');
+      if (regenEl) {
+        const shbStr = shb >= 0 ? (shb > 0 ? '+' + shb : '') : String(shb);
+        const regenText = data.regenDice + 'HD' + (shbStr ? shbStr : '');
+        regenEl.value = regenText;
+        state.fields['regenerate'] = regenText;
+      }
+
+      // Auto-fill Blood Surge Cost/Bonus
+      const scEl = document.getElementById('surge-cost-display');
+      if (scEl) { scEl.value = data.surgeCost; state.fields['surgeCost'] = data.surgeCost; }
+      const sbEl = document.getElementById('surge-bonus-display');
+      if (sbEl) { sbEl.value = data.surgeBonus; state.fields['surgeBonus'] = data.surgeBonus; }
+
+      // Update Fear Rating effects display on Features tab
+      const effectsEl = document.getElementById('fear-rating-effects');
+      if (effectsEl) {
+        effectsEl.innerHTML =
+          '<div style="margin-bottom:6px;color:var(--text-primary);font-weight:600;">Fear Rating ' + fr + '</div>' +
+          '<div style="margin-bottom:4px;"><strong>Blood Surge:</strong> ' + data.surgeBonus + ' bonus / ' + data.surgeCost + ' cost</div>' +
+          '<div style="margin-bottom:4px;"><strong>Regenerate:</strong> ' + data.regenDice + 'HD' + (species ? ' + SHB (' + species + ': ' + (shb >= 0 ? '+' : '') + shb + ')' : ' + SHB') + '</div>' +
+          '<div style="margin-bottom:4px;"><strong>Bane Severity:</strong> ' + data.baneSev + '</div>' +
+          '<div style="margin-bottom:4px;"><strong>Terrify DC:</strong> ' + data.terrifyDC + '</div>' +
+          '<div style="margin-top:8px;color:var(--text-primary);font-style:italic;">' + data.notes + '</div>';
+      }
+    } else {
+      // Clear displays if no Fear Rating selected
+      const effectsEl = document.getElementById('fear-rating-effects');
+      if (effectsEl) effectsEl.innerHTML = '<span style="color:var(--text-muted);">Select a Fear Rating to see effects.</span>';
+    }
+    save();
+  }
+
   // ─── Touchstones & Convictions (paired) ───
   function addTouchstoneConviction() {
     state.touchstoneConvictions.push({ touchstone: '', conviction: '' });
@@ -1840,6 +1925,7 @@
     updateHumanityEffects();
     updateBaneDisplay();
     updatePredatorDisplay();
+    updateFearRatingEffects();
   }
 
   // ─── Init ───
@@ -1852,6 +1938,12 @@
   if (baneSelect) baneSelect.addEventListener('change', () => { updateBaneDisplay(); });
   const ptSelect = document.getElementById('predator-type-select');
   if (ptSelect) ptSelect.addEventListener('change', () => { updatePredatorDisplay(); });
+
+  // Hook Fear Rating and Species selects to update auto-calculations
+  const frSelect = document.getElementById('fear-rating-select');
+  if (frSelect) frSelect.addEventListener('change', () => { updateFearRatingEffects(); });
+  const speciesSelect = document.querySelector('[data-key="species"]');
+  if (speciesSelect) speciesSelect.addEventListener('change', () => { updateFearRatingEffects(); });
 </script>
 </body>
 </html>
