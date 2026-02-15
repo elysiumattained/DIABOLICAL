@@ -246,6 +246,15 @@
   .ld-desc { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; margin-top: 4px; }
   .ld-notes { font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; margin-top: 2px; font-style: italic; }
 
+  /* Skill bonus badge from domains */
+  .skill-bonus-badge {
+    display: inline-block; min-width: 18px; height: 18px; line-height: 18px;
+    text-align: center; font-size: 0.65rem; font-weight: 700;
+    color: var(--accent-glow); background: rgba(139,0,0,0.15);
+    border: 1px solid var(--accent-glow); border-radius: 3px;
+    margin-left: 4px; padding: 0 3px; user-select: none;
+  }
+
   /* Notes */
   .notes-area {
     width: 100%; min-height: 200px; background: var(--bg-input); border: 1px solid var(--border);
@@ -719,6 +728,12 @@
 
   <div class="section">
     <div class="section-title">Learned Domains</div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+      <select id="add-learned-domain-select" style="flex:1;background:var(--bg-input);border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;font-size:0.85rem;border-radius:3px;font-family:inherit;">
+        <option value="">-- Select a domain to add --</option>
+      </select>
+      <button class="btn-add" onclick="addLearnedDomain()" style="margin-top:0;">+ Add</button>
+    </div>
     <div id="learned-domain-list"></div>
   </div>
 
@@ -826,6 +841,7 @@
     innateDomains: [],
     learnedDomains: [],
     learnedDomainLevels: {},
+    activeLearnedDomains: [],
     merits: [],
     flaws: [],
     talents: [],
@@ -1396,15 +1412,69 @@
   };
 
   // ─── Learned Domain Rendering ───
+  const ALL_LEARNED_DOMAINS = ['Celerity', 'Fortitude', 'Potence', 'Kinetics', 'Tulpamancy'];
+
+  function populateLearnedDomainDropdown() {
+    const sel = document.getElementById('add-learned-domain-select');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">-- Select a domain to add --</option>';
+    if (!state.activeLearnedDomains) state.activeLearnedDomains = [];
+    ALL_LEARNED_DOMAINS.forEach(name => {
+      if (!state.activeLearnedDomains.includes(name)) {
+        const opt = document.createElement('option');
+        opt.value = name; opt.textContent = name;
+        sel.appendChild(opt);
+      }
+    });
+  }
+
+  function addLearnedDomain() {
+    const sel = document.getElementById('add-learned-domain-select');
+    const name = sel.value;
+    if (!name) return;
+    if (!state.activeLearnedDomains) state.activeLearnedDomains = [];
+    if (!state.activeLearnedDomains.includes(name)) {
+      state.activeLearnedDomains.push(name);
+      if (!state.learnedDomainLevels[name]) state.learnedDomainLevels[name] = 1;
+      save();
+      initLearnedDomains();
+      applyDomainBonuses();
+    }
+  }
+
+  function removeLearnedDomain(name) {
+    if (!state.activeLearnedDomains) return;
+    const idx = state.activeLearnedDomains.indexOf(name);
+    if (idx !== -1) {
+      state.activeLearnedDomains.splice(idx, 1);
+      state.learnedDomainLevels[name] = 0;
+      save();
+      initLearnedDomains();
+      applyDomainBonuses();
+    }
+  }
+
   function initLearnedDomains() {
-    // Initialize state for learned domains if not present
     if (!state.learnedDomainLevels) state.learnedDomainLevels = {};
+    if (!state.activeLearnedDomains) state.activeLearnedDomains = [];
+
+    // Migrate: if learnedDomainLevels has entries but activeLearnedDomains is empty, populate it
+    if (state.activeLearnedDomains.length === 0) {
+      ALL_LEARNED_DOMAINS.forEach(name => {
+        if (state.learnedDomainLevels[name] && state.learnedDomainLevels[name] > 0) {
+          state.activeLearnedDomains.push(name);
+        }
+      });
+    }
+
+    populateLearnedDomainDropdown();
     const container = document.getElementById('learned-domain-list');
     container.innerHTML = '';
-    const domainNames = ['Celerity', 'Fortitude', 'Potence', 'Kinetics', 'Tulpamancy'];
-    domainNames.forEach(name => {
-      const level = state.learnedDomainLevels[name] || 0;
+
+    state.activeLearnedDomains.forEach(name => {
       const data = LEARNED_DOMAIN_DATA[name];
+      if (!data) return;
+      const level = state.learnedDomainLevels[name] || 0;
       const wrapper = document.createElement('div');
       wrapper.className = 'learned-domain';
 
@@ -1435,10 +1505,18 @@
         initLearnedDomains();
         applyDomainBonuses();
       });
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'btn-remove';
+      removeBtn.textContent = 'x';
+      removeBtn.title = 'Remove ' + name;
+      removeBtn.addEventListener('click', (e) => { e.stopPropagation(); removeLearnedDomain(name); });
+
       header.appendChild(toggle);
       header.appendChild(nameSpan);
       header.appendChild(levelLabel);
       header.appendChild(levelSelect);
+      header.appendChild(removeBtn);
 
       // Body
       const body = document.createElement('div');
@@ -1477,7 +1555,6 @@
           const details = document.createElement('div');
           details.className = 'ld-ability-details';
 
-          // Build stat table in reference document order: Pool, Opposed Pool, BP Cost, Rouse Check, AP Cost, Duration
           let tableHTML = '<table class="ld-detail-table">';
           const fields = [
             ['Pool', ab.pool], ['Opposed Pool', ab.opposed], ['BP Cost', ab.bpCost],
@@ -1531,6 +1608,13 @@
       wrapper.appendChild(body);
       container.appendChild(wrapper);
     });
+
+    if (state.activeLearnedDomains.length === 0) {
+      const emptyMsg = document.createElement('div');
+      emptyMsg.style.cssText = 'font-size:0.8rem;color:var(--text-muted);padding:8px 0;text-align:center;';
+      emptyMsg.textContent = 'No learned domains added yet. Use the dropdown above to add one.';
+      container.appendChild(emptyMsg);
+    }
   }
 
   // ─── Domain Auto-Bonuses ───
@@ -1560,6 +1644,55 @@
 
     // Kinetics: Auto-add/update Force Bolt weapon
     updateForceBolt(kinLevel);
+
+    // Update skill bonus badges on the Stats tab
+    updateSkillBonuses();
+  }
+
+  // ─── Skill Bonus Badges ───
+  function updateSkillBonuses() {
+    // Remove all existing badges
+    document.querySelectorAll('.skill-bonus-badge').forEach(el => el.remove());
+
+    if (!state.learnedDomainLevels) return;
+    const celLevel = state.learnedDomainLevels['Celerity'] || 0;
+    const fortLevel = state.learnedDomainLevels['Fortitude'] || 0;
+    const potLevel = state.learnedDomainLevels['Potence'] || 0;
+
+    // Collect bonuses: map of broad-skill data-dots key -> { value, source }
+    const bonuses = {};
+    function addBonus(dotKey, value, source) {
+      if (value <= 0) return;
+      if (!bonuses[dotKey]) bonuses[dotKey] = [];
+      bonuses[dotKey].push({ value, source });
+    }
+
+    // Potence: Prowess (lvl 1+) -> +Potence level to Athletics
+    if (potLevel >= 1) addBonus('broad-athletics', potLevel, 'Potence');
+
+    // Celerity: Fleetness (lvl 2+) -> +Celerity level to Acrobatics
+    if (celLevel >= 2) addBonus('broad-acrobatics', celLevel, 'Celerity');
+
+    // Fortitude: Unswayable Mind (lvl 4+) -> +Fortitude level to Resolve (mind control resistance)
+    if (fortLevel >= 4) addBonus('broad-resolve', fortLevel, 'Fortitude');
+
+    // Apply badges next to the broad skill name
+    Object.keys(bonuses).forEach(dotKey => {
+      const dotsEl = document.querySelector('[data-dots="' + dotKey + '"]');
+      if (!dotsEl) return;
+      const row = dotsEl.closest('.broad-row');
+      if (!row) return;
+      const nameSpan = row.querySelector('.broad-name');
+      if (!nameSpan) return;
+
+      bonuses[dotKey].forEach(b => {
+        const badge = document.createElement('span');
+        badge.className = 'skill-bonus-badge';
+        badge.textContent = '+' + b.value;
+        badge.title = b.source + ' bonus';
+        nameSpan.appendChild(badge);
+      });
+    });
   }
 
   function updateForceBolt(kinLevel) {
