@@ -722,8 +722,13 @@
 <div class="tab-content" id="tab-domains">
   <div class="section">
     <div class="section-title">Innate Domains</div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+      <select id="add-innate-domain-select" style="flex:1;background:var(--bg-input);border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;font-size:0.85rem;border-radius:3px;font-family:inherit;">
+        <option value="">-- Select a domain to add --</option>
+      </select>
+      <button class="btn-add" onclick="addInnateDomain()" style="margin-top:0;">+ Add</button>
+    </div>
     <div id="innate-domain-list"></div>
-    <button class="btn-add" onclick="addDomain('innate-domain-list', 'innateDomains')">+ Add Innate Domain</button>
   </div>
 
   <div class="section">
@@ -839,6 +844,8 @@
     conditions: [],
     domainAbilities: [],
     innateDomains: [],
+    innateDomainLevels: {},
+    activeInnateDomains: [],
     learnedDomains: [],
     learnedDomainLevels: {},
     activeLearnedDomains: [],
@@ -1206,6 +1213,683 @@
       row.appendChild(btn);
       container.appendChild(row);
     });
+  }
+
+  // ─── Innate Domain Data ───
+  const INNATE_DOMAIN_DATA = {
+    'The Buried': {
+      passive: 'Deep Breath: You no longer need to breathe (does not render immune to supernatural Choke).',
+      levels: {
+        1: [
+          { name: 'The Clutching Hand', pool: 'Spirit + Buried', opposed: 'Brawl or Dodge', bpCost: '1', rouse: 'No', apCost: '2', duration: 'Immediate',
+            desc: 'You may attempt to grapple a target within 30 feet of you that you can see.', notes: '' },
+          { name: 'Deep Breath', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You no longer need to breathe.', notes: 'Does not render immune to Choke damage from supernatural sources.' }
+        ],
+        2: [
+          { name: 'The Clutching Hand II', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'The range of The Clutching Hand is extended to 60 feet.', notes: '' },
+          { name: 'Too Close', pool: 'N/A', opposed: 'N/A', bpCost: '1', rouse: 'No', apCost: '1', duration: 'Immediate',
+            desc: 'You squeeze the air out of a target in your grasp. Deal Choke damage equal to your Buried level and inflict -1 to their next escape roll.', notes: 'Target must be Grappled, Restrained, or Paralyzed.' }
+        ],
+        3: [
+          { name: 'The Sinking Earth', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Create a 10-foot radius circle of difficult terrain in an area you can see.', notes: '' },
+          { name: 'The Grasping Arms', pool: 'Spirit + Buried', opposed: 'Brawl or Dodge', bpCost: '3', rouse: 'Yes', apCost: '2', duration: 'Immediate',
+            desc: 'Restrain a target from range (same range as Clutching Hand). Target may spend 2AP to remake the check.', notes: 'Forgo Rouse Check and spend only 1 BP if target is already Grappled.' }
+        ],
+        4: [
+          { name: 'The Crushing Weight', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Creatures ending their turn Restrained/Paralyzed by you or in your Sinking Earth take Choke damage equal to twice your Buried level.', notes: '' },
+          { name: 'The Leaden Chains', pool: 'Spirit + Buried', opposed: 'Brawl or Dodge', bpCost: '4', rouse: 'Yes', apCost: 'Full Round', duration: 'Varies',
+            desc: 'Paralyze a target. Lasts as many rounds as additional hits scored on the initial check.', notes: 'Same rules as Grasping Arms but target cannot remake the check.' }
+        ],
+        5: [
+          { name: 'The Earthen Tomb', pool: 'Spirit + Buried', opposed: 'Spirit + Endure', bpCost: '5', rouse: 'Yes', apCost: 'Full Round', duration: 'Permanent',
+            desc: 'A creature under Leaden Chains is swallowed by the Buried, entering unconscious Torpor-like state.', notes: 'One target at a time. Release to a visible location for 2AP.' }
+        ]
+      }
+    },
+    'The Corruption': {
+      passive: 'Already Occupied: Bonus to Opposed checks against others\' Corruption effects equal to your Corruption level. Disruptive Attacks: Brawl attacks deal one chosen type of Disruptive damage.',
+      levels: {
+        1: [
+          { name: 'Already Occupied', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Bonus to Opposed checks against others\' Corruption effects equal to your Corruption level.', notes: '' },
+          { name: 'Disruptive Attacks', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Your Brawl attacks deal one chosen type of Disruptive damage instead of Physical.', notes: 'Chosen when gained, cannot be changed.' }
+        ],
+        2: [
+          { name: 'Blighted Strike', pool: 'Body + Corruption', opposed: 'Body + Block', bpCost: '2', rouse: 'Yes', apCost: '2', duration: 'Immediate',
+            desc: 'Strike an enemy. Every hit inflicts one point of Malady.', notes: '' },
+          { name: 'Dazed Haze', pool: 'Body + Corruption', opposed: 'Body + Dodge', bpCost: '2', rouse: 'Yes', apCost: '1', duration: 'Immediate',
+            desc: 'Release a small cloud. Every hit inflicts one round of Dazed.', notes: '' }
+        ],
+        3: [
+          { name: 'Toxic Aura', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Any creature within a 2BL radius of you is Impaired 1.', notes: '' },
+          { name: 'Exacerbating Bond', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Your blood serves as a moral inhibitor, causing your Bonded to fall into worse habits.', notes: 'Roleplay effect.' }
+        ],
+        4: [
+          { name: 'Corrosive Aura', pool: 'N/A', opposed: 'Spirit + Endure', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Creatures with your Malady entering or starting turn in Toxic Aura must pass DC2 check or become Lethargic.', notes: '' },
+          { name: 'Malignant Touch', pool: 'Body + Corruption', opposed: 'Body + Stunt', bpCost: '4', rouse: 'Yes', apCost: '2', duration: 'Immediate',
+            desc: 'On contact, inflict 6 Malady and Daze the target for two rounds.', notes: '' },
+          { name: 'Dependency', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Your Vitae is addictive. Bonded must take Addiction and Bond Junkie flaws (no XP).', notes: 'WP check DC = 1 per 4 months without your blood.' }
+        ],
+        5: [
+          { name: 'Mastery of Malady', pool: 'N/A', opposed: 'N/A', bpCost: '6', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'You regain HP whenever a target takes damage from your Malady, equal to the damage they take.', notes: '' },
+          { name: 'Infectious Influence', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Those with close ties to your Bonded become partially Bonded to you. -1D to all rolls against you.', notes: '' }
+        ]
+      }
+    },
+    'The Dark': {
+      passive: 'Cloak of Shadows: Bonus to Sneak checks equal to your Dark level.',
+      levels: {
+        1: [
+          { name: 'Cloak of Shadows', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You gain a bonus to Sneak checks equal to your Dark level.', notes: '' },
+          { name: 'Silence', pool: 'N/A', opposed: 'N/A', bpCost: '1', rouse: 'Yes', apCost: '1', duration: '1 hour',
+            desc: 'Nullifies all sound you make.', notes: 'Does not nullify sounds outside your personal space.' }
+        ],
+        2: [
+          { name: 'Obfuscate', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'Yes', apCost: '1', duration: 'Indefinite',
+            desc: 'You become invisible as long as you remain motionless.', notes: 'Ends if you take any action other than Search or move at all.' },
+          { name: 'Silence II', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'Yes', apCost: '1', duration: '1 hour',
+            desc: 'All sounds resulting from your actions are nullified.', notes: '' },
+          { name: 'From the Shadows', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'Yes', apCost: '0', duration: 'Current Turn',
+            desc: 'Must have Hidden condition (which ends). Attacks gain bonus equal to Dark level, damage bonus equal to twice Dark level.', notes: '' }
+        ],
+        3: [
+          { name: 'Obfuscate II', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You can now move at half speed without breaking Obfuscate.', notes: 'Still ends if you take any action other than Search.' },
+          { name: 'Snuff', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'No', apCost: '2', duration: '1 hour',
+            desc: 'Extinguishes all light sources near you, electrical or otherwise.', notes: 'Range = 2 x Dark level BLs.' },
+          { name: 'Tenebrous Tentacles', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Extends your reach to 3BL. Also grants a climbing speed of 20 feet.', notes: 'Can only be used to Interact or Half-Attack.' }
+        ],
+        4: [
+          { name: 'Blackout', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Disables all electronic devices within range (same as Snuff).', notes: '' },
+          { name: 'Blind', pool: 'Mind + Dark', opposed: 'Mind + Deft', bpCost: '3', rouse: 'Yes', apCost: '2', duration: 'Indefinite',
+            desc: 'Blinds the target creature.', notes: 'Ends when you stop looking at the target.' },
+          { name: 'Cold Grip', pool: 'Body + Dark', opposed: 'Block', bpCost: '3', rouse: 'Yes', apCost: '2', duration: 'Immediate',
+            desc: 'While Tenebrous Tentacles is active, make Brawl attacks that grapple. Every hit deals 4 Mystic damage.', notes: 'Forgo damage to Grapple instead. Can grapple two opponents at once.' },
+          { name: 'Creeping Darkness', pool: 'N/A', opposed: 'N/A', bpCost: '4', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Spread magical darkness from a shaded point within 60 feet. Max radius 1BL per Dark level.', notes: '' }
+        ],
+        5: [
+          { name: 'Cloaked Caravan', pool: 'N/A', opposed: 'N/A', bpCost: 'Base +1/creature', rouse: 'Base +1', apCost: 'Ritual', duration: 'As ability',
+            desc: 'Extend any Dark ability to a number of creatures equal to Mind + Dark.', notes: '' },
+          { name: 'The Greatest Trick', pool: 'N/A', opposed: 'N/A', bpCost: '5', rouse: 'Yes', apCost: 'Full Round', duration: '1 minute',
+            desc: 'Completely invisible and intangible. Move through solid objects. Cannot interact with the physical world.', notes: 'Undetectable even by supernatural means. Only Eye 5 can contest. Extend: 4 BP = 10 min, 5 BP = 1 hour.' }
+        ]
+      }
+    },
+    'The End': {
+      passive: 'Eyes of the Grave: Bonus to Intimidate checks equal to your End level.',
+      levels: {
+        1: [
+          { name: 'Eyes of the Grave', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You have a bonus to Intimidate checks equal to your End level.', notes: '' },
+          { name: 'Ferryman\'s Toll', pool: 'N/A', opposed: 'N/A', bpCost: '1', rouse: 'No', apCost: 'Ritual', duration: 'Immediate',
+            desc: 'Perform funeral rites on a corpse (10 min). Find a gold coin worth $50 or consume it (1AP) to reduce next Domain BP cost by 2.', notes: 'Target must not have been killed by you/allies, dead <24hrs, not killed by Fire/Radiant/Necrotic/Acid/Rot.' }
+        ],
+        2: [
+          { name: 'Curtain Call', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: '2', duration: 'Next Round',
+            desc: 'Declare something will end, and it will before your next turn. Applies to actions, status effects, conversations.', notes: 'Cannot affect supernatural effects. Conclusion tends neutral/calm. Creature can resume after one round.' },
+          { name: 'Voice From Beyond', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: 'Ritual', duration: '5 questions',
+            desc: 'Touch a corpse to dredge up its spirit. Ask up to 5 questions in 5 minutes.', notes: 'Not required to tell truth if hostile. One use per corpse. Peaceful departure enables Ferryman\'s Toll.' }
+        ],
+        3: [
+          { name: 'Dust to Dust', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: 'Full Round', duration: '1 minute',
+            desc: 'Creatures within 1BL of you cannot regain HP by any means.', notes: '' },
+          { name: 'Calm of the Grave', pool: 'N/A', opposed: 'N/A', bpCost: '4', rouse: 'Yes', apCost: '1', duration: 'Immediate',
+            desc: 'Invoke the End to cease all conditions affecting you.', notes: '' }
+        ],
+        4: [
+          { name: 'Memento Mori', pool: 'Spirit + End', opposed: 'Spirit + Endure', bpCost: '4', rouse: 'Yes', apCost: 'Full Round', duration: 'Immediate',
+            desc: 'The loser takes one WP damage per hit scored against them.', notes: '' },
+          { name: 'Inevitable', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'When you drop to 0 HP, restore to 20 HP and gain an additional AP next turn.', notes: 'Once between dawns.' }
+        ],
+        5: [
+          { name: 'Calm of the Grave II', pool: 'N/A', opposed: 'N/A', bpCost: '5', rouse: 'Yes', apCost: '1', duration: 'Immediate',
+            desc: 'Cease all conditions affecting your target.', notes: '' },
+          { name: 'Utter Doom', pool: 'Spirit + End', opposed: 'Willpower', bpCost: '6', rouse: 'Yes/turn', apCost: 'Full Round', duration: '1 minute',
+            desc: 'Mark a target for death. Their Damage Response is lowered by one (all types).', notes: 'Spend 1AP and Rouse Check each subsequent turn to maintain.' }
+        ]
+      }
+    },
+    'The Eye': {
+      passive: 'Watchful: Bonus to Notice checks equal to your Eye level.',
+      levels: {
+        1: [
+          { name: 'Watchful', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You gain a bonus to Notice checks equal to your Eye level.', notes: '' },
+          { name: 'Advanced Inference', pool: 'N/A', opposed: 'N/A', bpCost: '1', rouse: 'No', apCost: '1', duration: 'Immediate',
+            desc: 'Gain a piece of information building off a piece you already have, at GM discretion.', notes: 'Can be used in succession. False base info may yield false conclusions. May fail on unfamiliar or protected info.' }
+        ],
+        2: [
+          { name: 'Legend Lore', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'No', apCost: 'Ritual', duration: 'Immediate',
+            desc: 'While touching an object, learn its history, creator, purpose, and intended use.', notes: 'May also learn rumors or myths. Not everything may be straightforward.' },
+          { name: 'Locate I', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'Yes', apCost: '2', duration: '1 round',
+            desc: 'Sense the direction to a familiar object within range. Know direction of movement if moving.', notes: 'Range: Lvl 2: 1000ft, 3: 1mi, 4: 10mi, 5: 100mi.' },
+          { name: 'Metadata', pool: 'Spirit + Eye', opposed: 'N/A', bpCost: '2', rouse: 'Yes', apCost: '2', duration: '1 round',
+            desc: 'Choose a visible creature. Roll pool; spend hits to learn info (1 each): HP, BP, WP, Fear Rating, Name, Type, Attributes, 2 Focused skills, Domains, Humanity.', notes: 'Once per creature per 24 hours.' }
+        ],
+        3: [
+          { name: 'Many Eyes', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Create sigil images on objects/creatures you touch. Eye abilities auto-succeed and cost -1 BP on sigiled targets.', notes: 'Max sigils = Eye level. Can create on objects with iris imagery via eye contact.' },
+          { name: 'Locate II', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'Yes', apCost: '2', duration: '1 round',
+            desc: 'Sense the direction to a familiar creature within range.', notes: 'Same range rules as Locate I.' },
+          { name: 'Eyes of Warning', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'No', apCost: '1', duration: '1 round',
+            desc: 'Until end of next turn, know location of creatures within 60ft using mystics to hide or disguise.', notes: '' }
+        ],
+        4: [
+          { name: 'Windows to the Soul', pool: 'Spirit + Eye', opposed: 'Spirit + Endure', bpCost: '3', rouse: 'Yes', apCost: 'Full Round', duration: '1 round',
+            desc: 'Make eye contact; loser experiences the winner\'s last hour. You are stunned until end of next turn. Can be used offensively.', notes: 'Extend: 4 BP = 4hrs (2 rounds), 5 BP = 24hrs (3 rounds). Target may re-roll at end of turn if used offensively.' },
+          { name: 'Scry', pool: 'Spirit + Eye', opposed: 'Willpower', bpCost: '3', rouse: 'Yes', apCost: 'Ritual', duration: '10 minutes',
+            desc: 'See and hear around a familiar creature/object/location. Retain special senses.', notes: 'Extend: 4 BP = 1hr, 5 BP = 6hrs. Creatures with truesight see a faint eye sigil. Fail = immune 24hrs.' },
+          { name: 'Piercing Gaze', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'No', apCost: '2', duration: '1 hour',
+            desc: 'You gain truesight out to 20 feet.', notes: '' }
+        ],
+        5: [
+          { name: 'Chrono Camera', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: 'Ritual', duration: '1 minute',
+            desc: 'Perceive a past event (specify exact time, up to 1 month ago). Dreamlike but detailed with sound and special senses.', notes: 'Extend past: +1 BP = 1yr, +2 BP = 10yrs, +3 BP = 50yrs. Extend duration: +1 BP = 10min, +2 BP = 1hr, +3 BP = 6hrs.' },
+          { name: 'Foresight', pool: 'N/A', opposed: 'N/A', bpCost: '5', rouse: 'Yes', apCost: 'R', duration: 'Immediate',
+            desc: 'As a reaction to a visible creature\'s action, immediately take your turn before their action resolves.', notes: 'Next turn starts with -3 AP. Must activate promptly before GM/players move on.' }
+        ]
+      }
+    },
+    'The Flesh': {
+      passive: 'Intimacy of the Flesh: Bonus to Surgery checks equal to your Flesh level.',
+      levels: {
+        1: [
+          { name: 'Intimacy of the Flesh', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You gain a bonus to Surgery checks equal to your Flesh level.', notes: '' },
+          { name: 'Horrid Extremity', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'Yes', apCost: '1', duration: '1 minute',
+            desc: 'Mutate one limb into a combative form. Brawl attacks deal Mystic damage with base damage 3.', notes: '' }
+        ],
+        2: [
+          { name: 'Vicissitude', pool: 'Mind + Flesh', opposed: 'N/A', bpCost: 'Varies', rouse: '1/operation', apCost: 'N/A', duration: 'Permanent',
+            desc: 'Change the shape of flesh and bones. Complex ability with its own detailed rules.', notes: '' },
+          { name: 'Extend Appendage', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Extend your reach by 5 feet.', notes: 'At Flesh 3+, spend extra 2 BP for 10 feet instead.' },
+          { name: 'Flawless Transplant', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Organs you remove from living/dead mortals do not die or rot, and can be implanted without complication.', notes: '' }
+        ],
+        3: [
+          { name: 'Flesh Motes', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: '2', duration: '1 hour',
+            desc: 'Create up to four Tiny fleshy minions. Resistance = Flesh level, base damage 2, speed 30ft, carry 25lbs. Share your senses.', notes: '2AP to command in combat. You take damage equal to Flesh level when one dies.' },
+          { name: 'Vicissitude II', pool: 'Mind + Flesh', opposed: 'Spirit + Endure', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Can now use Vicissitude on others. Target must be Unconscious or Incapacitated.', notes: 'If target succeeds check, immune 24hrs.' }
+        ],
+        4: [
+          { name: 'Undulant Innards', pool: 'Body + Flesh', opposed: 'Body + Block', bpCost: '4', rouse: 'Yes', apCost: '2', duration: '1 hour',
+            desc: 'Target becomes immune to extra domain damage, min fall damage, +2 vs Malady/Pinned.', notes: 'Cannot be healed; Medicine checks at -4.' },
+          { name: 'Vicissitude III', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Can create horrific living objects (Fleshwrought) from subjects.', notes: 'Requires sacrifice of at least one mortal unless stated otherwise.' },
+          { name: 'Visceral Absorption', pool: 'N/A', opposed: 'N/A', bpCost: '4', rouse: 'No', apCost: 'Ritual', duration: 'Immediate',
+            desc: 'Touch the floor to absorb gore from a fresh bloody scene. Clean area and sate Hunger (1 per body).', notes: 'Cannot reduce Hunger below 1. Scene must be <2 hours old.' }
+        ],
+        5: [
+          { name: 'Flesh Motes II', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Flesh Motes no longer require AP in combat. Base damage increased to 3. Can activate Flesh effects from their location.', notes: '' },
+          { name: 'Battleform', pool: 'N/A', opposed: 'N/A', bpCost: '6', rouse: 'Yes/round', apCost: 'Full Round', duration: '1 minute',
+            desc: 'BL +1 size, gain Horrid Extremity + lvl 2 Extend. Brawl base damage 5, one weapon trait, Full Attack at 1AP.', notes: 'Speed -10ft. -3 to Frenzy rolls and Mind checks. Cannot use other domain abilities.' }
+        ]
+      }
+    },
+    'The Hunt': {
+      passive: 'Natural Tracker: Bonus to Track checks equal to your Hunt level. Hunter\'s Mark: Extra damage equal to Hunt level, duration = Hunt level hours.',
+      levels: {
+        1: [
+          { name: 'Natural Tracker', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You gain a bonus to Track checks equal to your Hunt level.', notes: '' },
+          { name: 'Hunter\'s Mark', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'No', apCost: '1', duration: 'Hunt level hours',
+            desc: 'Designate a visible creature as your Mark. They take extra damage from all your actions equal to Hunt level, and Sneak vs you at -4.', notes: '' }
+        ],
+        2: [
+          { name: 'Stalking Mark', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You sense your Mark\'s general attention. Your Mark has -4 to Notice checks against your Sneak.', notes: '' },
+          { name: 'Constructive Targeting', pool: 'N/A', opposed: 'N/A', bpCost: '1', rouse: 'No', apCost: '1', duration: 'Passive',
+            desc: 'Place Hunter\'s Mark on a creature you cannot see if you have a general description of their appearance.', notes: '' }
+        ],
+        3: [
+          { name: 'Supernatural Mark', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Your Mark can no longer count any resistances when you deal damage to it.', notes: '' },
+          { name: 'Everchase', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'While pursuing/combatting your Mark, ignore exhaustion effects and do not tire.', notes: 'Lasts up to Hunt level days.' }
+        ],
+        4: [
+          { name: 'Savage Mark', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'When you reduce your Mark to 0 HP, regain HP equal to twice their Spirit score.', notes: 'Only if Mark is of sufficient challenge (GM discretion).' },
+          { name: 'Supernatural Mark II', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Your Mark can no longer count any immunities when you deal damage to it.', notes: '' }
+        ],
+        5: [
+          { name: 'Satiating Mark', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'When you reduce your Mark to 0 HP, regain BP equal to their Spirit score.', notes: '' }
+        ]
+      }
+    },
+    'The Lonely': {
+      passive: 'Face in the Crowd: In crowded locations, creatures have a deficit to Track checks against you equal to twice your Lonely level.',
+      levels: {
+        1: [
+          { name: 'Deaden', pool: 'N/A', opposed: 'N/A', bpCost: '1', rouse: 'No', apCost: '1', duration: '1 minute',
+            desc: 'Target\'s Resolve and Charm pools are reduced by one.', notes: '' },
+          { name: 'Face in the Crowd', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'In crowded locations, creatures have a deficit to Track checks against you equal to twice your Lonely level.', notes: '' }
+        ],
+        2: [
+          { name: 'Forced Focus', pool: 'Mind + Lonely', opposed: 'Spirit + Endure', bpCost: '2', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Target suffers -4 to attacks against all creatures other than you.', notes: 'Ends if you harm another creature. Target remakes check if attacked by another.' },
+          { name: 'Isolation Field', pool: 'Mind + Lonely', opposed: 'Spirit + Endure', bpCost: '3', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Target cannot benefit from or provide any beneficial effects from/to allies.', notes: '' }
+        ],
+        3: [
+          { name: 'No One Else', pool: 'Mind + Lonely', opposed: 'Spirit + Endure', bpCost: '3', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Target unable to perceive other creatures. Effectively Blinded, but can still see the environment.', notes: '' },
+          { name: 'Hedgehog\'s Dilemma', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Any creature ending its turn within 10 feet of you takes Psychic damage equal to twice your Lonely level.', notes: '' }
+        ],
+        4: [
+          { name: 'Hedgehog\'s Dilemma II', pool: 'Mind + Lonely', opposed: 'Spirit + Endure', bpCost: '4', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Target takes damage whenever it ends its turn within 10 feet of another creature (same damage).', notes: '' },
+          { name: 'But Why Would They?', pool: 'Mind + Lonely', opposed: 'Spirit + Endure', bpCost: '4', rouse: 'Yes', apCost: '2', duration: '1 hour',
+            desc: 'Target is Paralyzed and untargetable. Ends when an ally spends a Full Round directly next to them.', notes: '' }
+        ],
+        5: [
+          { name: 'Lonely Embrace', pool: 'Mind + Lonely', opposed: 'Spirit + Endure', bpCost: '6', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Banish target from reality. Cannot be targeted again until following dawn. One at a time.', notes: '' }
+        ]
+      }
+    },
+    'The Slaughter': {
+      passive: 'Red Handed: All damage you deal (any weapon, including Brawl) counts as Mystic. Seasoned Killer (lvl 3+): All attacks gain damage bonus equal to Slaughter level.',
+      levels: {
+        1: [
+          { name: 'Red Handed', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'All damage you deal, with any weapon, is considered Mystic. Applies to Brawl attacks too.', notes: '' }
+        ],
+        2: [
+          { name: 'Favored Technique', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Choose one weapon trait at this level. It applies to any weapon you wield and your Brawl attacks.', notes: '' },
+          { name: 'Bloodlust', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: '1', duration: '1 minute',
+            desc: 'Attack rolls gain bonus equal to half Slaughter level (rounded up). Reduce all damage taken by Slaughter level.', notes: 'If turn ends without dealing or taking damage, take psychic damage = 3x Slaughter level (bypasses all). Rest 1hr before reuse.' }
+        ],
+        3: [
+          { name: 'Seasoned Killer', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'All attacks gain a damage bonus equal to your Slaughter level.', notes: '' },
+          { name: 'Mayhem', pool: 'Spirit + Slaughter', opposed: 'Willpower', bpCost: '3', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Target a mortal within 60ft. On failure, they randomly attack anything nearby. May re-check each turn.', notes: '' }
+        ],
+        4: [
+          { name: 'Blood Bath', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'During Bloodlust, regain 1 BP per 10 damage dealt per turn. May forgo BP to heal 5 HP instead.', notes: '30+ damage in a turn = Hunger -1.' },
+          { name: 'Blitzkrieg', pool: 'N/A', opposed: 'N/A', bpCost: '4', rouse: 'Yes', apCost: '2', duration: 'Immediate',
+            desc: 'Move to target within 30ft and make a Half Attack. Spend 2 hits to repeat (re-Rouse, no extra BP/AP).', notes: '' }
+        ],
+        5: [
+          { name: 'Unleash the Beast', pool: 'N/A', opposed: 'N/A', bpCost: '5', rouse: 'Yes', apCost: '2', duration: 'Immediate',
+            desc: 'Touch a Diabolical target. They must immediately test against Fury Frenzy at DC3.', notes: '' },
+          { name: 'Massacre', pool: 'N/A', opposed: 'N/A', bpCost: '6', rouse: 'Yes', apCost: 'Full Round', duration: 'Immediate',
+            desc: 'Full Attack against every creature within 30ft radius. On failed DC3 WP check, Turned for 1 minute.', notes: '' }
+        ]
+      }
+    },
+    'The Spiral': {
+      passive: 'Twister\'s Tongue: Bonus to Deception checks equal to your Spiral level.',
+      levels: {
+        1: [
+          { name: 'Twister\'s Tongue', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You gain a bonus to Deception checks equal to your Spiral level.', notes: '' },
+          { name: 'Aberrant Mind', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Alignment with the Spiral warps your mind. Select a long-term madness from the list or agree to a custom one with the GM.', notes: '' },
+          { name: 'White Lie', pool: 'N/A', opposed: 'N/A', bpCost: '0', rouse: 'No', apCost: '1', duration: '1 minute',
+            desc: 'Create a minor, one-sensory illusion. Not difficult to see through.', notes: '' }
+        ],
+        2: [
+          { name: 'Ramp Up', pool: 'Spirit + Spiral', opposed: 'Spirit + Endure', bpCost: '2', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Cause a creature\'s existing emotions to flare up.', notes: 'Target is not aware they have been affected.' },
+          { name: 'Hallucination', pool: 'Spirit + Spiral', opposed: 'Spirit + Notice', bpCost: '2', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Create an illusion up to Huge size with olfactory, visual, and audible effects.', notes: 'Physical contact or succeeding on the check reveals its nature.' }
+        ],
+        3: [
+          { name: 'Folie a Deux', pool: 'Spirit + Spiral', opposed: 'Mind + Investigation', bpCost: '2', rouse: 'Yes', apCost: '2', duration: '1 hour',
+            desc: 'Share your madness with another. Target is affected by your madness for the duration.', notes: '' },
+          { name: 'Attention Deficit', pool: 'Spirit + Spiral', opposed: 'Spirit + Endure', bpCost: '3', rouse: 'Yes', apCost: '2', duration: 'Immediate',
+            desc: 'Disrupt another\'s concentration. On failure, they must end one active domain effect they are maintaining.', notes: 'You may choose which effect to end if you know of a specific one.' }
+        ],
+        4: [
+          { name: 'Shatter Psyche', pool: 'Spirit + Spiral', opposed: 'Spirit + Endure', bpCost: '4', rouse: 'Yes', apCost: 'Full Round', duration: '1 week',
+            desc: 'Inflict lasting madness on your target with a touch.', notes: 'Select a madness from the list or craft one.' },
+          { name: 'Massive Mirage', pool: 'Spirit + Spiral', opposed: 'Spirit + Notice', bpCost: '10, then 2/day', rouse: 'Yes/day', apCost: 'Ritual (10hrs)', duration: '1 week',
+            desc: 'Warp terrain in up to 1 square mile. Look, sound, smell, feel like other terrain. Can alter/add structures.', notes: 'Doesn\'t disguise creatures. Removed pieces vanish. Truesight or check to see through, but can still interact.' }
+        ],
+        5: [
+          { name: 'ALTBTT', pool: 'Spirit + Spiral', opposed: 'Spirit + Notice', bpCost: '5', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Tell a lie so convincing the universe believes it. The lie becomes true about something you can see.', notes: 'Reverts after duration. Damage is Psychic. 2AP to check; success = half damage, +4 to checks from the lie.' }
+        ]
+      }
+    },
+    'The Stranger': {
+      passive: 'Seasoned Actor: Bonus to Performance checks equal to your Stranger level.',
+      levels: {
+        1: [
+          { name: 'Seasoned Actor', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You gain a bonus to Performance checks equal to your Stranger level.', notes: '' },
+          { name: 'Ventriloquism', pool: 'Mind + Stranger', opposed: 'Spirit + Notice', bpCost: '1', rouse: 'No', apCost: '1', duration: '1 minute',
+            desc: 'Make your voice seem like it is coming from a visible location.', notes: '' },
+          { name: 'Creative Countenance', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'When you Homogenize, you may appear in any humanoid guise you can imagine.', notes: 'Cannot reliably impersonate another.' }
+        ],
+        2: [
+          { name: 'Homogenization Expert', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Homogenize costs 1 AP. First use per day costs no BP.', notes: '' },
+          { name: 'The Many Mr. Fregoli\'s', pool: 'Mind + Stranger', opposed: 'N/A', bpCost: '1', rouse: 'No', apCost: 'N/A', duration: '1 hour',
+            desc: 'When Homogenizing, spend extra BP to perfectly mimic a target you have seen before.', notes: 'Those who know the target believe you are them until given reason to doubt.' }
+        ],
+        3: [
+          { name: 'Introduce to Mr. Capgras', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'While Homogenized, reveal your true nature to one mortal. They make all checks vs you at -2.', notes: 'If they know the person you\'re impersonating, further -2 and must check vs Turned by your actions.' },
+          { name: 'Misdirection', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'No', apCost: 'R', duration: 'Immediate',
+            desc: 'Swap places with a humanoid object (mannequin, puppet, etc.) you can see when targeted by attack/effect.', notes: 'Object takes the full effect and is destroyed.' }
+        ],
+        4: [
+          { name: 'Prelest', pool: 'N/A', opposed: 'N/A', bpCost: '4', rouse: 'Yes', apCost: 'Ritual', duration: '1 night',
+            desc: 'Operate as if one Humanity level higher for the duration.', notes: '' },
+          { name: 'I Do Not Know You', pool: 'Mind + Stranger', opposed: 'Spirit + Notice', bpCost: '4', rouse: 'Yes', apCost: '2', duration: '1 hour',
+            desc: 'Cause a target to forget everything they know about you.', notes: '' }
+        ],
+        5: [
+          { name: 'Misdirection II', pool: 'Mind + Stranger', opposed: 'Spirit + Endure', bpCost: '5', rouse: 'Yes', apCost: 'R', duration: 'Immediate',
+            desc: 'Swap places with a humanoid creature you can see when targeted. They take the full effect.', notes: 'Cannot swap with the triggering creature.' },
+          { name: 'Brand New', pool: 'N/A', opposed: 'N/A', bpCost: '6', rouse: 'No', apCost: 'Ritual', duration: 'Up to 5 nights',
+            desc: 'Actually become human. No Domains, no Bane, no Hunger, no Frenzy. Body -2 (min 2), HP 10, AP 2, Humanity +5.', notes: 'Gain +1 Hunger per night. 24+ hrs as human: Humanity +1, WP restored, one future Remorse reroll.' }
+        ]
+      }
+    },
+    'The Vast': {
+      passive: 'Far Sight: Perfect vision with minute detail perception at up to 200 feet.',
+      levels: {
+        1: [
+          { name: 'Far Sight', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Your vision is perfect, perceiving minute details at up to 200 feet.', notes: '' },
+          { name: 'Vertigo', pool: 'Spirit + Vast', opposed: 'Spirit + Endure', bpCost: '1', rouse: 'No', apCost: '1', duration: 'Immediate',
+            desc: 'Inflict vertigo. Target is Dazed for as many rounds as extra hits scored, or until you\'re 15+ft away.', notes: '' }
+        ],
+        2: [
+          { name: 'Seven-League Step', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'Yes', apCost: '1', duration: 'Immediate',
+            desc: 'Teleport to a visible location within range (20ft per Vast level).', notes: 'Cannot use if speed is 0. Cannot move rest of turn after use.' },
+          { name: 'Event Horizon', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Ranged attacks against you suffer one automatic miss.', notes: '' }
+        ],
+        3: [
+          { name: 'Gap Closer', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'Yes', apCost: '2', duration: 'Immediate',
+            desc: 'Target creature\'s movement speed, reach, and range doubled until end of their next turn.', notes: '' },
+          { name: 'Like a Gnat', pool: 'N/A', opposed: 'N/A', bpCost: '3', rouse: 'No', apCost: 'R', duration: 'Immediate',
+            desc: 'Reaction: Resist all damage from an attack and ignore side effects. Become Unfocused and Slowed 1 until end of next turn.', notes: '' },
+          { name: 'Immense', pool: 'N/A', opposed: 'N/A', bpCost: '4', rouse: 'Yes', apCost: 'Full Round', duration: '1 minute',
+            desc: 'Your size category becomes Large.', notes: '' }
+        ],
+        4: [
+          { name: 'Bigger Than You', pool: 'Spirit + Vast', opposed: 'Spirit + Endure', bpCost: '4', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Target cannot reroll any dice by any means. Succeeding by 2+ hits ends this early.', notes: '' },
+          { name: 'Further Than They Appear', pool: 'Spirit + Vast', opposed: 'Spirit + Endure', bpCost: '5', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Target\'s speed, ability range, and attack range halved. 2AP to remake check on their turn.', notes: '' },
+          { name: 'Immense II', pool: 'N/A', opposed: 'N/A', bpCost: '5', rouse: 'Yes', apCost: 'Full Round', duration: '1 minute',
+            desc: 'Your size category becomes Huge.', notes: '' }
+        ],
+        5: [
+          { name: 'All For Nothing', pool: 'N/A', opposed: 'N/A', bpCost: '6', rouse: 'Yes', apCost: 'N/A', duration: 'Immediate',
+            desc: 'Free action at end of round: everything reverts to the start of the round (except the BP spent).', notes: '' },
+          { name: 'Immense III', pool: 'N/A', opposed: 'N/A', bpCost: '6', rouse: 'Yes', apCost: 'Full Round', duration: '1 minute',
+            desc: 'Your size category becomes Gargantuan.', notes: '' }
+        ]
+      }
+    },
+    'The Web': {
+      passive: 'Authority: Bonus to Persuasion checks equal to your Web level.',
+      levels: {
+        1: [
+          { name: 'Authority', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'You gain a bonus to Persuasion checks equal to your Web level.', notes: '' },
+          { name: 'Command', pool: 'Mind + Web', opposed: 'Willpower', bpCost: '1/word', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Issue a command (up to Web level words) to a creature that can hear you.', notes: 'Cannot force something completely against their nature, like knowingly harming itself.' }
+        ],
+        2: [
+          { name: 'Clean Slate', pool: 'Mind + Web', opposed: 'Willpower', bpCost: '2', rouse: 'Yes', apCost: 'Ritual', duration: 'Immediate',
+            desc: 'Erase memories from the target. Number of minutes erased = hits scored.', notes: '' },
+          { name: 'Tongue Twister', pool: 'N/A', opposed: 'N/A', bpCost: '2', rouse: 'No', apCost: 'R', duration: 'Immediate',
+            desc: 'Modify an uttered statement. Change up to Web level words (roughly equivalent syllables).', notes: 'If stretched too far, GM may decide it fails.' }
+        ],
+        3: [
+          { name: 'Flyswaddled', pool: 'N/A', opposed: 'N/A', bpCost: 'N/A', rouse: 'N/A', apCost: 'N/A', duration: 'Passive',
+            desc: 'Your Bonded suffer automatic failures equal to half your Web level (rounded up) to rolls against your Web effects.', notes: '' },
+          { name: 'Pull the Strings', pool: 'Mind + Web', opposed: 'Willpower', bpCost: '3', rouse: 'Yes', apCost: '2', duration: 'Next Round',
+            desc: 'On success, choose how and where the target moves on their next turn.', notes: 'Cannot move them to instant death, but can move into hazards like Hedgehog\'s Dilemma.' }
+        ],
+        4: [
+          { name: 'Prohibition', pool: 'N/A', opposed: 'N/A', bpCost: '4', rouse: 'Yes', apCost: '2', duration: '1 minute',
+            desc: 'Utter a prohibitive statement. Violators gain Disdain levels. At 3 Disdain: Stunned and Agony (4 Psychic).', notes: 'Each Disdain level reduces turn order by 2.' },
+          { name: 'Conditioning', pool: 'Mind + Web', opposed: 'Willpower', bpCost: '2', rouse: 'Yes', apCost: 'Ritual', duration: 'Immediate',
+            desc: 'Alter opinions and personality of a creature becoming Bonded to you. Suggest ideas, compulsions, rationalizations.', notes: 'Requires 3+ hours uninterrupted with an awake, aware target.' }
+        ],
+        5: [
+          { name: 'Spider\'s Snare', pool: 'Mind + Web', opposed: 'Willpower', bpCost: '5', rouse: 'Yes/turn', apCost: 'Full Round', duration: '1 minute',
+            desc: 'Completely assume control of your target. Your body is Unconscious and Prone while controlling.', notes: 'Vs mortals: no Rouse/turn, duration = Mind+Web minus WP hours.' }
+        ]
+      }
+    }
+  };
+
+  const ALL_INNATE_DOMAINS = ['The Buried', 'The Corruption', 'The Dark', 'The End', 'The Eye', 'The Flesh', 'The Hunt', 'The Lonely', 'The Slaughter', 'The Spiral', 'The Stranger', 'The Vast', 'The Web'];
+
+  function populateInnateDomainDropdown() {
+    const sel = document.getElementById('add-innate-domain-select');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">-- Select a domain to add --</option>';
+    if (!state.activeInnateDomains) state.activeInnateDomains = [];
+    ALL_INNATE_DOMAINS.forEach(name => {
+      if (!state.activeInnateDomains.includes(name)) {
+        const opt = document.createElement('option');
+        opt.value = name; opt.textContent = name;
+        sel.appendChild(opt);
+      }
+    });
+  }
+
+  function addInnateDomain() {
+    const sel = document.getElementById('add-innate-domain-select');
+    const name = sel.value;
+    if (!name) return;
+    if (!state.activeInnateDomains) state.activeInnateDomains = [];
+    if (!state.activeInnateDomains.includes(name)) {
+      state.activeInnateDomains.push(name);
+      if (!state.innateDomainLevels) state.innateDomainLevels = {};
+      if (!state.innateDomainLevels[name]) state.innateDomainLevels[name] = 1;
+      save();
+      initInnateDomains();
+      applyDomainBonuses();
+    }
+  }
+
+  function removeInnateDomain(name) {
+    if (!state.activeInnateDomains) return;
+    const idx = state.activeInnateDomains.indexOf(name);
+    if (idx !== -1) {
+      state.activeInnateDomains.splice(idx, 1);
+      if (state.innateDomainLevels) state.innateDomainLevels[name] = 0;
+      save();
+      initInnateDomains();
+      applyDomainBonuses();
+    }
+  }
+
+  function initInnateDomains() {
+    if (!state.innateDomainLevels) state.innateDomainLevels = {};
+    if (!state.activeInnateDomains) state.activeInnateDomains = [];
+
+    // Migrate from old innateDomains array (name+level dot objects)
+    if (state.innateDomains && state.innateDomains.length && state.activeInnateDomains.length === 0) {
+      state.innateDomains.forEach(d => {
+        if (d.name && INNATE_DOMAIN_DATA[d.name]) {
+          state.activeInnateDomains.push(d.name);
+          state.innateDomainLevels[d.name] = d.level || 1;
+        }
+      });
+    }
+    // Also migrate from innateDomainLevels if activeInnateDomains is empty
+    if (state.activeInnateDomains.length === 0) {
+      ALL_INNATE_DOMAINS.forEach(name => {
+        if (state.innateDomainLevels[name] && state.innateDomainLevels[name] > 0) {
+          state.activeInnateDomains.push(name);
+        }
+      });
+    }
+
+    populateInnateDomainDropdown();
+    const container = document.getElementById('innate-domain-list');
+    container.innerHTML = '';
+
+    state.activeInnateDomains.forEach(name => {
+      const data = INNATE_DOMAIN_DATA[name];
+      if (!data) return;
+      const level = state.innateDomainLevels[name] || 0;
+      const wrapper = document.createElement('div');
+      wrapper.className = 'learned-domain'; // reuse same styling
+
+      const header = document.createElement('div');
+      header.className = 'learned-domain-header';
+      const toggle = document.createElement('span');
+      toggle.className = 'ld-toggle';
+      toggle.textContent = '\u25B6';
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'ld-name';
+      nameSpan.textContent = name;
+      const levelLabel = document.createElement('span');
+      levelLabel.style.cssText = 'font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;';
+      levelLabel.textContent = 'Level';
+      const levelSelect = document.createElement('select');
+      levelSelect.className = 'ld-level-select';
+      for (let i = 0; i <= 5; i++) {
+        const opt = document.createElement('option');
+        opt.value = i; opt.textContent = i;
+        if (i === level) opt.selected = true;
+        levelSelect.appendChild(opt);
+      }
+      levelSelect.addEventListener('click', (e) => e.stopPropagation());
+      levelSelect.addEventListener('change', () => {
+        state.innateDomainLevels[name] = parseInt(levelSelect.value);
+        save();
+        initInnateDomains();
+        applyDomainBonuses();
+      });
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'btn-remove';
+      removeBtn.textContent = 'x';
+      removeBtn.title = 'Remove ' + name;
+      removeBtn.addEventListener('click', (e) => { e.stopPropagation(); removeInnateDomain(name); });
+
+      header.appendChild(toggle);
+      header.appendChild(nameSpan);
+      header.appendChild(levelLabel);
+      header.appendChild(levelSelect);
+      header.appendChild(removeBtn);
+
+      const body = document.createElement('div');
+      body.className = 'ld-body';
+
+      if (data.passive && level > 0) {
+        const passiveDiv = document.createElement('div');
+        passiveDiv.className = 'ld-passive';
+        passiveDiv.textContent = data.passive;
+        body.appendChild(passiveDiv);
+      }
+
+      for (let lvl = 1; lvl <= level; lvl++) {
+        const abilities = data.levels[lvl];
+        if (!abilities) continue;
+        const group = document.createElement('div');
+        group.className = 'ld-level-group';
+        const title = document.createElement('div');
+        title.className = 'ld-level-title';
+        title.textContent = 'Level ' + lvl;
+        group.appendChild(title);
+
+        abilities.forEach(ab => {
+          const abilityDiv = document.createElement('div');
+          abilityDiv.className = 'ld-ability';
+          const abName = document.createElement('div');
+          abName.className = 'ld-ability-name';
+          const abToggle = document.createElement('span');
+          abToggle.className = 'ld-ability-toggle';
+          abToggle.textContent = '\u25B6';
+          abName.appendChild(abToggle);
+          abName.appendChild(document.createTextNode(' ' + ab.name));
+
+          const details = document.createElement('div');
+          details.className = 'ld-ability-details';
+          let tableHTML = '<table class="ld-detail-table">';
+          [['Pool', ab.pool], ['Opposed Pool', ab.opposed], ['BP Cost', ab.bpCost],
+           ['Rouse Check', ab.rouse], ['AP Cost', ab.apCost], ['Duration', ab.duration]
+          ].forEach(([label, val]) => {
+            if (val && val !== 'N/A') tableHTML += '<tr><td>' + label + '</td><td>' + val + '</td></tr>';
+          });
+          tableHTML += '</table>';
+          details.innerHTML = tableHTML;
+          const descDiv = document.createElement('div');
+          descDiv.className = 'ld-desc';
+          descDiv.textContent = ab.desc;
+          details.appendChild(descDiv);
+          if (ab.notes) {
+            const notesDiv = document.createElement('div');
+            notesDiv.className = 'ld-notes';
+            notesDiv.textContent = ab.notes;
+            details.appendChild(notesDiv);
+          }
+          abName.addEventListener('click', () => {
+            details.classList.toggle('open');
+            abToggle.textContent = details.classList.contains('open') ? '\u25BC' : '\u25B6';
+          });
+          abilityDiv.appendChild(abName);
+          abilityDiv.appendChild(details);
+          group.appendChild(abilityDiv);
+        });
+        body.appendChild(group);
+      }
+
+      if (level === 0) {
+        const emptyMsg = document.createElement('div');
+        emptyMsg.style.cssText = 'font-size:0.8rem;color:var(--text-muted);padding:8px 0;';
+        emptyMsg.textContent = 'Set a level to see abilities.';
+        body.appendChild(emptyMsg);
+      }
+
+      header.addEventListener('click', () => {
+        body.classList.toggle('open');
+        toggle.classList.toggle('open');
+      });
+
+      wrapper.appendChild(header);
+      wrapper.appendChild(body);
+      container.appendChild(wrapper);
+    });
+
+    if (state.activeInnateDomains.length === 0) {
+      const emptyMsg = document.createElement('div');
+      emptyMsg.style.cssText = 'font-size:0.8rem;color:var(--text-muted);padding:8px 0;text-align:center;';
+      emptyMsg.textContent = 'No innate domains added yet. Use the dropdown above to add one.';
+      container.appendChild(emptyMsg);
+    }
   }
 
   // ─── Learned Domain Data ───
@@ -1651,41 +2335,64 @@
 
   // ─── Skill Bonus Badges ───
   function updateSkillBonuses() {
-    // Remove all existing badges
     document.querySelectorAll('.skill-bonus-badge').forEach(el => el.remove());
 
-    if (!state.learnedDomainLevels) return;
-    const celLevel = state.learnedDomainLevels['Celerity'] || 0;
-    const fortLevel = state.learnedDomainLevels['Fortitude'] || 0;
-    const potLevel = state.learnedDomainLevels['Potence'] || 0;
-
-    // Collect bonuses: map of broad-skill data-dots key -> { value, source }
-    const bonuses = {};
-    function addBonus(dotKey, value, source) {
+    const broadBonuses = {};
+    const focusedBonuses = {};
+    function addBroad(dotKey, value, source) {
       if (value <= 0) return;
-      if (!bonuses[dotKey]) bonuses[dotKey] = [];
-      bonuses[dotKey].push({ value, source });
+      if (!broadBonuses[dotKey]) broadBonuses[dotKey] = [];
+      broadBonuses[dotKey].push({ value, source });
+    }
+    function addFocused(dataKey, value, source) {
+      if (value <= 0) return;
+      if (!focusedBonuses[dataKey]) focusedBonuses[dataKey] = [];
+      focusedBonuses[dataKey].push({ value, source });
     }
 
-    // Potence: Prowess (lvl 1+) -> +Potence level to Athletics
-    if (potLevel >= 1) addBonus('broad-athletics', potLevel, 'Potence');
+    // Learned Domain bonuses
+    const ll = state.learnedDomainLevels || {};
+    if (ll['Potence'] >= 1) addBroad('broad-athletics', ll['Potence'], 'Potence');
+    if (ll['Celerity'] >= 2) addBroad('broad-acrobatics', ll['Celerity'], 'Celerity');
+    if (ll['Fortitude'] >= 4) addBroad('broad-resolve', ll['Fortitude'], 'Fortitude');
 
-    // Celerity: Fleetness (lvl 2+) -> +Celerity level to Acrobatics
-    if (celLevel >= 2) addBonus('broad-acrobatics', celLevel, 'Celerity');
+    // Innate Domain bonuses (focused skill bonuses)
+    const il = state.innateDomainLevels || {};
+    if (il['The Dark'] >= 1) addFocused('focus-sneak', il['The Dark'], 'The Dark');
+    if (il['The End'] >= 1) addFocused('focus-intimidate', il['The End'], 'The End');
+    if (il['The Eye'] >= 1) addFocused('focus-notice', il['The Eye'], 'The Eye');
+    if (il['The Flesh'] >= 1) addFocused('focus-surgery', il['The Flesh'], 'The Flesh');
+    if (il['The Hunt'] >= 1) addFocused('focus-track', il['The Hunt'], 'The Hunt');
+    if (il['The Spiral'] >= 1) addFocused('focus-deception', il['The Spiral'], 'The Spiral');
+    if (il['The Stranger'] >= 1) addFocused('focus-performance', il['The Stranger'], 'The Stranger');
+    if (il['The Web'] >= 1) addFocused('focus-persuasion', il['The Web'], 'The Web');
 
-    // Fortitude: Unswayable Mind (lvl 4+) -> +Fortitude level to Resolve (mind control resistance)
-    if (fortLevel >= 4) addBonus('broad-resolve', fortLevel, 'Fortitude');
-
-    // Apply badges next to the broad skill name
-    Object.keys(bonuses).forEach(dotKey => {
+    // Apply broad skill badges
+    Object.keys(broadBonuses).forEach(dotKey => {
       const dotsEl = document.querySelector('[data-dots="' + dotKey + '"]');
       if (!dotsEl) return;
       const row = dotsEl.closest('.broad-row');
       if (!row) return;
       const nameSpan = row.querySelector('.broad-name');
       if (!nameSpan) return;
+      broadBonuses[dotKey].forEach(b => {
+        const badge = document.createElement('span');
+        badge.className = 'skill-bonus-badge';
+        badge.textContent = '+' + b.value;
+        badge.title = b.source + ' bonus';
+        nameSpan.appendChild(badge);
+      });
+    });
 
-      bonuses[dotKey].forEach(b => {
+    // Apply focused skill badges
+    Object.keys(focusedBonuses).forEach(dataKey => {
+      const input = document.querySelector('[data-key="' + dataKey + '"]');
+      if (!input) return;
+      const row = input.closest('.focused-row');
+      if (!row) return;
+      const nameSpan = row.querySelector('.focused-name');
+      if (!nameSpan) return;
+      focusedBonuses[dataKey].forEach(b => {
         const badge = document.createElement('span');
         badge.className = 'skill-bonus-badge';
         badge.textContent = '+' + b.value;
@@ -2488,7 +3195,7 @@
     renderList('equipment-list', 'equipment');
     renderList('cursed-list', 'cursedObjects');
     renderWeapons();
-    renderDomains('innate-domain-list', 'innateDomains');
+    initInnateDomains();
     initLearnedDomains();
     renderMeritsFlaws('merit-list', 'merits');
     renderMeritsFlaws('flaw-list', 'flaws');
