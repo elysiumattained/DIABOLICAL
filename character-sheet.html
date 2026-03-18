@@ -125,6 +125,7 @@
   }
   .skill-roll-btn:hover { border-color: var(--accent-glow); color: var(--accent-glow); background: rgba(139,0,0,0.15); }
   .broad-row .skill-roll-btn { margin-right: 6px; }
+  .domain-roll-btn { margin-left: auto; margin-right: 0; }
   .focused-input {
     width: 36px; text-align: center; background: var(--bg-input); border: 1px solid var(--border);
     color: var(--text-primary); padding: 3px 2px; font-size: 0.8rem; border-radius: 3px; font-family: inherit;
@@ -1213,6 +1214,15 @@
         return inp;
       };
 
+      // Attack roll button
+      const atkBtn = document.createElement('button');
+      atkBtn.className = 'skill-roll-btn';
+      atkBtn.innerHTML = '&#9858;';
+      atkBtn.title = 'Roll Attack: ' + (w.name || 'Weapon');
+      atkBtn.style.cssText = 'flex-shrink:0;';
+      atkBtn.addEventListener('click', () => rollWeaponAttack(idx));
+      row.appendChild(atkBtn);
+
       row.appendChild(mkInput('name', 'Name', 'w-name'));
       row.appendChild(mkInput('damage', 'Dmg', 'w-narrow'));
       row.appendChild(mkInput('pool', 'Pool', 'w-narrow'));
@@ -1587,6 +1597,249 @@
     const s = state.fields['surgeCost'] || '1 BP';
     const m = s.match(/(\d+)/);
     return m ? parseInt(m[1]) : 1;
+  }
+
+  // ─── Pool String Parser ───
+  // Parses pool strings like "Spirit + Buried", "Body + Combat", "Mind + Kinetics"
+  // Returns { total, breakdown } or null if unparseable
+  const ATTR_NAME_TO_KEY = { 'body': 'attr-body', 'mind': 'attr-mind', 'spirit': 'attr-spirit' };
+  const DOMAIN_NAME_TO_KEY = {};
+  // Build domain name -> state key lookup (populated from data)
+  function buildDomainLookup() {
+    if (typeof INNATE_DOMAIN_DATA !== 'undefined') {
+      Object.keys(INNATE_DOMAIN_DATA).forEach(d => {
+        // "The Buried" -> lookup key "buried", "the buried"
+        DOMAIN_NAME_TO_KEY[d.toLowerCase()] = { type: 'innate', name: d };
+        const short = d.replace(/^The\s+/i, '').toLowerCase();
+        DOMAIN_NAME_TO_KEY[short] = { type: 'innate', name: d };
+      });
+    }
+    if (typeof LEARNED_DOMAIN_DATA !== 'undefined') {
+      Object.keys(LEARNED_DOMAIN_DATA).forEach(d => {
+        DOMAIN_NAME_TO_KEY[d.toLowerCase()] = { type: 'learned', name: d };
+        // Common abbreviations
+        if (d === 'Kinetics') DOMAIN_NAME_TO_KEY['kin'] = { type: 'learned', name: d };
+        if (d === 'Tulpamancy') DOMAIN_NAME_TO_KEY['tulpa'] = { type: 'learned', name: d };
+      });
+    }
+  }
+
+  // Also map broad/focused skill names to their dot keys
+  const SKILL_NAME_TO_KEY = {
+    'athletics': 'broad-athletics', 'combat': 'broad-combat', 'acrobatics': 'broad-acrobatics',
+    'dexterity': 'broad-dexterity', 'reason': 'broad-reason', 'know': 'broad-know',
+    'tech': 'broad-tech', 'medicine': 'broad-medicine', 'perception': 'broad-perception',
+    'resolve': 'broad-resolve', 'personal': 'broad-personal', 'charm': 'broad-charm',
+    'brawl': 'focus-brawl', 'weapon': 'focus-weapon', 'block': 'focus-block',
+    'stamina': 'focus-stamina', 'strength': 'focus-strength', 'throw': 'focus-throw',
+    'climb': 'focus-climb', 'jump': 'focus-jump', 'dodge': 'focus-dodge', 'stunt': 'focus-stunt',
+    'pilot': 'focus-pilot', 'sneak': 'focus-sneak', 'deft': 'focus-deft',
+    'firearm': 'focus-firearm', 'navigation': 'focus-navigation', 'survival': 'focus-survival',
+    'nature': 'focus-nature', 'history': 'focus-history', 'occultism': 'focus-occultism',
+    'investigation': 'focus-investigation', 'coding': 'focus-coding', 'security': 'focus-security',
+    'repair': 'focus-repair', 'surgery': 'focus-surgery', 'first aid': 'focus-firstaid',
+    'firstaid': 'focus-firstaid', 'diagnosis': 'focus-diagnosis',
+    'notice': 'focus-notice', 'track': 'focus-track', 'insight': 'focus-insight',
+    'leadership': 'focus-leadership', 'intimidate': 'focus-intimidate', 'intimidation': 'focus-intimidate',
+    'endure': 'focus-endure', 'etiquette': 'focus-etiquette', 'streetwise': 'focus-streetwise',
+    'politics': 'focus-politics', 'performance': 'focus-performance', 'deception': 'focus-deception',
+    'persuasion': 'focus-persuasion'
+  };
+
+  // Skill -> parent attribute mapping
+  const SKILL_TO_ATTR = {
+    'broad-athletics': 'attr-body', 'broad-combat': 'attr-body', 'broad-acrobatics': 'attr-body', 'broad-dexterity': 'attr-body',
+    'broad-reason': 'attr-mind', 'broad-know': 'attr-mind', 'broad-tech': 'attr-mind', 'broad-medicine': 'attr-mind',
+    'broad-perception': 'attr-spirit', 'broad-resolve': 'attr-spirit', 'broad-personal': 'attr-spirit', 'broad-charm': 'attr-spirit'
+  };
+  const FOCUS_TO_BROAD = {
+    'focus-brawl': 'broad-combat', 'focus-weapon': 'broad-combat', 'focus-block': 'broad-combat',
+    'focus-stamina': 'broad-athletics', 'focus-strength': 'broad-athletics', 'focus-throw': 'broad-athletics', 'focus-climb': 'broad-athletics',
+    'focus-jump': 'broad-acrobatics', 'focus-dodge': 'broad-acrobatics', 'focus-stunt': 'broad-acrobatics',
+    'focus-pilot': 'broad-dexterity', 'focus-sneak': 'broad-dexterity', 'focus-deft': 'broad-dexterity',
+    'focus-firearm': 'broad-reason', 'focus-navigation': 'broad-reason', 'focus-survival': 'broad-reason',
+    'focus-nature': 'broad-know', 'focus-history': 'broad-know', 'focus-occultism': 'broad-know', 'focus-investigation': 'broad-know',
+    'focus-coding': 'broad-tech', 'focus-security': 'broad-tech', 'focus-repair': 'broad-tech',
+    'focus-surgery': 'broad-medicine', 'focus-firstaid': 'broad-medicine', 'focus-diagnosis': 'broad-medicine',
+    'focus-notice': 'broad-perception', 'focus-track': 'broad-perception', 'focus-insight': 'broad-perception',
+    'focus-leadership': 'broad-resolve', 'focus-intimidate': 'broad-resolve', 'focus-endure': 'broad-resolve',
+    'focus-etiquette': 'broad-personal', 'focus-streetwise': 'broad-personal', 'focus-politics': 'broad-personal',
+    'focus-performance': 'broad-charm', 'focus-deception': 'broad-charm', 'focus-persuasion': 'broad-charm'
+  };
+
+  function parsePoolString(poolStr) {
+    if (!poolStr || poolStr === 'N/A') return null;
+    // Strip parenthetical notes and "or" alternatives (take first option)
+    let cleaned = poolStr.split(' or ')[0].replace(/\s*\([^)]*\)/g, '').trim();
+    const parts = cleaned.split('+').map(s => s.trim().toLowerCase());
+    if (parts.length < 2) return null;
+
+    let total = 0;
+    const breakdown = [];
+
+    parts.forEach(part => {
+      // Check attribute
+      if (ATTR_NAME_TO_KEY[part]) {
+        const val = state.dots[ATTR_NAME_TO_KEY[part]] || 0;
+        total += val;
+        breakdown.push(part.charAt(0).toUpperCase() + part.slice(1) + ' ' + val);
+        return;
+      }
+      // Check domain
+      if (DOMAIN_NAME_TO_KEY[part]) {
+        const info = DOMAIN_NAME_TO_KEY[part];
+        const lvl = info.type === 'innate' ? (state.innateDomainLevels[info.name] || 0) : (state.learnedDomainLevels[info.name] || 0);
+        total += lvl;
+        breakdown.push(info.name.replace(/^The\s+/, '') + ' ' + lvl);
+        return;
+      }
+      // Check skill (broad or focused)
+      if (SKILL_NAME_TO_KEY[part]) {
+        const key = SKILL_NAME_TO_KEY[part];
+        let val;
+        if (key.startsWith('focus-')) {
+          const el = document.querySelector('[data-key="' + key + '"]');
+          val = el ? (parseInt(el.value) || 0) : 0;
+        } else {
+          val = state.dots[key] || 0;
+        }
+        total += val;
+        breakdown.push(part.charAt(0).toUpperCase() + part.slice(1) + ' ' + val);
+        return;
+      }
+      // Check "Willpower" as opposed pool
+      if (part === 'willpower') {
+        const val = getFieldVal('wpCurrent');
+        total += val;
+        breakdown.push('Willpower ' + val);
+        return;
+      }
+      // Unknown - just note it
+      breakdown.push(part + ' ?');
+    });
+
+    return { total: Math.max(1, total), breakdown: breakdown };
+  }
+
+  // ─── Domain Ability Roll ───
+  function rollDomainAbility(ab, domainName) {
+    const parsed = parsePoolString(ab.pool);
+    if (!parsed) return;
+
+    // BP cost confirmation and deduction
+    const bpStr = ab.bpCost;
+    let bpCost = 0;
+    if (bpStr && bpStr !== 'N/A') {
+      const m = bpStr.match(/^(\d+)/);
+      bpCost = m ? parseInt(m[1]) : 0;
+      if (bpCost > 0) {
+        const bpCur = getFieldVal('bpCurrent');
+        if (bpCur < bpCost) {
+          if (!confirm(ab.name + ' costs ' + bpStr + ' BP but you only have ' + bpCur + '. Roll anyway?')) return;
+        } else {
+          if (!confirm(ab.name + ': Spend ' + bpStr + ' BP? (' + bpCur + ' \u2192 ' + (bpCur - bpCost) + ')')) return;
+        }
+        setFieldVal('bpCurrent', Math.max(0, getFieldVal('bpCurrent') - bpCost));
+      }
+    }
+
+    const poolSize = Math.min(10, parsed.total);
+    const rouseNeeded = ab.rouse && ab.rouse !== 'No' && ab.rouse !== 'N/A';
+
+    // Build options
+    const opts = {
+      poolBreakdown: parsed.breakdown.join(' + '),
+      rouse: rouseNeeded
+    };
+
+    // Roll
+    const result = rollFromSheet(ab.name, poolSize, opts);
+
+    // If there's an opposed pool, show what the target needs to beat
+    if (ab.opposed && ab.opposed !== 'N/A') {
+      const oppParsed = parsePoolString(ab.opposed);
+      const oppLabel = oppParsed ? ab.opposed + ' (est. ' + oppParsed.total + 'd)' : ab.opposed;
+      // Append opposed info to the last log entry
+      const body = document.getElementById('activity-log-body');
+      const lastEntry = body.lastElementChild;
+      if (lastEntry) {
+        const oppDiv = document.createElement('div');
+        oppDiv.style.cssText = 'font-size:0.7rem;color:#c4a35a;margin-top:4px;font-style:italic;';
+        oppDiv.textContent = '\u2694 vs ' + oppLabel;
+        lastEntry.appendChild(oppDiv);
+      }
+    }
+  }
+
+  // ─── Weapon Attack Roll ───
+  function rollWeaponAttack(idx) {
+    const w = state.weapons[idx];
+    if (!w) return;
+
+    // Parse pool: could be a number, a skill name, or "Attr+Skill" string
+    let poolSize = parseInt(w.pool);
+    let breakdown = '';
+    if (isNaN(poolSize)) {
+      // Try to parse as "Skill + Skill" or "Broad + Focus"
+      const parsed = parsePoolString(w.pool);
+      if (parsed) {
+        poolSize = parsed.total;
+        breakdown = parsed.breakdown.join(' + ');
+      } else {
+        // Fallback: try to find a skill match
+        const key = SKILL_NAME_TO_KEY[(w.pool || '').toLowerCase().trim()];
+        if (key) {
+          let val;
+          if (key.startsWith('focus-')) {
+            const broadKey = FOCUS_TO_BROAD[key];
+            const attrKey = broadKey ? SKILL_TO_ATTR[broadKey] : null;
+            const el = document.querySelector('[data-key="' + key + '"]');
+            val = (state.dots[attrKey] || 0) + (state.dots[broadKey] || 0) + (el ? parseInt(el.value) || 0 : 0);
+            breakdown = (attrKey ? attrKey.replace('attr-','') : '?') + ' + ' + w.pool;
+          } else {
+            const attrKey = SKILL_TO_ATTR[key];
+            val = (state.dots[attrKey] || 0) + (state.dots[key] || 0);
+            breakdown = (attrKey ? attrKey.replace('attr-','') : '?') + ' + ' + w.pool;
+          }
+          poolSize = val;
+        } else {
+          poolSize = 1;
+        }
+      }
+    }
+    poolSize = Math.min(10, Math.max(1, poolSize));
+
+    const rerolls = parseInt(w.rerolls) || 0;
+    const opts = {
+      poolBreakdown: breakdown || poolSize + 'd6',
+      focusedRerolls: rerolls
+    };
+    const result = rollFromSheet('Attack: ' + (w.name || 'Weapon'), poolSize, opts);
+
+    // Show damage info if hit
+    if (result.tally.net > 0 && w.damage) {
+      const body = document.getElementById('activity-log-body');
+      const lastEntry = body.lastElementChild;
+      if (lastEntry) {
+        const dmgDiv = document.createElement('div');
+        const extraDmg = parseInt(w.extraDmg) || 0;
+        const baseDmg = parseInt(w.damage) || 0;
+        const totalDmg = baseDmg + result.tally.net + extraDmg;
+        let dmgText = 'Damage: ' + baseDmg + ' base';
+        if (result.tally.net > 0) dmgText += ' + ' + result.tally.net + ' net';
+        if (extraDmg > 0) dmgText += ' + ' + extraDmg + ' bonus';
+        dmgText += ' = ' + totalDmg;
+        dmgDiv.style.cssText = 'font-size:0.8rem;font-weight:700;color:var(--accent-glow);margin-top:4px;';
+        dmgDiv.textContent = '\u2694 ' + dmgText;
+        if (w.traits) {
+          const traitSpan = document.createElement('div');
+          traitSpan.style.cssText = 'font-size:0.65rem;color:var(--text-muted);';
+          traitSpan.textContent = 'Traits: ' + w.traits;
+          dmgDiv.appendChild(traitSpan);
+        }
+        lastEntry.appendChild(dmgDiv);
+      }
+    }
   }
 
   // ─── Unique roll ID for interactive buttons ───
@@ -2616,6 +2869,15 @@
           abToggle.textContent = '\u25B6';
           abName.appendChild(abToggle);
           abName.appendChild(document.createTextNode(' ' + ab.name));
+          // Roll button for abilities with a pool
+          if (ab.pool && ab.pool !== 'N/A') {
+            const rollBtn = document.createElement('button');
+            rollBtn.className = 'skill-roll-btn domain-roll-btn';
+            rollBtn.innerHTML = '&#9858;';
+            rollBtn.title = 'Roll ' + ab.name + ' (' + ab.pool + ')';
+            rollBtn.addEventListener('click', (e) => { e.stopPropagation(); rollDomainAbility(ab, name); });
+            abName.appendChild(rollBtn);
+          }
 
           const details = document.createElement('div');
           details.className = 'ld-ability-details';
@@ -3016,6 +3278,15 @@
           abToggle.textContent = '\u25B6';
           abName.appendChild(abToggle);
           abName.appendChild(document.createTextNode(' ' + ab.name));
+          // Roll button for abilities with a pool
+          if (ab.pool && ab.pool !== 'N/A') {
+            const rollBtn = document.createElement('button');
+            rollBtn.className = 'skill-roll-btn domain-roll-btn';
+            rollBtn.innerHTML = '&#9858;';
+            rollBtn.title = 'Roll ' + ab.name + ' (' + ab.pool + ')';
+            rollBtn.addEventListener('click', (e) => { e.stopPropagation(); rollDomainAbility(ab, name); });
+            abName.appendChild(rollBtn);
+          }
 
           const details = document.createElement('div');
           details.className = 'ld-ability-details';
@@ -3976,6 +4247,7 @@
     renderList('equipment-list', 'equipment');
     renderList('cursed-list', 'cursedObjects');
     renderWeapons();
+    buildDomainLookup();
     initInnateDomains();
     initLearnedDomains();
     renderMeritsFlaws('merit-list', 'merits');
