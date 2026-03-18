@@ -333,6 +333,133 @@
     .tab-btn { padding: 10px 14px; font-size: 0.75rem; }
     .tab-content { padding: 12px; }
   }
+
+  /* ─── Activity Log Popup ─── */
+  .activity-log-fab {
+    position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--accent-glow);
+    color: #fff; font-size: 1.3rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 12px rgba(139,0,0,0.5);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .activity-log-fab:hover { transform: scale(1.1); box-shadow: 0 4px 20px rgba(139,0,0,0.7); }
+  .activity-log-fab .fab-badge {
+    position: absolute; top: -4px; right: -4px;
+    background: #c4a35a; color: #000; font-size: 0.65rem; font-weight: 700;
+    width: 18px; height: 18px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    display: none;
+  }
+
+  .activity-log {
+    position: fixed; bottom: 80px; right: 20px; z-index: 9998;
+    width: 380px; max-height: 520px;
+    background: var(--bg-secondary); border: 1px solid var(--border);
+    border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    display: flex; flex-direction: column;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .activity-log.hidden { display: none; }
+
+  .activity-log-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    cursor: move; user-select: none;
+  }
+  .activity-log-header-title {
+    font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px;
+    color: var(--accent-glow); font-weight: 700;
+  }
+  .activity-log-header-actions { display: flex; gap: 6px; }
+  .activity-log-header-actions button {
+    background: none; border: 1px solid var(--border); color: var(--text-muted);
+    width: 24px; height: 24px; border-radius: 4px; cursor: pointer;
+    font-size: 0.75rem; display: flex; align-items: center; justify-content: center;
+  }
+  .activity-log-header-actions button:hover { border-color: var(--accent); color: var(--text-primary); }
+
+  .activity-log-body {
+    flex: 1; overflow-y: auto; padding: 8px;
+    max-height: 320px; min-height: 80px;
+  }
+  .activity-log-body::-webkit-scrollbar { width: 5px; }
+  .activity-log-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .log-entry {
+    padding: 8px 10px; margin-bottom: 6px;
+    background: var(--bg-tertiary); border-radius: 4px;
+    border-left: 3px solid var(--border); font-size: 0.8rem;
+    line-height: 1.5; animation: logSlideIn 0.2s ease-out;
+  }
+  @keyframes logSlideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .log-entry.roll-entry { border-left-color: var(--accent-glow); }
+  .log-entry.rouse-entry { border-left-color: #c4a35a; }
+  .log-entry.rouse-fail { border-left-color: #cc3333; }
+  .log-entry .log-title { font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
+  .log-entry .log-time { font-size: 0.65rem; color: var(--text-muted); float: right; }
+  .log-entry .log-dice { display: flex; flex-wrap: wrap; gap: 4px; margin: 5px 0; }
+  .log-entry .log-die {
+    width: 28px; height: 28px; border: 2px solid #555; border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; font-weight: 700;
+  }
+  .log-die.hit { color: #4caf50; border-color: #4caf50; }
+  .log-die.miss { color: #cc3333; border-color: #cc3333; }
+  .log-die.neutral { color: #999; border-color: #555; }
+  .log-die.hunger-die { background: rgba(178,34,34,0.3); }
+  .log-die.hunger-die.miss { background: rgba(204,51,51,0.4); border-color: #ff3333; }
+  .log-entry .log-result { font-weight: 700; margin-top: 4px; }
+  .log-result.positive { color: #4caf50; }
+  .log-result.negative { color: #cc3333; }
+  .log-result.zero { color: #999; }
+
+  /* Custom Roll Section at bottom of popup */
+  .activity-log-roller {
+    border-top: 1px solid var(--border); padding: 10px 14px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .roller-row {
+    display: flex; gap: 6px; align-items: center;
+  }
+  .roller-row label {
+    font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;
+    letter-spacing: 1px; width: 50px; flex-shrink: 0;
+  }
+  .roller-picker {
+    display: flex; gap: 3px; flex: 1; flex-wrap: wrap;
+  }
+  .roller-pip {
+    width: 26px; height: 26px; border: 1px solid #444; border-radius: 4px;
+    background: transparent; color: #777; font-size: 0.75rem; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.1s;
+  }
+  .roller-pip:hover { border-color: var(--accent-glow); color: var(--text-primary); }
+  .roller-pip.filled { border-color: var(--accent-glow); background: rgba(178,34,34,0.15); color: var(--accent-glow); }
+  .roller-pip.selected { border-color: var(--accent-glow); background: rgba(178,34,34,0.3); color: #fff; font-weight: 700; }
+  .roller-pip.hunger-pip:hover { border-color: #c4a35a; }
+  .roller-pip.hunger-pip.filled { border-color: #c4a35a; background: rgba(196,163,90,0.15); color: #c4a35a; }
+  .roller-pip.hunger-pip.selected { border-color: #c4a35a; background: rgba(196,163,90,0.3); color: #fff; }
+
+  .roller-actions {
+    display: flex; gap: 6px;
+  }
+  .roller-btn {
+    flex: 1; padding: 6px; border: 1px solid var(--accent); border-radius: 4px;
+    background: rgba(139,0,0,0.2); color: var(--accent-glow);
+    font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; cursor: pointer; transition: background 0.15s;
+  }
+  .roller-btn:hover { background: rgba(139,0,0,0.4); }
+  .roller-btn.rouse-btn { border-color: #c4a35a; color: #c4a35a; background: rgba(196,163,90,0.15); }
+  .roller-btn.rouse-btn:hover { background: rgba(196,163,90,0.3); }
+
+  @media (max-width: 600px) {
+    .activity-log { width: calc(100vw - 24px); right: 12px; bottom: 74px; }
+    .activity-log-fab { bottom: 14px; right: 14px; }
+  }
 </style>
 </head>
 <body>
@@ -832,6 +959,41 @@
   </div>
 </div>
 
+<!-- Activity Log FAB + Popup -->
+<button class="activity-log-fab" id="activity-log-fab" title="Dice Roller & Activity Log">
+  &#9858;
+  <span class="fab-badge" id="fab-badge">0</span>
+</button>
+
+<div class="activity-log hidden" id="activity-log">
+  <div class="activity-log-header" id="activity-log-header">
+    <span class="activity-log-header-title">Activity Log</span>
+    <div class="activity-log-header-actions">
+      <button onclick="clearActivityLog()" title="Clear log">&#128465;</button>
+      <button onclick="toggleActivityLog()" title="Close">&#10005;</button>
+    </div>
+  </div>
+  <div class="activity-log-body" id="activity-log-body">
+    <div style="text-align:center;color:var(--text-muted);padding:20px 0;font-size:0.8rem;">No activity yet. Use the roller below or roll from your skills.</div>
+  </div>
+  <div class="activity-log-roller">
+    <div class="roller-row">
+      <label>Dice</label>
+      <div class="roller-picker" id="roller-dice-picker"></div>
+    </div>
+    <div class="roller-row">
+      <label style="color:#c4a35a;">Hunger</label>
+      <div class="roller-picker" id="roller-hunger-display" style="font-size:0.75rem;color:#c4a35a;align-items:center;">
+        Auto: reads from Hunger track
+      </div>
+    </div>
+    <div class="roller-actions">
+      <button class="roller-btn" onclick="customRoll()">Roll Dice</button>
+      <button class="roller-btn rouse-btn" onclick="doRouseCheck()">Rouse Check</button>
+    </div>
+  </div>
+</div>
+
 <script>
   // ─── State ───
   const state = {
@@ -1214,6 +1376,227 @@
       container.appendChild(row);
     });
   }
+
+  // ─── Dice Engine & Activity Log ───
+  let activityLogOpen = false;
+  let customDicePool = 1;
+  let unseenLogCount = 0;
+  const MAX_LOG_ENTRIES = 50;
+
+  function toggleActivityLog() {
+    activityLogOpen = !activityLogOpen;
+    const popup = document.getElementById('activity-log');
+    popup.classList.toggle('hidden', !activityLogOpen);
+    if (activityLogOpen) {
+      unseenLogCount = 0;
+      updateFabBadge();
+      initRollerPicker();
+    }
+  }
+
+  document.getElementById('activity-log-fab').addEventListener('click', toggleActivityLog);
+
+  function updateFabBadge() {
+    const badge = document.getElementById('fab-badge');
+    if (unseenLogCount > 0) {
+      badge.style.display = 'flex';
+      badge.textContent = unseenLogCount > 9 ? '9+' : unseenLogCount;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  function initRollerPicker() {
+    const picker = document.getElementById('roller-dice-picker');
+    picker.innerHTML = '';
+    for (let i = 1; i <= 15; i++) {
+      const pip = document.createElement('button');
+      pip.className = 'roller-pip' + (i < customDicePool ? ' filled' : '') + (i === customDicePool ? ' selected' : '');
+      pip.textContent = i;
+      pip.addEventListener('click', () => {
+        customDicePool = i;
+        initRollerPicker();
+      });
+      picker.appendChild(pip);
+    }
+    // Update hunger display
+    const hungerDisp = document.getElementById('roller-hunger-display');
+    const h = state.hunger || 0;
+    const effective = Math.min(h, customDicePool);
+    hungerDisp.innerHTML = h === 0
+      ? '<span style="color:var(--text-muted);font-size:0.75rem;">No Hunger</span>'
+      : '<span style="font-size:0.75rem;">Hunger ' + h + ' \u2192 ' + effective + ' of ' + customDicePool + ' dice become Hunger dice</span>';
+  }
+
+  function getTimestamp() {
+    const now = new Date();
+    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  function rollD6() { return Math.floor(Math.random() * 6) + 1; }
+
+  function rollPool(totalDice, hungerOverride) {
+    const hunger = (hungerOverride !== undefined) ? hungerOverride : (state.hunger || 0);
+    const hungerCount = Math.min(hunger, totalDice);
+    const normalCount = totalDice - hungerCount;
+    const results = [];
+    for (let i = 0; i < normalCount; i++) results.push({ value: rollD6(), isHunger: false });
+    for (let i = 0; i < hungerCount; i++) results.push({ value: rollD6(), isHunger: true });
+    return results;
+  }
+
+  function tallyResults(dice) {
+    let hits = 0, misses = 0, hungerHits = 0, hungerMisses = 0;
+    dice.forEach(d => {
+      if (d.value >= 5) {
+        hits++;
+        if (d.isHunger) hungerHits++;
+      } else if (d.value === 1) {
+        misses++;
+        if (d.isHunger) hungerMisses++;
+      }
+    });
+    return { hits, misses, net: hits - misses, hungerHits, hungerMisses };
+  }
+
+  function buildDiceHTML(dice) {
+    let html = '<div class="log-dice">';
+    dice.forEach(d => {
+      let cls = 'log-die';
+      if (d.isHunger) cls += ' hunger-die';
+      if (d.value >= 5) cls += ' hit';
+      else if (d.value === 1) cls += ' miss';
+      else cls += ' neutral';
+      html += '<div class="' + cls + '">' + d.value + '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function buildResultHTML(tally) {
+    let cls, label;
+    if (tally.net > 0) { cls = 'positive'; label = tally.net + ' Net ' + (tally.net === 1 ? 'Success' : 'Successes'); }
+    else if (tally.net === 0) { cls = 'zero'; label = '0 Net Successes'; }
+    else { cls = 'negative'; label = Math.abs(tally.net) + ' Net ' + (Math.abs(tally.net) === 1 ? 'Miss' : 'Misses'); }
+
+    let html = '<div class="log-result ' + cls + '">' + label + '</div>';
+    html += '<div style="font-size:0.7rem;color:var(--text-muted);">' + tally.hits + ' hits, ' + tally.misses + ' misses';
+    if (tally.hungerMisses > 0) html += ' <span style="color:#cc3333;">(' + tally.hungerMisses + ' Bestial)</span>';
+    html += '</div>';
+    return html;
+  }
+
+  function addLogEntry(title, contentHTML, entryClass) {
+    const body = document.getElementById('activity-log-body');
+    // Remove empty placeholder
+    const placeholder = body.querySelector('div[style*="text-align:center"]');
+    if (placeholder) placeholder.remove();
+
+    const entry = document.createElement('div');
+    entry.className = 'log-entry ' + (entryClass || '');
+    entry.innerHTML = '<span class="log-time">' + getTimestamp() + '</span><div class="log-title">' + title + '</div>' + contentHTML;
+    body.insertBefore(entry, body.firstChild);
+
+    // Trim old entries
+    while (body.children.length > MAX_LOG_ENTRIES) body.removeChild(body.lastChild);
+
+    if (!activityLogOpen) {
+      unseenLogCount++;
+      updateFabBadge();
+    }
+  }
+
+  function clearActivityLog() {
+    const body = document.getElementById('activity-log-body');
+    body.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px 0;font-size:0.8rem;">Log cleared.</div>';
+  }
+
+  // ─── Custom Roll (from popup) ───
+  function customRoll() {
+    if (customDicePool < 1) return;
+    const dice = rollPool(customDicePool);
+    const tally = tallyResults(dice);
+    const hunger = Math.min(state.hunger || 0, customDicePool);
+    const title = 'Custom Roll (' + customDicePool + 'd6' + (hunger > 0 ? ', ' + hunger + ' Hunger' : '') + ')';
+    addLogEntry(title, buildDiceHTML(dice) + buildResultHTML(tally), 'roll-entry');
+  }
+
+  // ─── Rouse Check ───
+  function doRouseCheck() {
+    const die = rollD6();
+    const failed = die === 1;
+    let html = '<div class="log-dice"><div class="log-die hunger-die ' + (failed ? 'miss' : 'hit') + '">' + die + '</div></div>';
+    if (failed) {
+      const oldHunger = state.hunger || 0;
+      if (oldHunger < 5) {
+        state.hunger = oldHunger + 1;
+        save();
+        initHungerTrack();
+        initRollerPicker();
+      }
+      html += '<div class="log-result negative">Hunger rises! (' + (state.hunger - 1) + ' \u2192 ' + state.hunger + ')</div>';
+    } else {
+      html += '<div class="log-result positive">Safe \u2014 no Hunger increase</div>';
+    }
+    addLogEntry('Rouse Check', html, failed ? 'rouse-fail' : 'rouse-entry');
+  }
+
+  // ─── Roll from any part of the sheet (API for skill/domain integration) ───
+  function rollFromSheet(label, poolSize, options) {
+    options = options || {};
+    const dice = rollPool(poolSize, options.hungerOverride);
+    const tally = tallyResults(dice);
+    const hunger = (options.hungerOverride !== undefined) ? Math.min(options.hungerOverride, poolSize) : Math.min(state.hunger || 0, poolSize);
+    const title = label + ' (' + poolSize + 'd6' + (hunger > 0 ? ', ' + hunger + ' Hunger' : '') + ')';
+    let content = buildDiceHTML(dice) + buildResultHTML(tally);
+
+    if (options.rouse) {
+      // Auto rouse check after roll
+      const rouseDie = rollD6();
+      const rouseFailed = rouseDie === 1;
+      content += '<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">';
+      content += '<div style="font-weight:600;font-size:0.75rem;color:#c4a35a;">Rouse Check</div>';
+      content += '<div class="log-dice"><div class="log-die hunger-die ' + (rouseFailed ? 'miss' : 'hit') + '">' + rouseDie + '</div></div>';
+      if (rouseFailed) {
+        const oldH = state.hunger || 0;
+        if (oldH < 5) { state.hunger = oldH + 1; save(); initHungerTrack(); }
+        content += '<div class="log-result negative">Hunger rises! (' + (state.hunger - 1) + ' \u2192 ' + state.hunger + ')</div>';
+      } else {
+        content += '<div class="log-result positive">Safe</div>';
+      }
+      content += '</div>';
+    }
+
+    addLogEntry(title, content, 'roll-entry');
+
+    // Open the log automatically on a roll
+    if (!activityLogOpen) toggleActivityLog();
+
+    return { dice, tally };
+  }
+
+  // ─── Draggable popup ───
+  (function() {
+    const header = document.getElementById('activity-log-header');
+    const popup = document.getElementById('activity-log');
+    let dragging = false, offsetX = 0, offsetY = 0;
+    header.addEventListener('mousedown', (e) => {
+      if (e.target.tagName === 'BUTTON') return;
+      dragging = true;
+      const rect = popup.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+      popup.style.transition = 'none';
+    });
+    document.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      popup.style.left = (e.clientX - offsetX) + 'px';
+      popup.style.top = (e.clientY - offsetY) + 'px';
+      popup.style.right = 'auto';
+      popup.style.bottom = 'auto';
+    });
+    document.addEventListener('mouseup', () => { dragging = false; popup.style.transition = ''; });
+  })();
 
   // ─── Innate Domain Data ───
   const INNATE_DOMAIN_DATA = {
