@@ -1409,7 +1409,7 @@
   function initRollerPicker() {
     const picker = document.getElementById('roller-dice-picker');
     picker.innerHTML = '';
-    for (let i = 1; i <= 15; i++) {
+    for (let i = 1; i <= 10; i++) {
       const pip = document.createElement('button');
       pip.className = 'roller-pip' + (i < customDicePool ? ' filled' : '') + (i === customDicePool ? ' selected' : '');
       pip.textContent = i;
