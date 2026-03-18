@@ -466,6 +466,29 @@
   .roller-btn.rouse-btn { border-color: #c4a35a; color: #c4a35a; background: rgba(196,163,90,0.15); }
   .roller-btn.rouse-btn:hover { background: rgba(196,163,90,0.3); }
 
+  /* Post-roll action buttons (WP reroll, Blood Surge) */
+  .log-actions {
+    display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap;
+  }
+  .log-action-btn {
+    padding: 3px 8px; border-radius: 3px; font-size: 0.7rem; font-weight: 600;
+    cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
+    transition: all 0.15s; border: 1px solid; display: inline-flex; align-items: center; gap: 3px;
+  }
+  .log-action-btn:hover { filter: brightness(1.3); }
+  .log-action-btn:disabled { opacity: 0.35; cursor: default; filter: none; }
+  .log-action-btn.wp-btn { border-color: #5b8dd9; color: #5b8dd9; background: rgba(91,141,217,0.1); }
+  .log-action-btn.surge-btn { border-color: #c4a35a; color: #c4a35a; background: rgba(196,163,90,0.1); }
+
+  /* Reroll indicator styling */
+  .log-die.rerolled { opacity: 0.35; text-decoration: line-through; position: relative; }
+  .reroll-arrow { color: var(--text-muted); font-size: 0.7rem; display: flex; align-items: center; margin: 0 2px; }
+  .reroll-section { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); }
+  .reroll-label { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* Sum total display */
+  .log-sum-total { font-size: 1.1rem; font-weight: 700; color: var(--accent-glow); margin-top: 4px; }
+
   @media (max-width: 600px) {
     .activity-log { width: calc(100vw - 24px); right: 12px; bottom: 74px; }
     .activity-log-fab { bottom: 14px; right: 14px; }
@@ -733,6 +756,7 @@
       <div class="tracker-row">
         <span class="tracker-label">Regenerate</span>
         <input type="text" data-key="regenerate" id="regenerate-display" style="width:120px;text-align:center;background:var(--bg-input);border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;font-size:0.9rem;border-radius:3px;font-family:inherit;" placeholder="—">
+        <button class="skill-roll-btn" onclick="rollRegenerate()" title="Roll Regenerate (sum mode + Rouse)" style="margin-left:4px;">&#9858;</button>
       </div>
       <div class="death-box-container" style="margin-top: 12px;">
         <div class="death-box" id="death-box" onclick="toggleDeathBox()"></div>
@@ -781,6 +805,7 @@
           <span>/</span>
           <input type="number" min="0" data-key="speedMax" value="0" id="speed-display" readonly style="opacity:0.7;cursor:default;" title="Auto: Body + Mind">
         </div>
+        <button class="skill-roll-btn" onclick="rollInitiative()" title="Roll Initiative (Speed pool, sum mode)" style="margin-left:4px;">&#9858;</button>
       </div>
     </div>
   </div>
@@ -999,6 +1024,7 @@
     </div>
     <div class="roller-actions">
       <button class="roller-btn" onclick="customRoll()">Roll Dice</button>
+      <button class="roller-btn" onclick="customRollSum()" style="font-size:0.65rem;">Roll Total</button>
       <button class="roller-btn rouse-btn" onclick="doRouseCheck()">Rouse Check</button>
     </div>
   </div>
@@ -1496,7 +1522,77 @@
     return html;
   }
 
-  function addLogEntry(title, contentHTML, entryClass) {
+  function buildSumHTML(dice) {
+    const total = dice.reduce((s, d) => s + d.value, 0);
+    return '<div class="log-sum-total">Total: ' + total + '</div>';
+  }
+
+  // ─── Auto-reroll: reroll non-hunger fails/nulls up to focusedValue ───
+  function autoReroll(dice, maxRerolls) {
+    if (!maxRerolls || maxRerolls <= 0) return { dice: dice, rerolled: [] };
+    let rerolled = [];
+    let remaining = maxRerolls;
+    const newDice = dice.map(d => {
+      if (remaining > 0 && !d.isHunger && d.value < 5) {
+        const oldVal = d.value;
+        const newVal = rollD6();
+        remaining--;
+        rerolled.push({ oldVal: oldVal, newVal: newVal, isHunger: false });
+        return { value: newVal, isHunger: false, wasRerolled: true, oldValue: oldVal };
+      }
+      return Object.assign({}, d);
+    });
+    return { dice: newDice, rerolled: rerolled };
+  }
+
+  function buildDiceHTMLWithRerolls(dice) {
+    let html = '<div class="log-dice">';
+    dice.forEach(d => {
+      if (d.wasRerolled) {
+        // Show old die struck through
+        let oldCls = 'log-die rerolled';
+        if (d.isHunger) oldCls += ' hunger-die';
+        if (d.oldValue >= 5) oldCls += ' hit';
+        else if (d.oldValue === 1) oldCls += ' miss';
+        else oldCls += ' neutral';
+        html += '<div class="' + oldCls + '">' + d.oldValue + '</div>';
+        html += '<span class="reroll-arrow">\u2192</span>';
+      }
+      let cls = 'log-die';
+      if (d.isHunger) cls += ' hunger-die';
+      if (d.value >= 5) cls += ' hit';
+      else if (d.value === 1) cls += ' miss';
+      else cls += ' neutral';
+      html += '<div class="' + cls + '">' + d.value + '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  // ─── Resource helpers ───
+  function getFieldVal(key) { return parseInt(state.fields[key]) || 0; }
+  function setFieldVal(key, val) {
+    state.fields[key] = String(val);
+    const el = document.querySelector('[data-key="' + key + '"]');
+    if (el) el.value = val;
+    save();
+  }
+
+  function getSurgeBonus() {
+    const s = state.fields['surgeBonus'] || '+1D';
+    const m = s.match(/\+?(\d+)/);
+    return m ? parseInt(m[1]) : 1;
+  }
+  function getSurgeCost() {
+    const s = state.fields['surgeCost'] || '1 BP';
+    const m = s.match(/(\d+)/);
+    return m ? parseInt(m[1]) : 1;
+  }
+
+  // ─── Unique roll ID for interactive buttons ───
+  let rollIdCounter = 0;
+
+  function addLogEntry(title, contentHTML, entryClass, meta) {
     const body = document.getElementById('activity-log-body');
     // Remove empty placeholder
     const placeholder = body.querySelector('div[style*="text-align:center"]');
@@ -1504,12 +1600,16 @@
 
     const entry = document.createElement('div');
     entry.className = 'log-entry ' + (entryClass || '');
+    if (meta && meta.rollId) {
+      entry.id = 'roll-' + meta.rollId;
+      entry.setAttribute('data-dice', JSON.stringify(meta.dice || []));
+    }
     entry.innerHTML = '<span class="log-time">' + getTimestamp() + '</span><div class="log-title">' + title + '</div>' + contentHTML;
     body.appendChild(entry);
     body.scrollTop = body.scrollHeight;
 
     // Trim old entries
-    while (body.children.length > MAX_LOG_ENTRIES) body.removeChild(body.lastChild);
+    while (body.children.length > MAX_LOG_ENTRIES) body.removeChild(body.firstChild);
 
     if (!activityLogOpen) {
       unseenLogCount++;
@@ -1525,11 +1625,53 @@
   // ─── Custom Roll (from popup) ───
   function customRoll() {
     if (customDicePool < 1) return;
-    const dice = rollPool(customDicePool);
-    const tally = tallyResults(dice);
-    const hunger = Math.min(state.hunger || 0, customDicePool);
-    const title = 'Custom Roll (' + customDicePool + 'd6' + (hunger > 0 ? ', ' + hunger + ' Hunger' : '') + ')';
-    addLogEntry(title, buildDiceHTML(dice) + buildResultHTML(tally), 'roll-entry');
+    rollFromSheet('Custom Roll', customDicePool);
+  }
+
+  function customRollSum() {
+    if (customDicePool < 1) return;
+    rollFromSheet('Custom Roll (Total)', customDicePool, { sumMode: true, hungerOverride: 0 });
+  }
+
+  // ─── Regenerate Roll (sum mode, spends 1 Hit Die, triggers Rouse) ───
+  function rollRegenerate() {
+    const regenStr = state.fields['regenerate'] || '1HD';
+    const diceMatch = regenStr.match(/(\d+)HD/i);
+    const bonusMatch = regenStr.match(/HD([+-]\d+)/i);
+    const numDice = diceMatch ? parseInt(diceMatch[1]) : 1;
+    const bonus = bonusMatch ? parseInt(bonusMatch[1]) : 0;
+    // Check Hit Dice
+    const hdCur = getFieldVal('hitDiceCurrent');
+    if (hdCur < numDice) {
+      addLogEntry('Regenerate', '<div class="log-result negative">Not enough Hit Dice! (need ' + numDice + ', have ' + hdCur + ')</div>', 'rouse-fail');
+      if (!activityLogOpen) toggleActivityLog();
+      return;
+    }
+    setFieldVal('hitDiceCurrent', hdCur - numDice);
+    // Roll dice (no hunger for regen)
+    const dice = [];
+    for (let i = 0; i < numDice; i++) dice.push({ value: rollD6(), isHunger: false });
+    const total = dice.reduce((s, d) => s + d.value, 0) + bonus;
+    let content = buildDiceHTML(dice);
+    if (bonus !== 0) {
+      content += '<div style="font-size:0.7rem;color:var(--text-muted);">Dice total: ' + dice.reduce((s,d) => s+d.value, 0) + (bonus >= 0 ? ' + ' : ' ') + bonus + ' bonus</div>';
+    }
+    content += '<div class="log-sum-total">Heal: ' + Math.max(0, total) + ' HP</div>';
+    content += '<div style="font-size:0.7rem;color:var(--text-muted);">(' + numDice + ' HD spent, ' + hdCur + ' \u2192 ' + (hdCur - numDice) + ')</div>';
+    content += inlineRouseCheck();
+    addLogEntry('Regenerate (' + regenStr + ')', content, 'roll-entry');
+    if (!activityLogOpen) toggleActivityLog();
+  }
+
+  // ─── Initiative Roll (Speed pool, sum mode, no hunger) ───
+  function rollInitiative() {
+    const speedPool = getFieldVal('speedCurrent') || getFieldVal('speedMax');
+    if (speedPool < 1) {
+      addLogEntry('Initiative', '<div class="log-result negative">Speed pool is 0!</div>', 'roll-entry');
+      if (!activityLogOpen) toggleActivityLog();
+      return;
+    }
+    rollFromSheet('Initiative', speedPool, { sumMode: true, hungerOverride: 0 });
   }
 
   // ─── Rouse Check ───
@@ -1552,37 +1694,160 @@
     addLogEntry('Rouse Check', html, failed ? 'rouse-fail' : 'rouse-entry');
   }
 
+  // ─── Inline Rouse Check (returns HTML + applies effect) ───
+  function inlineRouseCheck() {
+    const rouseDie = rollD6();
+    const rouseFailed = rouseDie === 1;
+    let html = '<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">';
+    html += '<div style="font-weight:600;font-size:0.75rem;color:#c4a35a;">Rouse Check</div>';
+    html += '<div class="log-dice"><div class="log-die hunger-die ' + (rouseFailed ? 'miss' : 'hit') + '">' + rouseDie + '</div></div>';
+    if (rouseFailed) {
+      const oldH = state.hunger || 0;
+      if (oldH < 5) { state.hunger = oldH + 1; save(); initHungerTrack(); initRollerPicker(); }
+      html += '<div class="log-result negative">Hunger rises! (' + (state.hunger - 1) + ' \u2192 ' + state.hunger + ')</div>';
+    } else {
+      html += '<div class="log-result positive">Safe</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  // ─── Willpower Reroll (post-roll, up to 3 non-hunger fails/neutrals) ───
+  function doWillpowerReroll(rollId) {
+    const entry = document.getElementById('roll-' + rollId);
+    if (!entry) return;
+    const wpCur = getFieldVal('wpCurrent');
+    if (wpCur <= 0) {
+      addLogEntry('Willpower Reroll', '<div class="log-result negative">No Willpower remaining!</div>', 'roll-entry');
+      return;
+    }
+    // Parse stored dice from data attribute
+    const storedDice = JSON.parse(entry.getAttribute('data-dice'));
+    // Find up to 3 non-hunger dice that are fails/neutrals (value < 5)
+    let rerolled = 0;
+    const newDice = storedDice.map(d => {
+      if (rerolled < 3 && !d.isHunger && d.value < 5) {
+        rerolled++;
+        return { value: rollD6(), isHunger: false, wasRerolled: true, oldValue: d.value };
+      }
+      return Object.assign({}, d);
+    });
+    if (rerolled === 0) {
+      addLogEntry('Willpower Reroll', '<div class="log-result zero">No non-hunger dice to reroll.</div>', 'roll-entry');
+      return;
+    }
+    // Deduct 1 WP
+    setFieldVal('wpCurrent', wpCur - 1);
+    const newTally = tallyResults(newDice);
+    // Build reroll section
+    let html = '<div class="reroll-section">';
+    html += '<div class="reroll-label">Willpower Reroll (' + rerolled + ' dice, WP ' + wpCur + ' \u2192 ' + (wpCur - 1) + ')</div>';
+    html += buildDiceHTMLWithRerolls(newDice);
+    html += buildResultHTML(newTally);
+    html += '</div>';
+    // Append to entry and disable button
+    entry.insertAdjacentHTML('beforeend', html);
+    entry.setAttribute('data-dice', JSON.stringify(newDice));
+    const wpBtn = entry.querySelector('.wp-btn');
+    if (wpBtn) { wpBtn.disabled = true; wpBtn.textContent = 'WP Used'; }
+    // Scroll log
+    const body = document.getElementById('activity-log-body');
+    body.scrollTop = body.scrollHeight;
+  }
+
+  // ─── Blood Surge (post-roll, adds bonus dice + Rouse) ───
+  function doBloodSurge(rollId) {
+    const entry = document.getElementById('roll-' + rollId);
+    if (!entry) return;
+    const surgeBonusDice = getSurgeBonus();
+    const surgeCostBP = getSurgeCost();
+    const bpCur = getFieldVal('bpCurrent');
+    if (bpCur < surgeCostBP) {
+      addLogEntry('Blood Surge', '<div class="log-result negative">Not enough Blood Points! (need ' + surgeCostBP + ', have ' + bpCur + ')</div>', 'rouse-fail');
+      return;
+    }
+    // Deduct BP
+    setFieldVal('bpCurrent', bpCur - surgeCostBP);
+    // Roll bonus dice (these are normal dice, not hunger)
+    const bonusDice = [];
+    for (let i = 0; i < surgeBonusDice; i++) bonusDice.push({ value: rollD6(), isHunger: false });
+    const bonusTally = tallyResults(bonusDice);
+    // Rouse check
+    const rouseHTML = inlineRouseCheck();
+    // Build surge section
+    let html = '<div class="reroll-section">';
+    html += '<div class="reroll-label" style="color:#c4a35a;">Blood Surge (+' + surgeBonusDice + 'D, ' + surgeCostBP + ' BP spent)</div>';
+    html += buildDiceHTML(bonusDice);
+    html += buildResultHTML(bonusTally);
+    html += rouseHTML;
+    html += '</div>';
+    // Append to entry and disable button
+    entry.insertAdjacentHTML('beforeend', html);
+    // Update stored dice to include surge dice
+    const storedDice = JSON.parse(entry.getAttribute('data-dice'));
+    const allDice = storedDice.concat(bonusDice);
+    entry.setAttribute('data-dice', JSON.stringify(allDice));
+    const surgeBtn = entry.querySelector('.surge-btn');
+    if (surgeBtn) { surgeBtn.disabled = true; surgeBtn.textContent = 'Surged'; }
+    // Scroll log
+    const body = document.getElementById('activity-log-body');
+    body.scrollTop = body.scrollHeight;
+  }
+
   // ─── Roll from any part of the sheet (API for skill/domain integration) ───
+  // options: { poolBreakdown, hungerOverride, rouse, focusedRerolls, sumMode }
   function rollFromSheet(label, poolSize, options) {
     options = options || {};
-    const dice = rollPool(poolSize, options.hungerOverride);
-    const tally = tallyResults(dice);
+    let dice = rollPool(poolSize, options.hungerOverride);
     const hunger = (options.hungerOverride !== undefined) ? Math.min(options.hungerOverride, poolSize) : Math.min(state.hunger || 0, poolSize);
     const title = label + ' (' + poolSize + 'd6' + (hunger > 0 ? ', ' + hunger + ' Hunger' : '') + ')';
     let content = '';
     if (options.poolBreakdown) {
       content += '<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:3px;">' + options.poolBreakdown + ' = ' + poolSize + '</div>';
     }
-    content += buildDiceHTML(dice) + buildResultHTML(tally);
+
+    // Auto-reroll: reroll non-hunger fails/nulls up to focusedRerolls
+    let hadAutoReroll = false;
+    if (options.focusedRerolls && options.focusedRerolls > 0) {
+      const result = autoReroll(dice, options.focusedRerolls);
+      if (result.rerolled.length > 0) {
+        hadAutoReroll = true;
+        dice = result.dice;
+        content += buildDiceHTMLWithRerolls(dice);
+        content += '<div style="font-size:0.65rem;color:var(--text-muted);margin-top:2px;font-style:italic;">Auto-rerolled ' + result.rerolled.length + ' die' + (result.rerolled.length > 1 ? ' (focus reroll)' : ' (focus reroll)') + '</div>';
+      }
+    }
+
+    if (!hadAutoReroll) {
+      content += buildDiceHTML(dice);
+    }
+
+    const tally = tallyResults(dice);
+
+    // Sum mode (for regen, speed, initiative) shows total instead of hits/misses
+    if (options.sumMode) {
+      content += buildSumHTML(dice);
+    } else {
+      content += buildResultHTML(tally);
+    }
 
     if (options.rouse) {
-      // Auto rouse check after roll
-      const rouseDie = rollD6();
-      const rouseFailed = rouseDie === 1;
-      content += '<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">';
-      content += '<div style="font-weight:600;font-size:0.75rem;color:#c4a35a;">Rouse Check</div>';
-      content += '<div class="log-dice"><div class="log-die hunger-die ' + (rouseFailed ? 'miss' : 'hit') + '">' + rouseDie + '</div></div>';
-      if (rouseFailed) {
-        const oldH = state.hunger || 0;
-        if (oldH < 5) { state.hunger = oldH + 1; save(); initHungerTrack(); }
-        content += '<div class="log-result negative">Hunger rises! (' + (state.hunger - 1) + ' \u2192 ' + state.hunger + ')</div>';
-      } else {
-        content += '<div class="log-result positive">Safe</div>';
-      }
+      content += inlineRouseCheck();
+    }
+
+    // Assign unique roll ID for interactive buttons
+    const rollId = ++rollIdCounter;
+
+    // Add interactive post-roll buttons (WP reroll + Blood Surge) unless sumMode
+    if (!options.sumMode) {
+      const wpCur = getFieldVal('wpCurrent');
+      content += '<div class="log-actions">';
+      content += '<button class="log-action-btn wp-btn" onclick="doWillpowerReroll(' + rollId + ')"' + (wpCur <= 0 ? ' disabled' : '') + '>WP Reroll</button>';
+      content += '<button class="log-action-btn surge-btn" onclick="doBloodSurge(' + rollId + ')">Blood Surge</button>';
       content += '</div>';
     }
 
-    addLogEntry(title, content, 'roll-entry');
+    addLogEntry(title, content, 'roll-entry', { rollId: rollId, dice: dice });
 
     // Open the log automatically on a roll
     if (!activityLogOpen) toggleActivityLog();
@@ -1723,7 +1988,7 @@
             if (focusVal > 0) parts.push(focusName + ' ' + focusVal);
             if (domainBonusBroad > 0) parts.push('Domain(broad) +' + domainBonusBroad);
             if (domainBonusFocus > 0) parts.push('Domain(focus) +' + domainBonusFocus);
-            rollFromSheet(attrName + ' + ' + focusName, pool, { poolBreakdown: parts.join(' + ') });
+            rollFromSheet(attrName + ' + ' + focusName, pool, { poolBreakdown: parts.join(' + '), focusedRerolls: focusVal });
           });
           focusRow.insertBefore(focusBtn, focusRow.firstChild);
         });
