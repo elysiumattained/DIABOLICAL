@@ -114,7 +114,17 @@
   .focused-row {
     display: flex; align-items: center; justify-content: space-between; padding: 2px 0;
   }
-  .focused-name { font-size: 0.75rem; color: var(--text-secondary); }
+  .focused-name { font-size: 0.75rem; color: var(--text-secondary); flex: 1; }
+
+  /* Skill roll buttons */
+  .skill-roll-btn {
+    width: 22px; height: 22px; border: 1px solid var(--border); border-radius: 3px;
+    background: transparent; color: var(--text-muted); font-size: 0.65rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    margin-right: 4px; flex-shrink: 0; transition: all 0.15s;
+  }
+  .skill-roll-btn:hover { border-color: var(--accent-glow); color: var(--accent-glow); background: rgba(139,0,0,0.15); }
+  .broad-row .skill-roll-btn { margin-right: 6px; }
   .focused-input {
     width: 36px; text-align: center; background: var(--bg-input); border: 1px solid var(--border);
     color: var(--text-primary); padding: 3px 2px; font-size: 0.8rem; border-radius: 3px; font-family: inherit;
@@ -1495,7 +1505,8 @@
     const entry = document.createElement('div');
     entry.className = 'log-entry ' + (entryClass || '');
     entry.innerHTML = '<span class="log-time">' + getTimestamp() + '</span><div class="log-title">' + title + '</div>' + contentHTML;
-    body.insertBefore(entry, body.firstChild);
+    body.appendChild(entry);
+    body.scrollTop = body.scrollHeight;
 
     // Trim old entries
     while (body.children.length > MAX_LOG_ENTRIES) body.removeChild(body.lastChild);
@@ -1548,7 +1559,11 @@
     const tally = tallyResults(dice);
     const hunger = (options.hungerOverride !== undefined) ? Math.min(options.hungerOverride, poolSize) : Math.min(state.hunger || 0, poolSize);
     const title = label + ' (' + poolSize + 'd6' + (hunger > 0 ? ', ' + hunger + ' Hunger' : '') + ')';
-    let content = buildDiceHTML(dice) + buildResultHTML(tally);
+    let content = '';
+    if (options.poolBreakdown) {
+      content += '<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:3px;">' + options.poolBreakdown + ' = ' + poolSize + '</div>';
+    }
+    content += buildDiceHTML(dice) + buildResultHTML(tally);
 
     if (options.rouse) {
       // Auto rouse check after roll
@@ -1597,6 +1612,124 @@
     });
     document.addEventListener('mouseup', () => { dragging = false; popup.style.transition = ''; });
   })();
+
+  // ─── Skill Roll Buttons ───
+  // Map: which attribute governs each broad skill group
+  const BROAD_TO_ATTR = {
+    'broad-athletics': 'attr-body', 'broad-combat': 'attr-body',
+    'broad-acrobatics': 'attr-body', 'broad-dexterity': 'attr-body',
+    'broad-reason': 'attr-mind', 'broad-know': 'attr-mind',
+    'broad-tech': 'attr-mind', 'broad-medicine': 'attr-mind',
+    'broad-perception': 'attr-spirit', 'broad-resolve': 'attr-spirit',
+    'broad-personal': 'attr-spirit', 'broad-charm': 'attr-spirit'
+  };
+
+  // Map focused-key -> its parent broad-dots key
+  const FOCUSED_TO_BROAD = {};
+  // Built dynamically from DOM so it stays in sync
+
+  function getDomainBonusFor(dotKey) {
+    // Check for domain passive bonuses that apply to this skill
+    let bonus = 0;
+    const ll = state.learnedDomainLevels || {};
+    const il = state.innateDomainLevels || {};
+    // Learned domain bonuses (broad skills)
+    if (dotKey === 'broad-athletics' && ll['Potence'] >= 1) bonus += ll['Potence'];
+    if (dotKey === 'broad-acrobatics' && ll['Celerity'] >= 2) bonus += ll['Celerity'];
+    if (dotKey === 'broad-resolve' && ll['Fortitude'] >= 4) bonus += ll['Fortitude'];
+    return bonus;
+  }
+
+  function getFocusedDomainBonus(focusKey) {
+    let bonus = 0;
+    const il = state.innateDomainLevels || {};
+    if (focusKey === 'focus-sneak' && il['The Dark'] >= 1) bonus += il['The Dark'];
+    if (focusKey === 'focus-intimidate' && il['The End'] >= 1) bonus += il['The End'];
+    if (focusKey === 'focus-notice' && il['The Eye'] >= 1) bonus += il['The Eye'];
+    if (focusKey === 'focus-surgery' && il['The Flesh'] >= 1) bonus += il['The Flesh'];
+    if (focusKey === 'focus-track' && il['The Hunt'] >= 1) bonus += il['The Hunt'];
+    if (focusKey === 'focus-deception' && il['The Spiral'] >= 1) bonus += il['The Spiral'];
+    if (focusKey === 'focus-performance' && il['The Stranger'] >= 1) bonus += il['The Stranger'];
+    if (focusKey === 'focus-persuasion' && il['The Web'] >= 1) bonus += il['The Web'];
+    return bonus;
+  }
+
+  function injectSkillRollButtons() {
+    // Inject roll buttons into every broad-row and focused-row
+    document.querySelectorAll('.attr-col').forEach(col => {
+      const attrHeader = col.querySelector('.attr-header');
+      if (!attrHeader) return;
+      const attrDotsEl = attrHeader.querySelector('.dots');
+      if (!attrDotsEl) return;
+      const attrKey = attrDotsEl.getAttribute('data-dots'); // e.g. 'attr-body'
+      const attrName = attrHeader.querySelector('.attr-name').textContent; // e.g. 'Body'
+
+      // Find each broad-row + its focused-list within this attr-col
+      const broadRows = col.querySelectorAll('.broad-row');
+      broadRows.forEach(broadRow => {
+        // Skip if already has a roll button
+        if (broadRow.querySelector('.skill-roll-btn')) return;
+
+        const broadDotsEl = broadRow.querySelector('.dots');
+        if (!broadDotsEl) return;
+        const broadKey = broadDotsEl.getAttribute('data-dots'); // e.g. 'broad-athletics'
+        const broadName = broadRow.querySelector('.broad-name').textContent; // e.g. 'Athletics'
+
+        // Add roll button to broad row
+        const broadBtn = document.createElement('button');
+        broadBtn.className = 'skill-roll-btn';
+        broadBtn.innerHTML = '&#9858;';
+        broadBtn.title = 'Roll ' + attrName + ' + ' + broadName;
+        broadBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const attrVal = state.dots[attrKey] || 0;
+          const broadVal = state.dots[broadKey] || 0;
+          const domainBonus = getDomainBonusFor(broadKey);
+          const pool = Math.min(10, Math.max(1, attrVal + broadVal + domainBonus));
+          const parts = [attrName + ' ' + attrVal, broadName + ' ' + broadVal];
+          if (domainBonus > 0) parts.push('Domain +' + domainBonus);
+          rollFromSheet(attrName + ' + ' + broadName, pool, { poolBreakdown: parts.join(' + ') });
+        });
+        broadRow.insertBefore(broadBtn, broadRow.firstChild);
+
+        // Find the focused-list that follows this broad-row
+        const focusedList = broadRow.nextElementSibling;
+        if (!focusedList || !focusedList.classList.contains('focused-list')) return;
+
+        focusedList.querySelectorAll('.focused-row').forEach(focusRow => {
+          if (focusRow.querySelector('.skill-roll-btn')) return;
+
+          const input = focusRow.querySelector('.focused-input');
+          if (!input) return;
+          const focusKey = input.getAttribute('data-key'); // e.g. 'focus-stamina'
+          const focusName = focusRow.querySelector('.focused-name').textContent; // e.g. 'Stamina'
+
+          // Store mapping
+          FOCUSED_TO_BROAD[focusKey] = broadKey;
+
+          const focusBtn = document.createElement('button');
+          focusBtn.className = 'skill-roll-btn';
+          focusBtn.innerHTML = '&#9858;';
+          focusBtn.title = 'Roll ' + attrName + ' + ' + focusName;
+          focusBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const attrVal = state.dots[attrKey] || 0;
+            const broadVal = state.dots[broadKey] || 0;
+            const focusVal = parseInt(input.value) || 0;
+            const domainBonusBroad = getDomainBonusFor(broadKey);
+            const domainBonusFocus = getFocusedDomainBonus(focusKey);
+            const pool = Math.min(10, Math.max(1, attrVal + broadVal + focusVal + domainBonusBroad + domainBonusFocus));
+            const parts = [attrName + ' ' + attrVal, broadName + ' ' + broadVal];
+            if (focusVal > 0) parts.push(focusName + ' ' + focusVal);
+            if (domainBonusBroad > 0) parts.push('Domain(broad) +' + domainBonusBroad);
+            if (domainBonusFocus > 0) parts.push('Domain(focus) +' + domainBonusFocus);
+            rollFromSheet(attrName + ' + ' + focusName, pool, { poolBreakdown: parts.join(' + ') });
+          });
+          focusRow.insertBefore(focusBtn, focusRow.firstChild);
+        });
+      });
+    });
+  }
 
   // ─── Innate Domain Data ───
   const INNATE_DOMAIN_DATA = {
@@ -3589,6 +3722,7 @@
     updatePredatorDisplay();
     updateFearRatingEffects();
     applyDomainBonuses();
+    injectSkillRollButtons();
   }
 
   // ─── Init ───
