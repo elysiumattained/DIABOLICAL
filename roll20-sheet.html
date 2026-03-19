@@ -893,47 +893,9 @@
         </select>
         <input type="text" name="attr_innate3_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
       </div>
-
-      <div class="sheet-domain-slot">
-        <select name="attr_innate4_name" class="sheet-domain-select">
-          <option value="">-- None --</option>
-          <option value="The Buried">The Buried</option><option value="The Corruption">The Corruption</option>
-          <option value="The Dark">The Dark</option><option value="The End">The End</option>
-          <option value="The Eye">The Eye</option><option value="The Flesh">The Flesh</option>
-          <option value="The Hunt">The Hunt</option><option value="The Lonely">The Lonely</option>
-          <option value="The Slaughter">The Slaughter</option><option value="The Spiral">The Spiral</option>
-          <option value="The Stranger">The Stranger</option><option value="The Vast">The Vast</option>
-          <option value="The Web">The Web</option>
-        </select>
-        <span class="sheet-domain-level-label">Lvl</span>
-        <select name="attr_innate4_level" class="sheet-domain-level">
-          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
-          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
-        </select>
-        <input type="text" name="attr_innate4_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
-      </div>
-
-      <div class="sheet-domain-slot">
-        <select name="attr_innate5_name" class="sheet-domain-select">
-          <option value="">-- None --</option>
-          <option value="The Buried">The Buried</option><option value="The Corruption">The Corruption</option>
-          <option value="The Dark">The Dark</option><option value="The End">The End</option>
-          <option value="The Eye">The Eye</option><option value="The Flesh">The Flesh</option>
-          <option value="The Hunt">The Hunt</option><option value="The Lonely">The Lonely</option>
-          <option value="The Slaughter">The Slaughter</option><option value="The Spiral">The Spiral</option>
-          <option value="The Stranger">The Stranger</option><option value="The Vast">The Vast</option>
-          <option value="The Web">The Web</option>
-        </select>
-        <span class="sheet-domain-level-label">Lvl</span>
-        <select name="attr_innate5_level" class="sheet-domain-level">
-          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
-          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
-        </select>
-        <input type="text" name="attr_innate5_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
-      </div>
     </div>
 
-    <!-- Learned Domains (4 fixed slots) -->
+    <!-- Learned Domains (3 fixed slots) -->
     <div class="sheet-section">
       <div class="sheet-section-title">Learned Domains</div>
 
@@ -983,21 +945,6 @@
         </select>
         <input type="text" name="attr_learned3_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
       </div>
-
-      <div class="sheet-domain-slot">
-        <select name="attr_learned4_name" class="sheet-domain-select">
-          <option value="">-- None --</option>
-          <option value="Celerity">Celerity</option><option value="Fortitude">Fortitude</option>
-          <option value="Potence">Potence</option><option value="Kinetics">Kinetics</option>
-          <option value="Tulpamancy">Tulpamancy</option>
-        </select>
-        <span class="sheet-domain-level-label">Lvl</span>
-        <select name="attr_learned4_level" class="sheet-domain-level">
-          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
-          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
-        </select>
-        <input type="text" name="attr_learned4_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
-      </div>
     </div>
 
     <!-- Domain Roll (generic) -->
@@ -1031,8 +978,623 @@
   </div><!-- /sheet-tab-domains -->
 
 
-  <!-- ═══ PLACEHOLDER: Part 3 continues (Features, Inventory, Notes tabs + Sheet Workers) ═══ -->
+  <!-- ═══════════════════════════════════════════════════════════
+       FEATURES TAB
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="sheet-tab sheet-tab-features">
+
+    <!-- Merits -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Merits</div>
+      <div class="sheet-merit-header">
+        <span class="sheet-mf-name">Merit</span>
+        <span class="sheet-mf-cost">Cost</span>
+        <span class="sheet-mf-desc">Description</span>
+      </div>
+      <fieldset class="repeating_merits">
+        <div class="sheet-merit-row">
+          <select name="attr_merit_name" class="sheet-mf-name-select">
+            <option value="">-- Select Merit --</option>
+            <option value="Iron Gullet">Iron Gullet</option>
+            <option value="Bloodhound">Bloodhound</option>
+            <option value="Uncommon Taste">Uncommon Taste</option>
+            <option value="Bond Resistance">Bond Resistance</option>
+            <option value="Short Bond">Short Bond</option>
+            <option value="Unbondable">Unbondable</option>
+            <option value="Alleviated Curse">Alleviated Curse</option>
+            <option value="Loopholes">Loopholes</option>
+            <option value="Lightweight">Lightweight</option>
+            <option value="Heavy">Heavy</option>
+            <option value="Night Vision">Night Vision</option>
+            <option value="Amphibious">Amphibious</option>
+            <option value="Adept Climber">Adept Climber</option>
+            <option value="Like a Cat">Like a Cat</option>
+            <option value="Quick-Footed">Quick-Footed</option>
+            <option value="Attack Specialist">Attack Specialist</option>
+            <option value="Defense Specialist">Defense Specialist</option>
+            <option value="Hiding Specialist">Hiding Specialist</option>
+            <option value="Efficient Vitae">Efficient Vitae</option>
+            <option value="Additional AP">Additional AP</option>
+            <option value="Energy Flux">Energy Flux</option>
+            <option value="With One Eye Open">With One Eye Open</option>
+            <option value="Multilingual">Multilingual</option>
+            <option value="Language Specialization">Language Specialization</option>
+            <option value="Extroverted">Extroverted</option>
+            <option value="Friend of Authority">Friend of Authority</option>
+            <option value="Devilish Clout">Devilish Clout</option>
+            <option value="Fame">Fame</option>
+            <option value="Contacts">Contacts</option>
+            <option value="Mask">Mask</option>
+            <option value="Zeroed">Zeroed</option>
+            <option value="Cobbler">Cobbler</option>
+            <option value="Steady Income">Steady Income</option>
+            <option value="Wealth">Wealth</option>
+            <option value="Trust Fund">Trust Fund</option>
+            <option value="Tech Whiz">Tech Whiz</option>
+            <option value="Useful Pet">Useful Pet</option>
+            <option value="Improvisation Specialist">Improvisation Specialist</option>
+            <option value="Big Pockets">Big Pockets</option>
+            <option value="Good-Looking">Good-Looking</option>
+            <option value="Put on Face">Put on Face</option>
+            <option value="Blood Empathy">Blood Empathy</option>
+            <option value="Unseemly Scent">Unseemly Scent</option>
+            <option value="Hospitable Soul">Hospitable Soul</option>
+            <option value="Custom">Custom</option>
+          </select>
+          <input type="text" name="attr_merit_cost" placeholder="Cost" class="sheet-mf-cost-input">
+          <textarea name="attr_merit_desc" placeholder="Description..." class="sheet-mf-desc-text"></textarea>
+        </div>
+      </fieldset>
+    </div>
+
+    <!-- Flaws -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Flaws</div>
+      <div class="sheet-merit-header">
+        <span class="sheet-mf-name">Flaw</span>
+        <span class="sheet-mf-cost">Cost</span>
+        <span class="sheet-mf-desc">Description</span>
+      </div>
+      <fieldset class="repeating_flaws">
+        <div class="sheet-merit-row">
+          <select name="attr_flaw_name" class="sheet-mf-name-select">
+            <option value="">-- Select Flaw --</option>
+            <option value="Ugly!">Ugly!</option>
+            <option value="Lost in Translation">Lost in Translation</option>
+            <option value="Barely Literate">Barely Literate</option>
+            <option value="Illiterate">Illiterate</option>
+            <option value="Herpes">Herpes</option>
+            <option value="Brittle Bones">Brittle Bones</option>
+            <option value="Kronos' Thirst">Kronos' Thirst</option>
+            <option value="Farmer">Farmer</option>
+            <option value="Organovore">Organovore</option>
+            <option value="Prey Exclusion">Prey Exclusion</option>
+            <option value="Bond Junkie">Bond Junkie</option>
+            <option value="Long Bond">Long Bond</option>
+            <option value="Bondslave">Bondslave</option>
+            <option value="Deficient Blood">Deficient Blood</option>
+            <option value="Twice Cursed">Twice Cursed</option>
+            <option value="Staked Still">Staked Still</option>
+            <option value="Baneful Blood">Baneful Blood</option>
+            <option value="Harmless">Harmless</option>
+            <option value="Intolerant">Intolerant</option>
+            <option value="Disliked">Disliked</option>
+            <option value="Hunted">Hunted</option>
+            <option value="Infamous">Infamous</option>
+            <option value="Dark Secret">Dark Secret</option>
+            <option value="Known Corpse">Known Corpse</option>
+            <option value="Known Hellspawn">Known Hellspawn</option>
+            <option value="Monetary Debt">Monetary Debt</option>
+            <option value="Destitute">Destitute</option>
+            <option value="Archaic">Archaic</option>
+            <option value="Addiction">Addiction</option>
+            <option value="Low-Functioning Addict">Low-Functioning Addict</option>
+            <option value="Heavy Sleeper">Heavy Sleeper</option>
+            <option value="Living in the Past">Living in the Past</option>
+            <option value="Decorative Pet">Decorative Pet</option>
+            <option value="Compulsive Improv">Compulsive Improv</option>
+            <option value="Custom">Custom</option>
+          </select>
+          <input type="text" name="attr_flaw_cost" placeholder="Cost" class="sheet-mf-cost-input">
+          <textarea name="attr_flaw_desc" placeholder="Description..." class="sheet-mf-desc-text"></textarea>
+        </div>
+      </fieldset>
+    </div>
+
+    <!-- Talents -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Talents</div>
+      <fieldset class="repeating_talents">
+        <div class="sheet-talent-row">
+          <select name="attr_talent_name" class="sheet-talent-select">
+            <option value="">-- Select Talent --</option>
+            <option value="Animal Empathy">Animal Empathy</option>
+            <option value="Soul Sight">Soul Sight</option>
+            <option value="Sharp Nose">Sharp Nose</option>
+            <option value="Telepathy">Telepathy</option>
+            <option value="Mesmerize">Mesmerize</option>
+            <option value="Awe-Inspiring">Awe-Inspiring</option>
+            <option value="Serendipity">Serendipity</option>
+            <option value="Custom">Custom</option>
+          </select>
+          <textarea name="attr_talent_desc" placeholder="Talent description..." class="sheet-talent-desc"></textarea>
+        </div>
+      </fieldset>
+    </div>
+
+    <!-- Predator Type -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Predator Type</div>
+      <div class="sheet-row">
+        <div class="sheet-field">
+          <label>Type</label>
+          <select name="attr_predator_type" class="sheet-predator-select">
+            <option value="">-- Select --</option>
+            <option value="Alleycat">Alleycat</option>
+            <option value="Bagger">Bagger</option>
+            <option value="Blood Leech">Blood Leech</option>
+            <option value="Cleaver">Cleaver</option>
+            <option value="Consensualist">Consensualist</option>
+            <option value="Extortionist">Extortionist</option>
+            <option value="Farmer">Farmer</option>
+            <option value="Grim Reaper">Grim Reaper</option>
+            <option value="Pursuer">Pursuer</option>
+            <option value="Sandman">Sandman</option>
+            <option value="Scene Queen">Scene Queen</option>
+            <option value="Siren">Siren</option>
+            <option value="Osiris">Osiris (NPC)</option>
+            <option value="Trapdoor">Trapdoor (NPC)</option>
+            <option value="Montero">Montero (NPC)</option>
+            <option value="Roadside Killer">Roadside Killer (NPC)</option>
+          </select>
+        </div>
+      </div>
+      <div class="sheet-row">
+        <div class="sheet-field">
+          <label>Hunting Pool</label>
+          <input type="text" name="attr_predator_pool" placeholder="e.g. Combat + Brawl" class="sheet-predator-pool">
+        </div>
+      </div>
+      <textarea name="attr_predator_benefits" placeholder="Predator type benefits..." class="sheet-predator-benefits"></textarea>
+    </div>
+
+    <!-- Bane -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Bane</div>
+      <div class="sheet-row">
+        <div class="sheet-field">
+          <label>Bane</label>
+          <select name="attr_bane_name" class="sheet-bane-select">
+            <option value="">-- Select --</option>
+            <option value="Aesthetic Fixation">Aesthetic Fixation</option>
+            <option value="Asceticism">Asceticism</option>
+            <option value="Accursed Courtesy">Accursed Courtesy</option>
+            <option value="Abhors the Light">Abhors the Light</option>
+            <option value="Blood Addiction">Blood Addiction</option>
+            <option value="Blessed Banishment">Blessed Banishment</option>
+            <option value="Callousness">Callousness</option>
+            <option value="Distorted Image">Distorted Image</option>
+            <option value="Delicious">Delicious</option>
+            <option value="Gnawing Hunger">Gnawing Hunger</option>
+            <option value="Grounded">Grounded</option>
+            <option value="Folkloric Block">Folkloric Block</option>
+            <option value="Rarefied Tastes">Rarefied Tastes</option>
+            <option value="Sacrosanct">Sacrosanct</option>
+            <option value="Starving Decay">Starving Decay</option>
+            <option value="Survival Instincts">Survival Instincts</option>
+            <option value="Violent Temper">Violent Temper</option>
+          </select>
+        </div>
+        <div class="sheet-field sheet-field-narrow">
+          <label>Severity</label>
+          <input type="number" name="attr_bane_severity" value="0" min="0" max="5" disabled title="Auto from Fear Rating">
+        </div>
+      </div>
+      <textarea name="attr_bane_desc" placeholder="Bane description &amp; effects..." class="sheet-bane-desc"></textarea>
+    </div>
+
+    <!-- Fear Rating Effects -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Fear Rating Effects</div>
+      <textarea name="attr_fear_rating_effects" disabled placeholder="Auto-populated from Fear Rating..." class="sheet-fear-effects-text"></textarea>
+    </div>
+
+  </div><!-- /sheet-tab-features -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       INVENTORY TAB
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="sheet-tab sheet-tab-inventory">
+
+    <!-- Wealth -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Wealth</div>
+      <div class="sheet-row">
+        <div class="sheet-field sheet-field-narrow">
+          <label>Cash on Hand ($)</label>
+          <input type="number" name="attr_cash" value="0" min="0">
+        </div>
+        <div class="sheet-field sheet-field-narrow">
+          <label>Weekly Income ($)</label>
+          <input type="number" name="attr_weekly_income" value="0" min="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- Equipment -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Equipment</div>
+      <fieldset class="repeating_equipment">
+        <div class="sheet-equip-row">
+          <input type="text" name="attr_equip_name" placeholder="Item name" class="sheet-equip-name">
+          <input type="text" name="attr_equip_desc" placeholder="Description / notes" class="sheet-equip-desc">
+          <input type="text" name="attr_equip_qty" placeholder="Qty" class="sheet-equip-qty">
+        </div>
+      </fieldset>
+    </div>
+
+    <!-- Cursed Objects -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Cursed Objects</div>
+      <p class="sheet-section-note">Attuned objects (max = 1 + Hospitable Soul level).</p>
+      <fieldset class="repeating_cursed_objects">
+        <div class="sheet-equip-row">
+          <input type="text" name="attr_cursed_name" placeholder="Object name" class="sheet-equip-name">
+          <textarea name="attr_cursed_desc" placeholder="Properties &amp; attunement notes..." class="sheet-cursed-desc"></textarea>
+        </div>
+      </fieldset>
+    </div>
+
+    <!-- Haven -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Haven</div>
+      <div class="sheet-row">
+        <div class="sheet-field">
+          <label>Location</label>
+          <input type="text" name="attr_haven_location" placeholder="Address / description">
+        </div>
+        <div class="sheet-field sheet-field-narrow">
+          <label>Rating</label>
+          <input type="number" name="attr_haven_rating" value="0" min="0" max="5">
+        </div>
+      </div>
+      <textarea name="attr_haven_notes" placeholder="Haven features, defenses, residents..." class="sheet-haven-notes"></textarea>
+    </div>
+
+  </div><!-- /sheet-tab-inventory -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       NOTES TAB
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="sheet-tab sheet-tab-notes">
+
+    <!-- XP Tracking -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Experience</div>
+      <div class="sheet-row">
+        <div class="sheet-field sheet-field-narrow">
+          <label>Current XP</label>
+          <input type="number" name="attr_xp_current" value="0" min="0">
+        </div>
+        <div class="sheet-field sheet-field-narrow">
+          <label>Total Earned</label>
+          <input type="number" name="attr_xp_total" value="0" min="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- Character Notes -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Character Notes</div>
+      <textarea name="attr_character_notes" placeholder="Backstory, goals, plans..." class="sheet-notes-large"></textarea>
+    </div>
+
+    <!-- Contacts & Relationships -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Contacts &amp; Relationships</div>
+      <textarea name="attr_contacts_notes" placeholder="NPCs, allies, enemies, patrons..." class="sheet-notes-large"></textarea>
+    </div>
+
+    <!-- Session Log -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Session Log</div>
+      <fieldset class="repeating_session_log">
+        <div class="sheet-session-entry">
+          <input type="text" name="attr_session_date" placeholder="Date / Session #" class="sheet-session-date">
+          <textarea name="attr_session_notes" placeholder="What happened..." class="sheet-session-notes"></textarea>
+        </div>
+      </fieldset>
+    </div>
+
+  </div><!-- /sheet-tab-notes -->
+
 
 </div><!-- /sheet-wrapper -->
 
-<!-- ═══ PLACEHOLDER: Sheet workers go in Part 3/4 ═══ -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     SHEET WORKERS
+     ═══════════════════════════════════════════════════════════ -->
+<script type="text/worker">
+
+  // ─── Tab Switching ───
+  // Roll20 handles tab visibility via CSS + attr_tab radio buttons.
+  // No worker needed for basic tab switching (handled in CSS).
+
+  // ─── Auto-calc: Willpower Max = Mind + Spirit ───
+  on('change:mind change:spirit sheet:opened', function () {
+    getAttrs(['mind', 'spirit'], function (v) {
+      var wp = (parseInt(v.mind) || 0) + (parseInt(v.spirit) || 0);
+      setAttrs({ wp_max: wp });
+    });
+  });
+
+  // ─── Auto-calc: Speed Max = Body + Mind ───
+  on('change:body change:mind sheet:opened', function () {
+    getAttrs(['body', 'mind'], function (v) {
+      var spd = (parseInt(v.body) || 0) + (parseInt(v.mind) || 0);
+      setAttrs({ speed_max: spd });
+    });
+  });
+
+  // ─── Auto-calc: HP Max = Body + Spirit (Hit Dice) ───
+  on('change:body change:spirit sheet:opened', function () {
+    getAttrs(['body', 'spirit'], function (v) {
+      var hp = (parseInt(v.body) || 0) + (parseInt(v.spirit) || 0);
+      setAttrs({ hp_max: hp });
+    });
+  });
+
+  // ─── Fear Rating → Surge Cost, Surge Bonus, Bane Severity, Terrify DC ───
+  on('change:fear_rating sheet:opened', function () {
+    getAttrs(['fear_rating'], function (v) {
+      var fr = parseInt(v.fear_rating) || 0;
+      var surgeData = {
+        0: { cost: '—', bonus: '—', severity: 0, terrify: 0 },
+        1: { cost: '1 BP', bonus: '+1D', severity: 1, terrify: 2 },
+        2: { cost: '1 BP', bonus: '+1D', severity: 2, terrify: 2 },
+        3: { cost: '2 BP', bonus: '+2D', severity: 3, terrify: 3 },
+        4: { cost: '2 BP', bonus: '+3D', severity: 4, terrify: 3 },
+        5: { cost: '3 BP', bonus: '+4D', severity: 5, terrify: 4 }
+      };
+      var d = surgeData[fr] || surgeData[0];
+      setAttrs({
+        surge_cost: d.cost,
+        surge_bonus: d.bonus,
+        bane_severity: d.severity,
+        terrify_dc: d.terrify
+      });
+
+      // Fear Rating effects text
+      var effectsText = {
+        0: 'Fear Rating 0: No supernatural powers. Fully human.',
+        1: 'FR 1: Blood Surge +1D (1 BP). Bane Severity 1. Terrify DC 2. 1 domain max level 1.',
+        2: 'FR 2: Blood Surge +1D (1 BP). Bane Severity 2. Terrify DC 2. Domains up to level 2.',
+        3: 'FR 3: Blood Surge +2D (2 BP). Bane Severity 3. Terrify DC 3. Domains up to level 3.',
+        4: 'FR 4: Blood Surge +3D (2 BP). Bane Severity 4. Terrify DC 3. Domains up to level 4.',
+        5: 'FR 5: Blood Surge +4D (3 BP). Bane Severity 5. Terrify DC 4. Domains up to level 5.'
+      };
+      setAttrs({ fear_rating_effects: effectsText[fr] || '' });
+    });
+  });
+
+  // ─── Humanity Effects ───
+  on('change:humanity sheet:opened', function () {
+    getAttrs(['humanity'], function (v) {
+      var h = parseInt(v.humanity) || 7;
+      var effects = {
+        10: 'Humanity 10: Virtually indistinguishable from a living human. No supernatural aura.',
+        9: 'Humanity 9: Mostly human. Rare compulsions. Minimal supernatural tell.',
+        8: 'Humanity 8: Functional. Occasional dark urges, easily suppressed.',
+        7: 'Humanity 7: Default. Human conscience intact but tested regularly.',
+        6: 'Humanity 6: Growing detachment. Empathy requires effort.',
+        5: 'Humanity 5: Halfway point. Mortals sense wrongness instinctively.',
+        4: 'Humanity 4: Predatory mindset dominant. Cruelty comes easily.',
+        3: 'Humanity 3: More monster than person. Relationships are transactional.',
+        2: 'Humanity 2: Near feral. Only base drives remain.',
+        1: 'Humanity 1: Teetering on the edge of total loss.',
+        0: 'Humanity 0: Lost to the Umbra. Character becomes an NPC.'
+      };
+      setAttrs({ humanity_effects: effects[h] || '' });
+    });
+  });
+
+  // ─── Pool Roll: Generic Attribute + Skill dice pool ───
+  on('clicked:roll_pool', function () {
+    getAttrs(['pool_attr_val', 'pool_skill_val', 'pool_bonus', 'hunger'], function (v) {
+      var attr = parseInt(v.pool_attr_val) || 0;
+      var skill = parseInt(v.pool_skill_val) || 0;
+      var bonus = parseInt(v.pool_bonus) || 0;
+      var hunger = parseInt(v.hunger) || 0;
+      var total = attr + skill + bonus;
+      var normal = Math.max(total - hunger, 0);
+      var hungerDice = Math.min(hunger, total);
+
+      var rollStr = '&{template:pool} {{title=Pool Roll}} {{breakdown=' + attr + ' + ' + skill + ' + ' + bonus + '}}';
+      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd10cs>5]]}}';
+      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd10cs>5]]}}';
+      rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
+
+      startRoll(rollStr, function (results) {
+        var normalHits = normal > 0 ? results.results.normal.result : 0;
+        var hungerHits = hungerDice > 0 ? results.results.hunger_roll.result : 0;
+        var totalHits = normalHits + hungerHits;
+        var totalMisses = total - totalHits;
+
+        // Check for bestial failures (1s on hunger dice)
+        var bestialCount = 0;
+        if (hungerDice > 0 && results.results.hunger_roll.dice) {
+          results.results.hunger_roll.dice.forEach(function (d) {
+            if (d === 1) bestialCount++;
+          });
+        }
+
+        var computed = {
+          hits: totalHits,
+          misses: totalMisses,
+          net: totalHits
+        };
+
+        finishRoll(results.rollId, computed);
+      });
+    });
+  });
+
+  // ─── Rouse Check ───
+  on('clicked:rouse_check', function () {
+    getAttrs(['hunger'], function (v) {
+      var hunger = parseInt(v.hunger) || 0;
+      var rollStr = '&{template:rouse} {{rouse_die=[[1d10]]}} {{rouse_result=Pending}}';
+      startRoll(rollStr, function (results) {
+        var die = results.results.rouse_die.result;
+        var pass = die >= 6;
+        var newHunger = pass ? hunger : Math.min(hunger + 1, 5);
+        var resultText = pass ? 'Success (no hunger gain)' : 'Fail — Hunger rises to ' + newHunger;
+        finishRoll(results.rollId, { rouse_result: resultText });
+        if (!pass) {
+          setAttrs({ hunger: newHunger });
+        }
+      });
+    });
+  });
+
+  // ─── Initiative Roll (Speed pool, sum mode) ───
+  on('clicked:roll_initiative', function () {
+    getAttrs(['speed_current'], function (v) {
+      var pool = parseInt(v.speed_current) || 0;
+      if (pool < 1) pool = 1;
+      var rollStr = '&{template:sum} {{title=Initiative}} {{breakdown=Speed ' + pool + 'D}} {{roll=[[' + pool + 'd10]]}} {{sum_total=[[0]]}}';
+      startRoll(rollStr, function (results) {
+        var total = 0;
+        if (results.results.roll.dice) {
+          results.results.roll.dice.forEach(function (d) { total += d; });
+        }
+        finishRoll(results.rollId, { sum_total: total });
+      });
+    });
+  });
+
+  // ─── Weapon Attack Roll ───
+  on('clicked:repeating_weapons:weapon_attack', function (eventInfo) {
+    var prefix = eventInfo.sourceAttribute.replace('weapon_attack', '');
+    getAttrs([prefix + 'weapon_pool', prefix + 'weapon_damage', prefix + 'weapon_rerolls',
+              prefix + 'weapon_extra_dmg', prefix + 'weapon_name', 'hunger'], function (v) {
+      var poolSize = parseInt(v[prefix + 'weapon_pool']) || 1;
+      var hunger = parseInt(v.hunger) || 0;
+      var normal = Math.max(poolSize - hunger, 0);
+      var hungerDice = Math.min(hunger, poolSize);
+      var wName = v[prefix + 'weapon_name'] || 'Weapon';
+      var dmg = v[prefix + 'weapon_damage'] || '';
+      var extraDmg = v[prefix + 'weapon_extra_dmg'] || '';
+
+      var rollStr = '&{template:pool} {{title=' + wName + ' Attack}}';
+      rollStr += ' {{breakdown=Pool ' + poolSize + '}}';
+      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd10cs>5]]}}';
+      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd10cs>5]]}}';
+      if (dmg) rollStr += ' {{damage=Dmg: ' + dmg + (extraDmg ? ' +' + extraDmg : '') + '}}';
+      rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
+
+      startRoll(rollStr, function (results) {
+        var normalHits = normal > 0 ? results.results.normal.result : 0;
+        var hungerHits = hungerDice > 0 ? results.results.hunger_roll.result : 0;
+        finishRoll(results.rollId, {
+          hits: normalHits + hungerHits,
+          misses: poolSize - (normalHits + hungerHits),
+          net: normalHits + hungerHits
+        });
+      });
+    });
+  });
+
+  // ─── Custom Pool Roll ───
+  on('clicked:custom_roll', function () {
+    getAttrs(['custom_pool', 'hunger'], function (v) {
+      var poolSize = parseInt(v.custom_pool) || 1;
+      var hunger = parseInt(v.hunger) || 0;
+      var normal = Math.max(poolSize - hunger, 0);
+      var hungerDice = Math.min(hunger, poolSize);
+
+      var rollStr = '&{template:pool} {{title=Custom Roll}} {{breakdown=Pool ' + poolSize + '}}';
+      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd10cs>5]]}}';
+      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd10cs>5]]}}';
+      rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
+
+      startRoll(rollStr, function (results) {
+        var normalHits = normal > 0 ? results.results.normal.result : 0;
+        var hungerHits = hungerDice > 0 ? results.results.hunger_roll.result : 0;
+        finishRoll(results.rollId, {
+          hits: normalHits + hungerHits,
+          misses: poolSize - (normalHits + hungerHits),
+          net: normalHits + hungerHits
+        });
+      });
+    });
+  });
+
+  // ─── Domain Ability Roll ───
+  on('clicked:roll_domain_ability', function () {
+    getAttrs(['domain_roll_name', 'domain_roll_pool', 'domain_roll_bp', 'hunger',
+              'body', 'mind', 'spirit',
+              'innate1_name', 'innate1_level', 'innate2_name', 'innate2_level',
+              'innate3_name', 'innate3_level',
+              'learned1_name', 'learned1_level', 'learned2_name', 'learned2_level',
+              'learned3_name', 'learned3_level'], function (v) {
+      var abilityName = v.domain_roll_name || 'Domain Ability';
+      var poolStr = (v.domain_roll_pool || '').toLowerCase().trim();
+      var bpCost = parseInt(v.domain_roll_bp) || 0;
+      var hunger = parseInt(v.hunger) || 0;
+
+      // Resolve pool string: e.g. "spirit + buried" → attr value + domain level
+      var poolSize = 0;
+      var breakdown = [];
+
+      // Check for attribute names
+      ['body', 'mind', 'spirit'].forEach(function (attr) {
+        if (poolStr.indexOf(attr) !== -1) {
+          var val = parseInt(v[attr]) || 0;
+          poolSize += val;
+          breakdown.push(attr.charAt(0).toUpperCase() + attr.slice(1) + ' ' + val);
+        }
+      });
+
+      // Check for domain names in pool string
+      var allDomains = {};
+      for (var i = 1; i <= 3; i++) {
+        if (v['innate' + i + '_name']) allDomains[v['innate' + i + '_name'].toLowerCase()] = parseInt(v['innate' + i + '_level']) || 0;
+        if (v['learned' + i + '_name']) allDomains[v['learned' + i + '_name'].toLowerCase()] = parseInt(v['learned' + i + '_level']) || 0;
+      }
+      Object.keys(allDomains).forEach(function (dname) {
+        // Match domain name without "The " prefix
+        var shortName = dname.replace('the ', '');
+        if (poolStr.indexOf(dname) !== -1 || poolStr.indexOf(shortName) !== -1) {
+          poolSize += allDomains[dname];
+          breakdown.push(dname + ' ' + allDomains[dname]);
+        }
+      });
+
+      if (poolSize < 1) poolSize = 1;
+
+      var normal = Math.max(poolSize - hunger, 0);
+      var hungerDice = Math.min(hunger, poolSize);
+
+      var rollStr = '&{template:pool} {{title=' + abilityName + '}}';
+      rollStr += ' {{breakdown=' + breakdown.join(' + ') + ' = ' + poolSize + 'D}}';
+      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd10cs>5]]}}';
+      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd10cs>5]]}}';
+      rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
+
+      startRoll(rollStr, function (results) {
+        var normalHits = normal > 0 ? results.results.normal.result : 0;
+        var hungerHits = hungerDice > 0 ? results.results.hunger_roll.result : 0;
+        finishRoll(results.rollId, {
+          hits: normalHits + hungerHits,
+          misses: poolSize - (normalHits + hungerHits),
+          net: normalHits + hungerHits
+        });
+      });
+    });
+  });
+
+</script>
