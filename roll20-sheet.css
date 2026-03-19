@@ -1,0 +1,1240 @@
+/* ═══════════════════════════════════════════════════════════════
+   DIABOLICAL — Roll20 Character Sheet CSS
+   Paste this into Roll20's "CSS Styling" editor.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Wrapper & Base ─── */
+.sheet-wrapper {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #0d0d0d;
+  color: #e0e0e0;
+  padding: 0;
+  max-width: 900px;
+}
+
+/* ─── Header Bar ─── */
+.sheet-header-bar {
+  background: #1a1a1a;
+  border-bottom: 2px solid #8b0000;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sheet-header-bar input[type="text"] {
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-header-bar input[type="text"]:focus {
+  outline: none;
+  border-color: #8b0000;
+}
+.sheet-game-title {
+  font-size: 1.2rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #b22222;
+  font-weight: 700;
+}
+
+/* ─── Tab Bar ─── */
+.sheet-tab-bar {
+  display: flex;
+  background: #1a1a1a;
+  border-bottom: 1px solid #3a3a3a;
+  overflow-x: auto;
+  gap: 0;
+}
+.sheet-tab-radio {
+  display: none;
+}
+.sheet-tab-label {
+  display: inline-block;
+  padding: 10px 20px;
+  color: #999;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s;
+}
+.sheet-tab-label:hover {
+  color: #e0e0e0;
+}
+
+/* Tab visibility: hide all tabs by default */
+.sheet-tab {
+  display: none;
+  padding: 16px;
+}
+
+/* Roll20 tab switching via attr_tab */
+input.sheet-tab-radio[value="stats"]:checked ~ div.sheet-tab-stats,
+input.sheet-tab-radio[value="info"]:checked ~ div.sheet-tab-info,
+input.sheet-tab-radio[value="domains"]:checked ~ div.sheet-tab-domains,
+input.sheet-tab-radio[value="features"]:checked ~ div.sheet-tab-features,
+input.sheet-tab-radio[value="inventory"]:checked ~ div.sheet-tab-inventory,
+input.sheet-tab-radio[value="notes"]:checked ~ div.sheet-tab-notes {
+  display: block;
+}
+
+/* Active tab label highlight */
+input.sheet-tab-radio[value="stats"]:checked + span.sheet-tab-label {
+  color: #b22222;
+  border-bottom-color: #b22222;
+}
+input.sheet-tab-radio[value="info"]:checked + span.sheet-tab-label {
+  color: #b22222;
+  border-bottom-color: #b22222;
+}
+input.sheet-tab-radio[value="domains"]:checked + span.sheet-tab-label {
+  color: #b22222;
+  border-bottom-color: #b22222;
+}
+input.sheet-tab-radio[value="features"]:checked + span.sheet-tab-label {
+  color: #b22222;
+  border-bottom-color: #b22222;
+}
+input.sheet-tab-radio[value="inventory"]:checked + span.sheet-tab-label {
+  color: #b22222;
+  border-bottom-color: #b22222;
+}
+input.sheet-tab-radio[value="notes"]:checked + span.sheet-tab-label {
+  color: #b22222;
+  border-bottom-color: #b22222;
+}
+
+
+/* ─── Sections ─── */
+.sheet-section {
+  background: #1a1a1a;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.sheet-section-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #b22222;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #3a3a3a;
+}
+.sheet-section-note {
+  font-size: 0.75rem;
+  color: #666;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+/* ─── Layout: Rows, Fields, Columns ─── */
+.sheet-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.sheet-field {
+  flex: 1;
+  min-width: 120px;
+}
+.sheet-field label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #999;
+  margin-bottom: 3px;
+}
+.sheet-field input,
+.sheet-field select,
+.sheet-field textarea {
+  width: 100%;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 6px 8px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-field input:focus,
+.sheet-field select:focus,
+.sheet-field textarea:focus {
+  outline: none;
+  border-color: #8b0000;
+}
+.sheet-field textarea {
+  resize: vertical;
+  min-height: 50px;
+}
+.sheet-field-narrow {
+  flex: 0 0 80px;
+  min-width: 80px;
+}
+
+.sheet-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.sheet-three-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+
+
+/* ─── Attributes (3-column) ─── */
+.sheet-attr-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+.sheet-attr-col {
+  min-width: 0;
+}
+.sheet-attr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #3a3a3a;
+}
+.sheet-attr-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+
+/* ─── Dot Trackers (2-dot and 5-dot) ─── */
+.sheet-dots2,
+.sheet-dots5 {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+.sheet-dots2 input[type="radio"],
+.sheet-dots5 input[type="radio"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #3a3a3a;
+  background: transparent;
+  cursor: pointer;
+  margin: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+.sheet-dots2 input[type="radio"]:checked,
+.sheet-dots5 input[type="radio"]:checked {
+  background: #b22222;
+  border-color: #b22222;
+}
+.sheet-dots2 input[type="radio"]:hover,
+.sheet-dots5 input[type="radio"]:hover {
+  border-color: #b22222;
+}
+.sheet-dot-zero {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #3a3a3a;
+  background: transparent;
+  font-size: 0;
+}
+
+
+/* ─── Broad Skills ─── */
+.sheet-broad-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
+  margin-top: 8px;
+}
+.sheet-broad-name {
+  font-size: 0.8rem;
+  color: #e0e0e0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ─── Focused Skills ─── */
+.sheet-focused-list {
+  padding-left: 8px;
+  border-left: 2px solid #3a3a3a;
+  margin-bottom: 2px;
+}
+.sheet-focused-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 0;
+}
+.sheet-focused-name {
+  font-size: 0.75rem;
+  color: #999;
+  flex: 1;
+}
+.sheet-focused-input {
+  width: 36px;
+  text-align: center;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 3px 2px;
+  font-size: 0.8rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-focused-input:focus {
+  outline: none;
+  border-color: #8b0000;
+}
+
+
+/* ─── Tracker Rows (HP, WP, Speed, Humanity) ─── */
+.sheet-tracker-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.sheet-tracker-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #999;
+  min-width: 85px;
+}
+.sheet-tracker-box {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #3a3a3a;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+input[type="radio"]:checked + .sheet-tracker-box {
+  background: #b22222;
+  border-color: #b22222;
+}
+.sheet-tracker-box:hover {
+  border-color: #b22222;
+}
+.sheet-tracker-row input[type="radio"] {
+  display: none;
+}
+
+/* HP Display (current/max) */
+.sheet-hp-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sheet-hp-display input {
+  width: 55px;
+  text-align: center;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px;
+  font-size: 0.95rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-hp-display input:focus {
+  outline: none;
+  border-color: #8b0000;
+}
+.sheet-hp-display span {
+  color: #666;
+  font-size: 1rem;
+}
+
+/* Regen input */
+.sheet-regen-input {
+  width: 55px;
+  text-align: center;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px;
+  font-size: 0.95rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-regen-input:focus {
+  outline: none;
+  border-color: #8b0000;
+}
+
+/* Stain input */
+.sheet-stain-input {
+  width: 50px;
+  text-align: center;
+  background: #2a2a2a;
+  border: 1px solid #cc3333;
+  color: #cc3333;
+  padding: 5px;
+  font-size: 0.9rem;
+  border-radius: 3px;
+}
+.sheet-stain-input:focus {
+  outline: none;
+  border-color: #ff3333;
+}
+
+/* Humanity Track */
+.sheet-humanity-track {
+  display: flex;
+  gap: 3px;
+}
+.sheet-humanity-track input[type="radio"] {
+  display: none;
+}
+.sheet-humanity-track .sheet-tracker-box {
+  width: 20px;
+  height: 20px;
+}
+
+/* Humanity Effects */
+.sheet-humanity-effects {
+  margin-top: 6px;
+}
+.sheet-humanity-effects-text {
+  width: 100%;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #999;
+  padding: 8px;
+  font-size: 0.8rem;
+  border-radius: 3px;
+  min-height: 40px;
+  resize: vertical;
+  font-family: inherit;
+  font-style: italic;
+}
+
+/* Death Box */
+.sheet-death-box {
+  display: inline-block;
+}
+.sheet-death-box input[type="checkbox"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  border: 2px solid #cc3333;
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.15s;
+}
+.sheet-death-box input[type="checkbox"]:checked {
+  background: #cc3333;
+}
+
+
+/* ─── Weapons ─── */
+.sheet-weapon-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  border-bottom: 1px solid #3a3a3a;
+  margin-bottom: 4px;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #666;
+}
+.sheet-wh-roll { width: 30px; flex: none; }
+.sheet-wh-name { flex: 2; min-width: 80px; }
+.sheet-wh-narrow { width: 50px; flex: none; text-align: center; }
+.sheet-wh-traits { flex: 2; min-width: 60px; }
+
+.sheet-weapon-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  border-bottom: 1px solid #252525;
+}
+.sheet-weapon-row:last-child { border-bottom: none; }
+
+.sheet-w-name {
+  flex: 2;
+  min-width: 80px;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 4px 6px;
+  font-size: 0.8rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-w-narrow {
+  width: 50px;
+  flex: none;
+  text-align: center;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 4px 4px;
+  font-size: 0.8rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-w-traits {
+  flex: 2;
+  min-width: 60px;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 4px 6px;
+  font-size: 0.8rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-w-name:focus,
+.sheet-w-narrow:focus,
+.sheet-w-traits:focus {
+  outline: none;
+  border-color: #8b0000;
+}
+
+
+/* ─── Conditions ─── */
+.sheet-condition-row {
+  padding: 6px 0;
+  border-bottom: 1px solid #252525;
+}
+.sheet-condition-row:last-child { border-bottom: none; }
+.sheet-condition-select {
+  width: 100%;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  font-family: inherit;
+  margin-bottom: 4px;
+}
+.sheet-condition-select:focus { outline: none; border-color: #8b0000; }
+.sheet-condition-desc {
+  width: 100%;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px 8px;
+  font-size: 0.78rem;
+  border-radius: 3px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 32px;
+}
+.sheet-condition-desc:focus { outline: none; border-color: #8b0000; }
+
+
+/* ─── Hunger ─── */
+.sheet-hunger-section {
+  background: #1a1a1a;
+  border: 1px solid #b22222;
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+.sheet-hunger-title {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: #b22222;
+  margin-bottom: 12px;
+}
+.sheet-hunger-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.sheet-hunger-dot {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid #3a3a3a;
+  background: transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+.sheet-hunger-dots input[type="radio"] {
+  display: none;
+}
+input[type="radio"]:checked + .sheet-hunger-dot {
+  background: #b22222;
+  border-color: #b22222;
+}
+.sheet-hunger-dot:hover,
+input[type="radio"] + .sheet-hunger-dot:hover {
+  border-color: #b22222;
+}
+.sheet-hunger-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.sheet-custom-roll-row {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #999;
+}
+.sheet-custom-pool-input {
+  width: 50px;
+  text-align: center;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 4px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+}
+.sheet-custom-pool-input:focus {
+  outline: none;
+  border-color: #8b0000;
+}
+
+
+/* ─── Buttons ─── */
+.sheet-roll-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #3a3a3a;
+  border-radius: 3px;
+  background: transparent;
+  color: #666;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.sheet-roll-btn:hover {
+  border-color: #b22222;
+  color: #b22222;
+  background: rgba(139,0,0,0.15);
+}
+.sheet-rouse-btn {
+  background: rgba(196,163,90,0.15);
+  border: 1px solid #c4a35a;
+  color: #c4a35a;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background 0.15s;
+}
+.sheet-rouse-btn:hover {
+  background: rgba(196,163,90,0.3);
+}
+.sheet-custom-roll-btn {
+  background: rgba(139,0,0,0.15);
+  border: 1px solid #8b0000;
+  color: #b22222;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background 0.15s;
+}
+.sheet-custom-roll-btn:hover {
+  background: rgba(139,0,0,0.3);
+}
+.sheet-domain-roll-btn {
+  background: rgba(139,0,0,0.15);
+  border: 1px solid #8b0000;
+  color: #b22222;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-top: 8px;
+  transition: background 0.15s;
+}
+.sheet-domain-roll-btn:hover {
+  background: rgba(139,0,0,0.3);
+}
+
+
+/* ─── Domains ─── */
+.sheet-domain-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid #252525;
+}
+.sheet-domain-slot:last-child { border-bottom: none; }
+.sheet-domain-select {
+  flex: 2;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-domain-select:focus { outline: none; border-color: #8b0000; }
+.sheet-domain-level-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: #666;
+  letter-spacing: 1px;
+}
+.sheet-domain-level {
+  width: 50px;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  text-align: center;
+  font-family: inherit;
+}
+.sheet-domain-level:focus { outline: none; border-color: #8b0000; }
+.sheet-domain-passive {
+  flex: 2;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #999;
+  padding: 5px 8px;
+  font-size: 0.8rem;
+  border-radius: 3px;
+  font-family: inherit;
+  font-style: italic;
+}
+.sheet-domain-passive:focus { outline: none; border-color: #8b0000; }
+.sheet-domain-note-text {
+  width: 100%;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+  border-radius: 3px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 40px;
+}
+.sheet-domain-note-text:focus { outline: none; border-color: #8b0000; }
+
+
+/* ─── Touchstones & Convictions ─── */
+.sheet-tc-entry {
+  padding: 6px 0;
+  border-bottom: 1px solid #252525;
+}
+.sheet-tc-entry:last-child { border-bottom: none; }
+.sheet-tc-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+.sheet-tc-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #666;
+  min-width: 70px;
+}
+.sheet-tc-row input {
+  flex: 1;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-tc-row input:focus { outline: none; border-color: #8b0000; }
+
+
+/* ─── Features Tab: Merits, Flaws ─── */
+.sheet-merit-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid #3a3a3a;
+  margin-bottom: 4px;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #666;
+}
+.sheet-mf-name { flex: 2; min-width: 120px; }
+.sheet-mf-cost { width: 55px; flex: none; text-align: center; }
+.sheet-mf-desc { flex: 3; min-width: 140px; }
+
+.sheet-merit-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid #252525;
+  flex-wrap: wrap;
+}
+.sheet-merit-row:last-child { border-bottom: none; }
+
+.sheet-mf-name-select {
+  flex: 2;
+  min-width: 120px;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-mf-name-select:focus { outline: none; border-color: #8b0000; }
+
+.sheet-mf-cost-input {
+  width: 55px;
+  flex: none;
+  text-align: center;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px 4px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-mf-cost-input:focus { outline: none; border-color: #8b0000; }
+
+.sheet-mf-desc-text {
+  flex: 3;
+  min-width: 140px;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px 8px;
+  font-size: 0.78rem;
+  border-radius: 3px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 32px;
+}
+.sheet-mf-desc-text:focus { outline: none; border-color: #8b0000; }
+
+
+/* ─── Features Tab: Talents ─── */
+.sheet-talent-row {
+  padding: 6px 0;
+  border-bottom: 1px solid #252525;
+}
+.sheet-talent-row:last-child { border-bottom: none; }
+.sheet-talent-select {
+  width: 100%;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  font-family: inherit;
+  margin-bottom: 4px;
+}
+.sheet-talent-select:focus { outline: none; border-color: #8b0000; }
+.sheet-talent-desc {
+  width: 100%;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #999;
+  padding: 5px 8px;
+  font-size: 0.78rem;
+  border-radius: 3px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 32px;
+  font-style: italic;
+}
+.sheet-talent-desc:focus { outline: none; border-color: #8b0000; }
+
+
+/* ─── Features Tab: Predator Type ─── */
+.sheet-predator-select {
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-predator-select:focus { outline: none; border-color: #8b0000; }
+.sheet-predator-pool {
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-predator-pool:focus { outline: none; border-color: #8b0000; }
+.sheet-predator-benefits {
+  width: 100%;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+  border-radius: 3px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 50px;
+  margin-top: 6px;
+}
+.sheet-predator-benefits:focus { outline: none; border-color: #8b0000; }
+
+
+/* ─── Features Tab: Bane ─── */
+.sheet-bane-select {
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-bane-select:focus { outline: none; border-color: #8b0000; }
+.sheet-bane-desc {
+  width: 100%;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+  border-radius: 3px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 50px;
+  margin-top: 6px;
+}
+.sheet-bane-desc:focus { outline: none; border-color: #8b0000; }
+
+/* Fear Rating Effects */
+.sheet-fear-effects-text {
+  width: 100%;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #999;
+  padding: 8px;
+  font-size: 0.8rem;
+  border-radius: 3px;
+  min-height: 40px;
+  resize: vertical;
+  font-family: inherit;
+  font-style: italic;
+}
+
+
+/* ─── Inventory Tab: Equipment ─── */
+.sheet-equip-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 5px 0;
+  border-bottom: 1px solid #252525;
+}
+.sheet-equip-row:last-child { border-bottom: none; }
+.sheet-equip-name {
+  flex: 2;
+  min-width: 100px;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-equip-name:focus { outline: none; border-color: #8b0000; }
+.sheet-equip-desc {
+  flex: 3;
+  min-width: 120px;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-equip-desc:focus { outline: none; border-color: #8b0000; }
+.sheet-equip-qty {
+  width: 45px;
+  flex: none;
+  text-align: center;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px 4px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  font-family: inherit;
+}
+.sheet-equip-qty:focus { outline: none; border-color: #8b0000; }
+
+/* Cursed Objects */
+.sheet-cursed-desc {
+  flex: 1;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px 8px;
+  font-size: 0.8rem;
+  border-radius: 3px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 36px;
+}
+.sheet-cursed-desc:focus { outline: none; border-color: #8b0000; }
+
+/* Haven */
+.sheet-haven-notes {
+  width: 100%;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+  border-radius: 3px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 60px;
+  margin-top: 6px;
+}
+.sheet-haven-notes:focus { outline: none; border-color: #8b0000; }
+
+
+/* ─── Notes Tab ─── */
+.sheet-notes-large {
+  width: 100%;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 10px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 160px;
+}
+.sheet-notes-large:focus { outline: none; border-color: #8b0000; }
+
+/* Session Log */
+.sheet-session-entry {
+  padding: 6px 0;
+  border-bottom: 1px solid #252525;
+}
+.sheet-session-entry:last-child { border-bottom: none; }
+.sheet-session-date {
+  width: 100%;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+  border-radius: 3px;
+  font-family: inherit;
+  margin-bottom: 4px;
+}
+.sheet-session-date:focus { outline: none; border-color: #8b0000; }
+.sheet-session-notes {
+  width: 100%;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #e0e0e0;
+  padding: 5px 8px;
+  font-size: 0.8rem;
+  border-radius: 3px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 50px;
+}
+.sheet-session-notes:focus { outline: none; border-color: #8b0000; }
+
+
+/* ─── Roll Templates ─── */
+.sheet-rolltemplate-pool .sheet-tpl-wrapper,
+.sheet-rolltemplate-sum .sheet-tpl-wrapper,
+.sheet-rolltemplate-rouse .sheet-tpl-wrapper {
+  background: #1a1a1a;
+  border: 1px solid #3a3a3a;
+  border-left: 3px solid #8b0000;
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #e0e0e0;
+  font-size: 0.85rem;
+  max-width: 350px;
+}
+
+.sheet-tpl-header {
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #b22222;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #3a3a3a;
+}
+.sheet-tpl-breakdown {
+  font-size: 0.75rem;
+  color: #999;
+  margin-bottom: 6px;
+}
+.sheet-tpl-dice {
+  margin-bottom: 6px;
+}
+.sheet-tpl-normal {
+  display: inline;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+.sheet-tpl-hunger {
+  display: inline;
+  font-weight: 600;
+  color: #b22222;
+}
+.sheet-tpl-hunger-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #b22222;
+  font-weight: 400;
+}
+.sheet-tpl-result {
+  margin-bottom: 4px;
+}
+.sheet-tpl-net {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e0e0e0;
+}
+.sheet-tpl-detail {
+  font-size: 0.75rem;
+  color: #999;
+}
+.sheet-tpl-bestial {
+  color: #cc3333;
+  font-weight: 700;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+.sheet-tpl-rerolls {
+  color: #5b8dd9;
+  font-size: 0.78rem;
+  margin-top: 2px;
+}
+.sheet-tpl-damage {
+  color: #c4a35a;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+.sheet-tpl-opposed {
+  color: #999;
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+/* Sum Roll Template */
+.sheet-tpl-sum-total {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #b22222;
+  margin-top: 4px;
+}
+.sheet-tpl-note {
+  font-size: 0.75rem;
+  color: #666;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+/* Rouse Roll Template */
+.sheet-rolltemplate-rouse .sheet-tpl-wrapper {
+  border-left-color: #c4a35a;
+}
+.sheet-tpl-rouse-section {
+  margin-top: 6px;
+}
+.sheet-tpl-rouse-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #c4a35a;
+}
+.sheet-tpl-rouse-result {
+  font-weight: 600;
+}
+
+
+/* ─── Disabled Inputs ─── */
+input:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+
+/* ─── Responsive ─── */
+@media (max-width: 600px) {
+  .sheet-attr-columns { grid-template-columns: 1fr; }
+  .sheet-two-col { grid-template-columns: 1fr; }
+  .sheet-three-col { grid-template-columns: 1fr; }
+}
