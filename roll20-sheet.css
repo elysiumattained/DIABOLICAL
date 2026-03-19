@@ -43,30 +43,33 @@
   font-weight: 700;
 }
 
-/* ─── Tab Bar ─── */
-.sheet-tab-bar {
-  display: flex;
-  background: #1a1a1a;
-  border-bottom: 1px solid #3a3a3a;
-  overflow-x: auto;
-  gap: 0;
-}
-.sheet-tab-radio {
+/* ─── Tab System (action buttons + hidden attr_sheet_tab) ─── */
+/* Hidden input that stores the active tab name */
+input.sheet-tab-state {
   display: none;
 }
-.sheet-tab-label {
+
+/* Tab buttons - override Roll20 default action button styling */
+button.sheet-tab-btn,
+button.sheet-tab-btn:hover {
   display: inline-block;
   padding: 10px 20px;
+  margin: 0;
+  background: #1a1a1a;
   color: #999;
   font-size: 0.8rem;
   letter-spacing: 1px;
   text-transform: uppercase;
   cursor: pointer;
+  border: none;
   border-bottom: 2px solid transparent;
+  border-radius: 0;
   white-space: nowrap;
+  font-family: inherit;
+  box-shadow: none;
   transition: color 0.2s, border-color 0.2s;
 }
-.sheet-tab-label:hover {
+button.sheet-tab-btn:hover {
   color: #e0e0e0;
 }
 
@@ -76,38 +79,23 @@
   padding: 16px;
 }
 
-/* Roll20 tab switching via attr_tab */
-input.sheet-tab-radio[value="stats"]:checked ~ div.sheet-tab-stats,
-input.sheet-tab-radio[value="info"]:checked ~ div.sheet-tab-info,
-input.sheet-tab-radio[value="domains"]:checked ~ div.sheet-tab-domains,
-input.sheet-tab-radio[value="features"]:checked ~ div.sheet-tab-features,
-input.sheet-tab-radio[value="inventory"]:checked ~ div.sheet-tab-inventory,
-input.sheet-tab-radio[value="notes"]:checked ~ div.sheet-tab-notes {
+/* Show the active tab content based on attr_sheet_tab value */
+input.sheet-tab-state[value="stats"] ~ div.sheet-tab-stats,
+input.sheet-tab-state[value="info"] ~ div.sheet-tab-info,
+input.sheet-tab-state[value="domains"] ~ div.sheet-tab-domains,
+input.sheet-tab-state[value="features"] ~ div.sheet-tab-features,
+input.sheet-tab-state[value="inventory"] ~ div.sheet-tab-inventory,
+input.sheet-tab-state[value="notes"] ~ div.sheet-tab-notes {
   display: block;
 }
 
-/* Active tab label highlight */
-input.sheet-tab-radio[value="stats"]:checked + span.sheet-tab-label {
-  color: #b22222;
-  border-bottom-color: #b22222;
-}
-input.sheet-tab-radio[value="info"]:checked + span.sheet-tab-label {
-  color: #b22222;
-  border-bottom-color: #b22222;
-}
-input.sheet-tab-radio[value="domains"]:checked + span.sheet-tab-label {
-  color: #b22222;
-  border-bottom-color: #b22222;
-}
-input.sheet-tab-radio[value="features"]:checked + span.sheet-tab-label {
-  color: #b22222;
-  border-bottom-color: #b22222;
-}
-input.sheet-tab-radio[value="inventory"]:checked + span.sheet-tab-label {
-  color: #b22222;
-  border-bottom-color: #b22222;
-}
-input.sheet-tab-radio[value="notes"]:checked + span.sheet-tab-label {
+/* Highlight the active tab button */
+input.sheet-tab-state[value="stats"] ~ button.sheet-tbtn-stats,
+input.sheet-tab-state[value="info"] ~ button.sheet-tbtn-info,
+input.sheet-tab-state[value="domains"] ~ button.sheet-tbtn-domains,
+input.sheet-tab-state[value="features"] ~ button.sheet-tbtn-features,
+input.sheet-tab-state[value="inventory"] ~ button.sheet-tbtn-inventory,
+input.sheet-tab-state[value="notes"] ~ button.sheet-tbtn-notes {
   color: #b22222;
   border-bottom-color: #b22222;
 }

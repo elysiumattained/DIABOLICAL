@@ -61,21 +61,14 @@
     <h1 class="sheet-game-title">DIABOLICAL</h1>
   </div>
 
-  <!-- Tab Navigation (CSS-only via radio + sibling selectors) -->
-  <div class="sheet-tab-bar">
-    <input type="radio" name="attr_tab" value="stats" class="sheet-tab-radio" checked="checked">
-    <span class="sheet-tab-label">Stats</span>
-    <input type="radio" name="attr_tab" value="info" class="sheet-tab-radio">
-    <span class="sheet-tab-label">Info</span>
-    <input type="radio" name="attr_tab" value="domains" class="sheet-tab-radio">
-    <span class="sheet-tab-label">Domains</span>
-    <input type="radio" name="attr_tab" value="features" class="sheet-tab-radio">
-    <span class="sheet-tab-label">Features</span>
-    <input type="radio" name="attr_tab" value="inventory" class="sheet-tab-radio">
-    <span class="sheet-tab-label">Inventory</span>
-    <input type="radio" name="attr_tab" value="notes" class="sheet-tab-radio">
-    <span class="sheet-tab-label">Notes</span>
-  </div>
+  <!-- Tab Navigation (action buttons + hidden attr + sheet worker) -->
+  <input type="hidden" name="attr_sheet_tab" value="stats" class="sheet-tab-state">
+  <button type="action" name="act_show-stats" class="sheet-tab-btn sheet-tbtn-stats">Stats</button>
+  <button type="action" name="act_show-info" class="sheet-tab-btn sheet-tbtn-info">Info</button>
+  <button type="action" name="act_show-domains" class="sheet-tab-btn sheet-tbtn-domains">Domains</button>
+  <button type="action" name="act_show-features" class="sheet-tab-btn sheet-tbtn-features">Features</button>
+  <button type="action" name="act_show-inventory" class="sheet-tab-btn sheet-tbtn-inventory">Inventory</button>
+  <button type="action" name="act_show-notes" class="sheet-tab-btn sheet-tbtn-notes">Notes</button>
 
   <!-- ═══════════════════════════════════════════════════════════
        STATS TAB
@@ -1320,8 +1313,11 @@
 <script type="text/worker">
 
   // ─── Tab Switching ───
-  // Roll20 handles tab visibility via CSS + attr_tab radio buttons.
-  // No worker needed for basic tab switching (handled in CSS).
+  ['stats','info','domains','features','inventory','notes'].forEach(function(tab) {
+    on('clicked:show-' + tab, function() {
+      setAttrs({ sheet_tab: tab });
+    });
+  });
 
   // ─── Auto-calc: Willpower Max = Mind + Spirit ───
   on('change:mind change:spirit sheet:opened', function () {
