@@ -1,0 +1,567 @@
+<!-- ═══════════════════════════════════════════════════════════════
+     DIABOLICAL — Roll20 Custom Character Sheet
+     Paste this into Roll20's "HTML Layout" editor.
+     Paste roll20-sheet.css into Roll20's "CSS Styling" editor.
+     ═══════════════════════════════════════════════════════════════ -->
+
+<!-- ─── ROLL TEMPLATES ─── -->
+
+<!-- Pool Roll (standard: hits/misses) -->
+<rolltemplate class="sheet-rolltemplate-pool">
+  <div class="sheet-tpl-wrapper sheet-tpl-pool">
+    <div class="sheet-tpl-header">{{title}}</div>
+    {{#breakdown}}<div class="sheet-tpl-breakdown">{{breakdown}}</div>{{/breakdown}}
+    <div class="sheet-tpl-dice">
+      {{#normal}}<div class="sheet-tpl-normal">{{normal}}</div>{{/normal}}
+      {{#hunger_roll}}<div class="sheet-tpl-hunger"><span class="sheet-tpl-hunger-label">Hunger:</span> {{hunger_roll}}</div>{{/hunger_roll}}
+    </div>
+    <div class="sheet-tpl-result">
+      <span class="sheet-tpl-net">Net: {{net}}</span>
+    </div>
+    <div class="sheet-tpl-detail">Hits: {{hits}} &bull; Misses: {{misses}}</div>
+    {{#bestial}}<div class="sheet-tpl-bestial">&#9760; Bestial Failures: {{bestial}}</div>{{/bestial}}
+    {{#rerolls}}<div class="sheet-tpl-rerolls">Focus Rerolls Available: {{rerolls}}</div>{{/rerolls}}
+    {{#damage}}<div class="sheet-tpl-damage">&#9876; {{damage}}</div>{{/damage}}
+    {{#opposed}}<div class="sheet-tpl-opposed">&#9876; vs {{opposed}}</div>{{/opposed}}
+  </div>
+</rolltemplate>
+
+<!-- Sum Roll (initiative, regen) -->
+<rolltemplate class="sheet-rolltemplate-sum">
+  <div class="sheet-tpl-wrapper sheet-tpl-sum-wrap">
+    <div class="sheet-tpl-header">{{title}}</div>
+    {{#breakdown}}<div class="sheet-tpl-breakdown">{{breakdown}}</div>{{/breakdown}}
+    <div class="sheet-tpl-dice">
+      {{#roll}}<div class="sheet-tpl-normal">{{roll}}</div>{{/roll}}
+    </div>
+    <div class="sheet-tpl-sum-total">Total: {{sum_total}}</div>
+    {{#rouse_die}}<div class="sheet-tpl-rouse-section">
+      <span class="sheet-tpl-rouse-label">Rouse Check:</span> {{rouse_die}} &mdash; {{rouse_result}}
+    </div>{{/rouse_die}}
+    {{#note}}<div class="sheet-tpl-note">{{note}}</div>{{/note}}
+  </div>
+</rolltemplate>
+
+<!-- Rouse Check -->
+<rolltemplate class="sheet-rolltemplate-rouse">
+  <div class="sheet-tpl-wrapper sheet-tpl-rouse-wrap">
+    <div class="sheet-tpl-header">Rouse Check</div>
+    <div class="sheet-tpl-dice">
+      <div class="sheet-tpl-hunger">{{rouse_die}}</div>
+    </div>
+    <div class="sheet-tpl-rouse-result">{{rouse_result}}</div>
+  </div>
+</rolltemplate>
+
+<!-- ─── MAIN SHEET ─── -->
+<div class="sheet-wrapper">
+
+  <!-- Header -->
+  <div class="sheet-header-bar">
+    <h1 class="sheet-game-title">DIABOLICAL</h1>
+  </div>
+
+  <!-- Tab Navigation (CSS-only via radio + sibling selectors) -->
+  <div class="sheet-tab-bar">
+    <input type="radio" name="attr_tab" value="stats" class="sheet-tab-radio" checked="checked">
+    <span class="sheet-tab-label">Stats</span>
+    <input type="radio" name="attr_tab" value="info" class="sheet-tab-radio">
+    <span class="sheet-tab-label">Info</span>
+    <input type="radio" name="attr_tab" value="domains" class="sheet-tab-radio">
+    <span class="sheet-tab-label">Domains</span>
+    <input type="radio" name="attr_tab" value="features" class="sheet-tab-radio">
+    <span class="sheet-tab-label">Features</span>
+    <input type="radio" name="attr_tab" value="inventory" class="sheet-tab-radio">
+    <span class="sheet-tab-label">Inventory</span>
+    <input type="radio" name="attr_tab" value="notes" class="sheet-tab-radio">
+    <span class="sheet-tab-label">Notes</span>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       STATS TAB
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="sheet-tab sheet-tab-stats">
+
+    <!-- ─── Identity ─── -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Identity</div>
+      <div class="sheet-row">
+        <div class="sheet-field">
+          <label>Character Name</label>
+          <input type="text" name="attr_character_name">
+        </div>
+        <div class="sheet-field">
+          <label>Player</label>
+          <input type="text" name="attr_player_name">
+        </div>
+      </div>
+      <div class="sheet-row">
+        <div class="sheet-field">
+          <label>Species</label>
+          <select name="attr_species">
+            <option value="">--</option>
+            <option value="Human">Human</option>
+            <option value="Ghoul">Ghoul</option>
+            <option value="Cambion">Cambion</option>
+            <option value="Hybrid">Hybrid</option>
+            <option value="Fiend">Fiend</option>
+            <option value="Devil">Devil</option>
+          </select>
+        </div>
+        <div class="sheet-field">
+          <label>Predator Type</label>
+          <select name="attr_predator_type">
+            <option value="">--</option>
+            <option>Alleycat</option><option>Bagger</option><option>Blood Leech</option>
+            <option>Cleaver</option><option>Consensualist</option><option>Extortionist</option>
+            <option>Farmer</option><option>Grim Reaper</option><option>Pursuer</option>
+            <option>Sandman</option><option>Scene Queen</option><option>Siren</option>
+            <option>Osiris (NPC)</option><option>Trapdoor (NPC)</option>
+            <option>Montero (NPC)</option><option>Roadside Killer (NPC)</option>
+          </select>
+        </div>
+        <div class="sheet-field sheet-field-narrow">
+          <label>Fear Rating</label>
+          <select name="attr_fear_rating">
+            <option value="">--</option>
+            <option value="0">0</option><option value="1">1</option>
+            <option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5">5</option>
+          </select>
+        </div>
+      </div>
+      <div class="sheet-row">
+        <div class="sheet-field">
+          <label>Name (Fear Source)</label>
+          <input type="text" name="attr_fear_name">
+        </div>
+        <div class="sheet-field">
+          <label>Bane</label>
+          <select name="attr_bane">
+            <option value="">--</option>
+            <option>Aesthetic Fixation</option><option>Asceticism</option>
+            <option>Accursed Courtesy</option><option>Abhors the Light</option>
+            <option>Blood Addiction</option><option>Blessed Banishment</option>
+            <option>Callousness</option><option>Distorted Image</option>
+            <option>Delicious</option><option>Gnawing Hunger</option>
+            <option>Grounded</option><option>Folkloric Block</option>
+            <option>Rarefied Tastes</option><option>Sacrosanct</option>
+            <option>Starving Decay</option><option>Survival Instincts</option>
+            <option>Violent Temper</option>
+          </select>
+        </div>
+        <div class="sheet-field sheet-field-narrow">
+          <label>Severity</label>
+          <input type="number" name="attr_bane_severity" value="0" min="0" max="5">
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Attributes & Skills ─── -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Attributes &amp; Skills</div>
+      <div class="sheet-attr-columns">
+
+        <!-- ══ BODY ══ -->
+        <div class="sheet-attr-col">
+          <div class="sheet-attr-header">
+            <span class="sheet-attr-name">Body</span>
+            <div class="sheet-dots5">
+              <input type="radio" name="attr_body" value="5"><span></span>
+              <input type="radio" name="attr_body" value="4"><span></span>
+              <input type="radio" name="attr_body" value="3"><span></span>
+              <input type="radio" name="attr_body" value="2"><span></span>
+              <input type="radio" name="attr_body" value="1"><span></span>
+              <input type="radio" name="attr_body" value="0" checked="checked"><span class="sheet-dot-zero"></span>
+            </div>
+          </div>
+
+          <!-- Athletics -->
+          <div class="sheet-broad-row">
+            <button type="action" name="act_roll_broad_athletics" class="sheet-roll-btn">&#9858;</button>
+            <span class="sheet-broad-name">Athletics</span>
+            <div class="sheet-dots2">
+              <input type="radio" name="attr_broad_athletics" value="2"><span></span>
+              <input type="radio" name="attr_broad_athletics" value="1"><span></span>
+              <input type="radio" name="attr_broad_athletics" value="0" checked="checked"><span class="sheet-dot-zero"></span>
+            </div>
+          </div>
+          <div class="sheet-focused-list">
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_stamina" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Stamina</span>
+              <input type="number" name="attr_focus_stamina" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_strength" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Strength</span>
+              <input type="number" name="attr_focus_strength" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_throw" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Throw</span>
+              <input type="number" name="attr_focus_throw" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_climb" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Climb</span>
+              <input type="number" name="attr_focus_climb" value="0" min="0" class="sheet-focused-input">
+            </div>
+          </div>
+
+          <!-- Combat -->
+          <div class="sheet-broad-row">
+            <button type="action" name="act_roll_broad_combat" class="sheet-roll-btn">&#9858;</button>
+            <span class="sheet-broad-name">Combat</span>
+            <div class="sheet-dots2">
+              <input type="radio" name="attr_broad_combat" value="2"><span></span>
+              <input type="radio" name="attr_broad_combat" value="1"><span></span>
+              <input type="radio" name="attr_broad_combat" value="0" checked="checked"><span class="sheet-dot-zero"></span>
+            </div>
+          </div>
+          <div class="sheet-focused-list">
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_weapon" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Weapon</span>
+              <input type="number" name="attr_focus_weapon" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_brawl" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Brawl</span>
+              <input type="number" name="attr_focus_brawl" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_block" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Block</span>
+              <input type="number" name="attr_focus_block" value="0" min="0" class="sheet-focused-input">
+            </div>
+          </div>
+
+          <!-- Acrobatics -->
+          <div class="sheet-broad-row">
+            <button type="action" name="act_roll_broad_acrobatics" class="sheet-roll-btn">&#9858;</button>
+            <span class="sheet-broad-name">Acrobatics</span>
+            <div class="sheet-dots2">
+              <input type="radio" name="attr_broad_acrobatics" value="2"><span></span>
+              <input type="radio" name="attr_broad_acrobatics" value="1"><span></span>
+              <input type="radio" name="attr_broad_acrobatics" value="0" checked="checked"><span class="sheet-dot-zero"></span>
+            </div>
+          </div>
+          <div class="sheet-focused-list">
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_jump" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Jump</span>
+              <input type="number" name="attr_focus_jump" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_dodge" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Dodge</span>
+              <input type="number" name="attr_focus_dodge" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_stunt" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Stunt</span>
+              <input type="number" name="attr_focus_stunt" value="0" min="0" class="sheet-focused-input">
+            </div>
+          </div>
+
+          <!-- Dexterity -->
+          <div class="sheet-broad-row">
+            <button type="action" name="act_roll_broad_dexterity" class="sheet-roll-btn">&#9858;</button>
+            <span class="sheet-broad-name">Dexterity</span>
+            <div class="sheet-dots2">
+              <input type="radio" name="attr_broad_dexterity" value="2"><span></span>
+              <input type="radio" name="attr_broad_dexterity" value="1"><span></span>
+              <input type="radio" name="attr_broad_dexterity" value="0" checked="checked"><span class="sheet-dot-zero"></span>
+            </div>
+          </div>
+          <div class="sheet-focused-list">
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_pilot" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Pilot</span>
+              <input type="number" name="attr_focus_pilot" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_sneak" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Sneak</span>
+              <input type="number" name="attr_focus_sneak" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_deft" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Deft</span>
+              <input type="number" name="attr_focus_deft" value="0" min="0" class="sheet-focused-input">
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ MIND ══ -->
+        <div class="sheet-attr-col">
+          <div class="sheet-attr-header">
+            <span class="sheet-attr-name">Mind</span>
+            <div class="sheet-dots5">
+              <input type="radio" name="attr_mind" value="5"><span></span>
+              <input type="radio" name="attr_mind" value="4"><span></span>
+              <input type="radio" name="attr_mind" value="3"><span></span>
+              <input type="radio" name="attr_mind" value="2"><span></span>
+              <input type="radio" name="attr_mind" value="1"><span></span>
+              <input type="radio" name="attr_mind" value="0" checked="checked"><span class="sheet-dot-zero"></span>
+            </div>
+          </div>
+
+          <!-- Reason -->
+          <div class="sheet-broad-row">
+            <button type="action" name="act_roll_broad_reason" class="sheet-roll-btn">&#9858;</button>
+            <span class="sheet-broad-name">Reason</span>
+            <div class="sheet-dots2">
+              <input type="radio" name="attr_broad_reason" value="2"><span></span>
+              <input type="radio" name="attr_broad_reason" value="1"><span></span>
+              <input type="radio" name="attr_broad_reason" value="0" checked="checked"><span class="sheet-dot-zero"></span>
+            </div>
+          </div>
+          <div class="sheet-focused-list">
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_firearm" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Firearm</span>
+              <input type="number" name="attr_focus_firearm" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_navigation" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Navigation</span>
+              <input type="number" name="attr_focus_navigation" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_survival" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Survival</span>
+              <input type="number" name="attr_focus_survival" value="0" min="0" class="sheet-focused-input">
+            </div>
+          </div>
+
+          <!-- Know -->
+          <div class="sheet-broad-row">
+            <button type="action" name="act_roll_broad_know" class="sheet-roll-btn">&#9858;</button>
+            <span class="sheet-broad-name">Know</span>
+            <div class="sheet-dots2">
+              <input type="radio" name="attr_broad_know" value="2"><span></span>
+              <input type="radio" name="attr_broad_know" value="1"><span></span>
+              <input type="radio" name="attr_broad_know" value="0" checked="checked"><span class="sheet-dot-zero"></span>
+            </div>
+          </div>
+          <div class="sheet-focused-list">
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_nature" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Nature</span>
+              <input type="number" name="attr_focus_nature" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_history" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">History</span>
+              <input type="number" name="attr_focus_history" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_occultism" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Occultism</span>
+              <input type="number" name="attr_focus_occultism" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_investigation" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Investigation</span>
+              <input type="number" name="attr_focus_investigation" value="0" min="0" class="sheet-focused-input">
+            </div>
+          </div>
+
+          <!-- Tech -->
+          <div class="sheet-broad-row">
+            <button type="action" name="act_roll_broad_tech" class="sheet-roll-btn">&#9858;</button>
+            <span class="sheet-broad-name">Tech</span>
+            <div class="sheet-dots2">
+              <input type="radio" name="attr_broad_tech" value="2"><span></span>
+              <input type="radio" name="attr_broad_tech" value="1"><span></span>
+              <input type="radio" name="attr_broad_tech" value="0" checked="checked"><span class="sheet-dot-zero"></span>
+            </div>
+          </div>
+          <div class="sheet-focused-list">
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_coding" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Coding</span>
+              <input type="number" name="attr_focus_coding" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_security" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Security</span>
+              <input type="number" name="attr_focus_security" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_repair" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Repair</span>
+              <input type="number" name="attr_focus_repair" value="0" min="0" class="sheet-focused-input">
+            </div>
+          </div>
+
+          <!-- Medicine -->
+          <div class="sheet-broad-row">
+            <button type="action" name="act_roll_broad_medicine" class="sheet-roll-btn">&#9858;</button>
+            <span class="sheet-broad-name">Medicine</span>
+            <div class="sheet-dots2">
+              <input type="radio" name="attr_broad_medicine" value="2"><span></span>
+              <input type="radio" name="attr_broad_medicine" value="1"><span></span>
+              <input type="radio" name="attr_broad_medicine" value="0" checked="checked"><span class="sheet-dot-zero"></span>
+            </div>
+          </div>
+          <div class="sheet-focused-list">
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_surgery" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Surgery</span>
+              <input type="number" name="attr_focus_surgery" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_firstaid" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">First Aid</span>
+              <input type="number" name="attr_focus_firstaid" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_diagnosis" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Diagnosis</span>
+              <input type="number" name="attr_focus_diagnosis" value="0" min="0" class="sheet-focused-input">
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ SPIRIT ══ -->
+        <div class="sheet-attr-col">
+          <div class="sheet-attr-header">
+            <span class="sheet-attr-name">Spirit</span>
+            <div class="sheet-dots5">
+              <input type="radio" name="attr_spirit" value="5"><span></span>
+              <input type="radio" name="attr_spirit" value="4"><span></span>
+              <input type="radio" name="attr_spirit" value="3"><span></span>
+              <input type="radio" name="attr_spirit" value="2"><span></span>
+              <input type="radio" name="attr_spirit" value="1"><span></span>
+              <input type="radio" name="attr_spirit" value="0" checked="checked"><span class="sheet-dot-zero"></span>
+            </div>
+          </div>
+
+          <!-- Perception -->
+          <div class="sheet-broad-row">
+            <button type="action" name="act_roll_broad_perception" class="sheet-roll-btn">&#9858;</button>
+            <span class="sheet-broad-name">Perception</span>
+            <div class="sheet-dots2">
+              <input type="radio" name="attr_broad_perception" value="2"><span></span>
+              <input type="radio" name="attr_broad_perception" value="1"><span></span>
+              <input type="radio" name="attr_broad_perception" value="0" checked="checked"><span class="sheet-dot-zero"></span>
+            </div>
+          </div>
+          <div class="sheet-focused-list">
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_notice" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Notice</span>
+              <input type="number" name="attr_focus_notice" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_track" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Track</span>
+              <input type="number" name="attr_focus_track" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_insight" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Insight</span>
+              <input type="number" name="attr_focus_insight" value="0" min="0" class="sheet-focused-input">
+            </div>
+          </div>
+
+          <!-- Resolve -->
+          <div class="sheet-broad-row">
+            <button type="action" name="act_roll_broad_resolve" class="sheet-roll-btn">&#9858;</button>
+            <span class="sheet-broad-name">Resolve</span>
+            <div class="sheet-dots2">
+              <input type="radio" name="attr_broad_resolve" value="2"><span></span>
+              <input type="radio" name="attr_broad_resolve" value="1"><span></span>
+              <input type="radio" name="attr_broad_resolve" value="0" checked="checked"><span class="sheet-dot-zero"></span>
+            </div>
+          </div>
+          <div class="sheet-focused-list">
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_leadership" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Leadership</span>
+              <input type="number" name="attr_focus_leadership" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_intimidate" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Intimidate</span>
+              <input type="number" name="attr_focus_intimidate" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_endure" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Endure</span>
+              <input type="number" name="attr_focus_endure" value="0" min="0" class="sheet-focused-input">
+            </div>
+          </div>
+
+          <!-- Personal -->
+          <div class="sheet-broad-row">
+            <button type="action" name="act_roll_broad_personal" class="sheet-roll-btn">&#9858;</button>
+            <span class="sheet-broad-name">Personal</span>
+            <div class="sheet-dots2">
+              <input type="radio" name="attr_broad_personal" value="2"><span></span>
+              <input type="radio" name="attr_broad_personal" value="1"><span></span>
+              <input type="radio" name="attr_broad_personal" value="0" checked="checked"><span class="sheet-dot-zero"></span>
+            </div>
+          </div>
+          <div class="sheet-focused-list">
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_etiquette" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Etiquette</span>
+              <input type="number" name="attr_focus_etiquette" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_streetwise" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Streetwise</span>
+              <input type="number" name="attr_focus_streetwise" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_politics" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Politics</span>
+              <input type="number" name="attr_focus_politics" value="0" min="0" class="sheet-focused-input">
+            </div>
+          </div>
+
+          <!-- Charm -->
+          <div class="sheet-broad-row">
+            <button type="action" name="act_roll_broad_charm" class="sheet-roll-btn">&#9858;</button>
+            <span class="sheet-broad-name">Charm</span>
+            <div class="sheet-dots2">
+              <input type="radio" name="attr_broad_charm" value="2"><span></span>
+              <input type="radio" name="attr_broad_charm" value="1"><span></span>
+              <input type="radio" name="attr_broad_charm" value="0" checked="checked"><span class="sheet-dot-zero"></span>
+            </div>
+          </div>
+          <div class="sheet-focused-list">
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_performance" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Performance</span>
+              <input type="number" name="attr_focus_performance" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_deception" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Deception</span>
+              <input type="number" name="attr_focus_deception" value="0" min="0" class="sheet-focused-input">
+            </div>
+            <div class="sheet-focused-row">
+              <button type="action" name="act_roll_focus_persuasion" class="sheet-roll-btn">&#9858;</button>
+              <span class="sheet-focused-name">Persuasion</span>
+              <input type="number" name="attr_focus_persuasion" value="0" min="0" class="sheet-focused-input">
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /sheet-attr-columns -->
+    </div><!-- /Attributes & Skills section -->
+
+    <!-- ═══ PLACEHOLDER: Part 2 continues here (Health, Combat, Resources, Weapons, Conditions, Hunger) ═══ -->
+
+  </div><!-- /sheet-tab-stats -->
+
+  <!-- ═══ PLACEHOLDER: Part 2+ tabs go here ═══ -->
+
+</div><!-- /sheet-wrapper -->
+
+<!-- ═══ PLACEHOLDER: Sheet workers go in Part 3 ═══ -->
