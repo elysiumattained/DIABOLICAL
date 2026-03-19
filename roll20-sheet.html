@@ -556,12 +556,483 @@
       </div><!-- /sheet-attr-columns -->
     </div><!-- /Attributes & Skills section -->
 
-    <!-- ═══ PLACEHOLDER: Part 2 continues here (Health, Combat, Resources, Weapons, Conditions, Hunger) ═══ -->
+    <!-- ─── Health / Combat Stats / Resources (3-column) ─── -->
+    <div class="sheet-three-col">
+
+      <!-- Health -->
+      <div class="sheet-section">
+        <div class="sheet-section-title">Health</div>
+        <div class="sheet-tracker-row">
+          <span class="sheet-tracker-label">HP</span>
+          <div class="sheet-hp-display">
+            <input type="number" name="attr_hp_current" value="0" min="0">
+            <span>/</span>
+            <input type="number" name="attr_hp_max" value="0" min="0">
+          </div>
+        </div>
+        <div class="sheet-tracker-row">
+          <span class="sheet-tracker-label">Hit Dice</span>
+          <div class="sheet-hp-display">
+            <input type="number" name="attr_hit_dice_current" value="0" min="0">
+            <span>/</span>
+            <input type="number" name="attr_hit_dice_max" value="0" min="0" disabled title="Auto: Body + Spirit">
+          </div>
+        </div>
+        <div class="sheet-tracker-row">
+          <span class="sheet-tracker-label">Regenerate</span>
+          <input type="text" name="attr_regenerate" value="" class="sheet-regen-input" placeholder="—">
+          <button type="action" name="act_roll_regenerate" class="sheet-roll-btn" title="Roll Regenerate">&#9858;</button>
+        </div>
+        <div class="sheet-tracker-row">
+          <span class="sheet-tracker-label">Death Box</span>
+          <input type="checkbox" name="attr_death_box" value="1" class="sheet-death-box">
+        </div>
+      </div>
+
+      <!-- Combat Stats -->
+      <div class="sheet-section">
+        <div class="sheet-section-title">Combat Stats</div>
+        <div class="sheet-row">
+          <div class="sheet-field sheet-field-narrow">
+            <label>AP</label>
+            <input type="number" name="attr_ap" value="2" min="0">
+          </div>
+          <div class="sheet-field sheet-field-narrow">
+            <label>Move Speed</label>
+            <input type="number" name="attr_move_speed" value="30" min="0">
+          </div>
+        </div>
+        <div class="sheet-row">
+          <div class="sheet-field sheet-field-narrow">
+            <label>Body Length</label>
+            <input type="text" name="attr_body_length" value="5 ft">
+          </div>
+          <div class="sheet-field sheet-field-narrow">
+            <label>Terrify DC</label>
+            <input type="number" name="attr_terrify_dc" value="0" min="0">
+          </div>
+        </div>
+        <div class="sheet-row">
+          <div class="sheet-field sheet-field-narrow">
+            <label>Surge Cost</label>
+            <input type="text" name="attr_surge_cost" value="" disabled title="Auto from Fear Rating">
+          </div>
+          <div class="sheet-field sheet-field-narrow">
+            <label>Surge Bonus</label>
+            <input type="text" name="attr_surge_bonus" value="" disabled title="Auto from Fear Rating">
+          </div>
+        </div>
+      </div>
+
+      <!-- Resources -->
+      <div class="sheet-section">
+        <div class="sheet-section-title">Resources</div>
+        <div class="sheet-tracker-row">
+          <span class="sheet-tracker-label">Blood Points</span>
+          <div class="sheet-hp-display">
+            <input type="number" name="attr_bp_current" value="0" min="0">
+            <span>/</span>
+            <input type="number" name="attr_bp_max" value="0" min="0">
+          </div>
+        </div>
+        <div class="sheet-tracker-row">
+          <span class="sheet-tracker-label">Willpower</span>
+          <div class="sheet-hp-display">
+            <input type="number" name="attr_wp_current" value="0" min="0">
+            <span>/</span>
+            <input type="number" name="attr_wp_max" value="0" min="0" disabled title="Auto: Mind + Spirit">
+          </div>
+        </div>
+        <div class="sheet-tracker-row">
+          <span class="sheet-tracker-label">Speed</span>
+          <div class="sheet-hp-display">
+            <input type="number" name="attr_speed_current" value="0" min="0">
+            <span>/</span>
+            <input type="number" name="attr_speed_max" value="0" min="0" disabled title="Auto: Body + Mind">
+          </div>
+          <button type="action" name="act_roll_initiative" class="sheet-roll-btn" title="Roll Initiative (Speed pool, sum mode)">&#9858;</button>
+        </div>
+      </div>
+    </div><!-- /sheet-three-col -->
+
+    <!-- ─── Weapons & Conditions (2-column) ─── -->
+    <div class="sheet-two-col">
+
+      <!-- Weapons -->
+      <div class="sheet-section">
+        <div class="sheet-section-title">Weapons</div>
+        <div class="sheet-weapon-header">
+          <span class="sheet-wh-roll"></span>
+          <span class="sheet-wh-name">Name</span>
+          <span class="sheet-wh-narrow">Dmg</span>
+          <span class="sheet-wh-narrow">Pool</span>
+          <span class="sheet-wh-narrow">Reroll</span>
+          <span class="sheet-wh-narrow">+Dmg</span>
+          <span class="sheet-wh-traits">Traits</span>
+        </div>
+        <fieldset class="repeating_weapons">
+          <div class="sheet-weapon-row">
+            <button type="action" name="act_weapon_attack" class="sheet-roll-btn" title="Roll Attack">&#9858;</button>
+            <input type="text" name="attr_weapon_name" placeholder="Name" class="sheet-w-name">
+            <input type="text" name="attr_weapon_damage" placeholder="Dmg" class="sheet-w-narrow">
+            <input type="text" name="attr_weapon_pool" placeholder="Pool" class="sheet-w-narrow">
+            <input type="text" name="attr_weapon_rerolls" placeholder="Reroll" class="sheet-w-narrow">
+            <input type="text" name="attr_weapon_extra_dmg" placeholder="+Dmg" class="sheet-w-narrow">
+            <input type="text" name="attr_weapon_traits" placeholder="Traits" class="sheet-w-traits">
+          </div>
+        </fieldset>
+      </div>
+
+      <!-- Active Conditions -->
+      <div class="sheet-section">
+        <div class="sheet-section-title">Active Conditions</div>
+        <fieldset class="repeating_conditions">
+          <div class="sheet-condition-row">
+            <select name="attr_condition_name" class="sheet-condition-select">
+              <option value="">-- Condition --</option>
+              <option>Blinded</option><option>Deafened</option><option>Grappled</option>
+              <option>Incapacitated</option><option>Invisible</option><option>Paralyzed</option>
+              <option>Hidden</option><option>Prone</option><option>Restrained</option>
+              <option>Unconscious</option><option>Slowed</option><option>Stunned</option>
+              <option>Pinned</option><option>Agony</option><option>Malady</option>
+              <option>Bleeding</option><option>Dazed</option><option>Lethargic</option>
+              <option>Sapped</option><option>Unfocused</option><option>Bound</option>
+              <option>Impaired</option><option>Turned</option>
+              <option>Dismembered (Arm)</option><option>Dismembered (Leg)</option>
+              <option>Downed</option><option>Dead</option><option>Custom</option>
+            </select>
+            <textarea name="attr_condition_desc" placeholder="Description..." class="sheet-condition-desc"></textarea>
+          </div>
+        </fieldset>
+      </div>
+    </div><!-- /sheet-two-col -->
+
+    <!-- ─── Hunger ─── -->
+    <div class="sheet-hunger-section">
+      <div class="sheet-hunger-title">Hunger</div>
+      <div class="sheet-hunger-dots">
+        <input type="radio" name="attr_hunger" value="5"><span class="sheet-hunger-dot"></span>
+        <input type="radio" name="attr_hunger" value="4"><span class="sheet-hunger-dot"></span>
+        <input type="radio" name="attr_hunger" value="3"><span class="sheet-hunger-dot"></span>
+        <input type="radio" name="attr_hunger" value="2"><span class="sheet-hunger-dot"></span>
+        <input type="radio" name="attr_hunger" value="1"><span class="sheet-hunger-dot"></span>
+        <input type="radio" name="attr_hunger" value="0" checked="checked"><span class="sheet-dot-zero"></span>
+      </div>
+      <div class="sheet-hunger-actions">
+        <button type="action" name="act_rouse_check" class="sheet-rouse-btn">Rouse Check</button>
+        <button type="action" name="act_custom_roll" class="sheet-custom-roll-btn">Custom Pool Roll</button>
+      </div>
+      <!-- Hidden attr for custom roll pool size -->
+      <div class="sheet-custom-roll-row">
+        <label>Custom Pool Size:</label>
+        <input type="number" name="attr_custom_pool" value="1" min="1" max="10" class="sheet-custom-pool-input">
+      </div>
+    </div>
 
   </div><!-- /sheet-tab-stats -->
 
-  <!-- ═══ PLACEHOLDER: Part 2+ tabs go here ═══ -->
+
+  <!-- ═══════════════════════════════════════════════════════════
+       INFO TAB
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="sheet-tab sheet-tab-info">
+
+    <!-- Personality -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Personality</div>
+      <div class="sheet-row">
+        <div class="sheet-field">
+          <label>Nature / Demeanor</label>
+          <input type="text" name="attr_nature_demeanor" placeholder="Nature / Demeanor">
+        </div>
+      </div>
+    </div>
+
+    <!-- Humanity -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Humanity</div>
+      <div class="sheet-tracker-row">
+        <span class="sheet-tracker-label">Humanity</span>
+        <div class="sheet-humanity-track">
+          <input type="radio" name="attr_humanity" value="10"><span class="sheet-tracker-box"></span>
+          <input type="radio" name="attr_humanity" value="9"><span class="sheet-tracker-box"></span>
+          <input type="radio" name="attr_humanity" value="8"><span class="sheet-tracker-box"></span>
+          <input type="radio" name="attr_humanity" value="7" checked="checked"><span class="sheet-tracker-box"></span>
+          <input type="radio" name="attr_humanity" value="6"><span class="sheet-tracker-box"></span>
+          <input type="radio" name="attr_humanity" value="5"><span class="sheet-tracker-box"></span>
+          <input type="radio" name="attr_humanity" value="4"><span class="sheet-tracker-box"></span>
+          <input type="radio" name="attr_humanity" value="3"><span class="sheet-tracker-box"></span>
+          <input type="radio" name="attr_humanity" value="2"><span class="sheet-tracker-box"></span>
+          <input type="radio" name="attr_humanity" value="1"><span class="sheet-tracker-box"></span>
+          <input type="radio" name="attr_humanity" value="0"><span class="sheet-tracker-box"></span>
+        </div>
+      </div>
+      <div class="sheet-tracker-row">
+        <span class="sheet-tracker-label">Stains</span>
+        <input type="number" name="attr_stains" value="0" min="0" max="10" class="sheet-stain-input">
+      </div>
+      <div class="sheet-humanity-effects">
+        <textarea name="attr_humanity_effects" disabled class="sheet-humanity-effects-text" placeholder="Humanity effects will display here..."></textarea>
+      </div>
+    </div>
+
+    <!-- Touchstones & Convictions -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Touchstones &amp; Convictions</div>
+      <fieldset class="repeating_touchstones">
+        <div class="sheet-tc-entry">
+          <div class="sheet-tc-row">
+            <span class="sheet-tc-label">Touchstone</span>
+            <input type="text" name="attr_touchstone" placeholder="Person or group...">
+          </div>
+          <div class="sheet-tc-row">
+            <span class="sheet-tc-label">Conviction</span>
+            <input type="text" name="attr_conviction" placeholder="Related conviction...">
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    <!-- Pride -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Pride</div>
+      <div class="sheet-row">
+        <div class="sheet-field">
+          <label>Pride Statement</label>
+          <input type="text" name="attr_pride" placeholder="I am...">
+        </div>
+      </div>
+    </div>
+
+    <!-- Iconic Item -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Iconic Item</div>
+      <div class="sheet-row">
+        <div class="sheet-field">
+          <label>Item</label>
+          <input type="text" name="attr_iconic_item">
+        </div>
+        <div class="sheet-field">
+          <label>Description</label>
+          <input type="text" name="attr_iconic_item_desc">
+        </div>
+      </div>
+    </div>
+  </div><!-- /sheet-tab-info -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       DOMAINS TAB
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="sheet-tab sheet-tab-domains">
+
+    <!-- Innate Domains (5 fixed slots) -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Innate Domains</div>
+      <p class="sheet-section-note">Select your innate domains and set their levels. Passive bonuses auto-display below.</p>
+
+      <div class="sheet-domain-slot">
+        <select name="attr_innate1_name" class="sheet-domain-select">
+          <option value="">-- None --</option>
+          <option value="The Buried">The Buried</option>
+          <option value="The Corruption">The Corruption</option>
+          <option value="The Dark">The Dark</option>
+          <option value="The End">The End</option>
+          <option value="The Eye">The Eye</option>
+          <option value="The Flesh">The Flesh</option>
+          <option value="The Hunt">The Hunt</option>
+          <option value="The Lonely">The Lonely</option>
+          <option value="The Slaughter">The Slaughter</option>
+          <option value="The Spiral">The Spiral</option>
+          <option value="The Stranger">The Stranger</option>
+          <option value="The Vast">The Vast</option>
+          <option value="The Web">The Web</option>
+        </select>
+        <span class="sheet-domain-level-label">Lvl</span>
+        <select name="attr_innate1_level" class="sheet-domain-level">
+          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
+          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+        </select>
+        <input type="text" name="attr_innate1_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
+      </div>
+
+      <div class="sheet-domain-slot">
+        <select name="attr_innate2_name" class="sheet-domain-select">
+          <option value="">-- None --</option>
+          <option value="The Buried">The Buried</option><option value="The Corruption">The Corruption</option>
+          <option value="The Dark">The Dark</option><option value="The End">The End</option>
+          <option value="The Eye">The Eye</option><option value="The Flesh">The Flesh</option>
+          <option value="The Hunt">The Hunt</option><option value="The Lonely">The Lonely</option>
+          <option value="The Slaughter">The Slaughter</option><option value="The Spiral">The Spiral</option>
+          <option value="The Stranger">The Stranger</option><option value="The Vast">The Vast</option>
+          <option value="The Web">The Web</option>
+        </select>
+        <span class="sheet-domain-level-label">Lvl</span>
+        <select name="attr_innate2_level" class="sheet-domain-level">
+          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
+          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+        </select>
+        <input type="text" name="attr_innate2_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
+      </div>
+
+      <div class="sheet-domain-slot">
+        <select name="attr_innate3_name" class="sheet-domain-select">
+          <option value="">-- None --</option>
+          <option value="The Buried">The Buried</option><option value="The Corruption">The Corruption</option>
+          <option value="The Dark">The Dark</option><option value="The End">The End</option>
+          <option value="The Eye">The Eye</option><option value="The Flesh">The Flesh</option>
+          <option value="The Hunt">The Hunt</option><option value="The Lonely">The Lonely</option>
+          <option value="The Slaughter">The Slaughter</option><option value="The Spiral">The Spiral</option>
+          <option value="The Stranger">The Stranger</option><option value="The Vast">The Vast</option>
+          <option value="The Web">The Web</option>
+        </select>
+        <span class="sheet-domain-level-label">Lvl</span>
+        <select name="attr_innate3_level" class="sheet-domain-level">
+          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
+          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+        </select>
+        <input type="text" name="attr_innate3_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
+      </div>
+
+      <div class="sheet-domain-slot">
+        <select name="attr_innate4_name" class="sheet-domain-select">
+          <option value="">-- None --</option>
+          <option value="The Buried">The Buried</option><option value="The Corruption">The Corruption</option>
+          <option value="The Dark">The Dark</option><option value="The End">The End</option>
+          <option value="The Eye">The Eye</option><option value="The Flesh">The Flesh</option>
+          <option value="The Hunt">The Hunt</option><option value="The Lonely">The Lonely</option>
+          <option value="The Slaughter">The Slaughter</option><option value="The Spiral">The Spiral</option>
+          <option value="The Stranger">The Stranger</option><option value="The Vast">The Vast</option>
+          <option value="The Web">The Web</option>
+        </select>
+        <span class="sheet-domain-level-label">Lvl</span>
+        <select name="attr_innate4_level" class="sheet-domain-level">
+          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
+          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+        </select>
+        <input type="text" name="attr_innate4_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
+      </div>
+
+      <div class="sheet-domain-slot">
+        <select name="attr_innate5_name" class="sheet-domain-select">
+          <option value="">-- None --</option>
+          <option value="The Buried">The Buried</option><option value="The Corruption">The Corruption</option>
+          <option value="The Dark">The Dark</option><option value="The End">The End</option>
+          <option value="The Eye">The Eye</option><option value="The Flesh">The Flesh</option>
+          <option value="The Hunt">The Hunt</option><option value="The Lonely">The Lonely</option>
+          <option value="The Slaughter">The Slaughter</option><option value="The Spiral">The Spiral</option>
+          <option value="The Stranger">The Stranger</option><option value="The Vast">The Vast</option>
+          <option value="The Web">The Web</option>
+        </select>
+        <span class="sheet-domain-level-label">Lvl</span>
+        <select name="attr_innate5_level" class="sheet-domain-level">
+          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
+          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+        </select>
+        <input type="text" name="attr_innate5_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
+      </div>
+    </div>
+
+    <!-- Learned Domains (4 fixed slots) -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Learned Domains</div>
+
+      <div class="sheet-domain-slot">
+        <select name="attr_learned1_name" class="sheet-domain-select">
+          <option value="">-- None --</option>
+          <option value="Celerity">Celerity</option>
+          <option value="Fortitude">Fortitude</option>
+          <option value="Potence">Potence</option>
+          <option value="Kinetics">Kinetics</option>
+          <option value="Tulpamancy">Tulpamancy</option>
+        </select>
+        <span class="sheet-domain-level-label">Lvl</span>
+        <select name="attr_learned1_level" class="sheet-domain-level">
+          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
+          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+        </select>
+        <input type="text" name="attr_learned1_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
+      </div>
+
+      <div class="sheet-domain-slot">
+        <select name="attr_learned2_name" class="sheet-domain-select">
+          <option value="">-- None --</option>
+          <option value="Celerity">Celerity</option><option value="Fortitude">Fortitude</option>
+          <option value="Potence">Potence</option><option value="Kinetics">Kinetics</option>
+          <option value="Tulpamancy">Tulpamancy</option>
+        </select>
+        <span class="sheet-domain-level-label">Lvl</span>
+        <select name="attr_learned2_level" class="sheet-domain-level">
+          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
+          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+        </select>
+        <input type="text" name="attr_learned2_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
+      </div>
+
+      <div class="sheet-domain-slot">
+        <select name="attr_learned3_name" class="sheet-domain-select">
+          <option value="">-- None --</option>
+          <option value="Celerity">Celerity</option><option value="Fortitude">Fortitude</option>
+          <option value="Potence">Potence</option><option value="Kinetics">Kinetics</option>
+          <option value="Tulpamancy">Tulpamancy</option>
+        </select>
+        <span class="sheet-domain-level-label">Lvl</span>
+        <select name="attr_learned3_level" class="sheet-domain-level">
+          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
+          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+        </select>
+        <input type="text" name="attr_learned3_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
+      </div>
+
+      <div class="sheet-domain-slot">
+        <select name="attr_learned4_name" class="sheet-domain-select">
+          <option value="">-- None --</option>
+          <option value="Celerity">Celerity</option><option value="Fortitude">Fortitude</option>
+          <option value="Potence">Potence</option><option value="Kinetics">Kinetics</option>
+          <option value="Tulpamancy">Tulpamancy</option>
+        </select>
+        <span class="sheet-domain-level-label">Lvl</span>
+        <select name="attr_learned4_level" class="sheet-domain-level">
+          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
+          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+        </select>
+        <input type="text" name="attr_learned4_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
+      </div>
+    </div>
+
+    <!-- Domain Roll (generic) -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Domain Ability Roll</div>
+      <p class="sheet-section-note">Enter a pool string (e.g. "Spirit + Buried") and click Roll. The sheet worker resolves attribute + domain level values automatically.</p>
+      <div class="sheet-row">
+        <div class="sheet-field">
+          <label>Ability Name</label>
+          <input type="text" name="attr_domain_roll_name" placeholder="e.g. The Clutching Hand">
+        </div>
+        <div class="sheet-field">
+          <label>Pool</label>
+          <input type="text" name="attr_domain_roll_pool" placeholder="e.g. Spirit + Buried">
+        </div>
+        <div class="sheet-field sheet-field-narrow">
+          <label>BP Cost</label>
+          <input type="number" name="attr_domain_roll_bp" value="0" min="0">
+        </div>
+      </div>
+      <button type="action" name="act_roll_domain_ability" class="sheet-domain-roll-btn">Roll Domain Ability</button>
+    </div>
+
+    <!-- Domain Ability Notes (free text list) -->
+    <div class="sheet-section">
+      <div class="sheet-section-title">Domain Abilities (Quick Reference)</div>
+      <fieldset class="repeating_domain_notes">
+        <textarea name="attr_domain_note" placeholder="Ability notes..." class="sheet-domain-note-text"></textarea>
+      </fieldset>
+    </div>
+  </div><!-- /sheet-tab-domains -->
+
+
+  <!-- ═══ PLACEHOLDER: Part 3 continues (Features, Inventory, Notes tabs + Sheet Workers) ═══ -->
 
 </div><!-- /sheet-wrapper -->
 
-<!-- ═══ PLACEHOLDER: Sheet workers go in Part 3 ═══ -->
+<!-- ═══ PLACEHOLDER: Sheet workers go in Part 3/4 ═══ -->
