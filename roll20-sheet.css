@@ -208,10 +208,14 @@ input.sheet-tab-state[value="notes"] ~ button.sheet-tbtn-notes {
 }
 
 
-/* ─── Dot Trackers (2-dot and 5-dot) ─── */
+/* ─── Dot Trackers (2-dot and 5-dot) ───
+   Radio values go 5→0 in HTML. flex-direction:row-reverse displays them 0→5.
+   :checked ~ input fills all dots "below" the selected one. */
 .sheet-dots2,
 .sheet-dots5 {
   display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
   gap: 3px;
   align-items: center;
 }
@@ -227,25 +231,29 @@ input.sheet-tab-state[value="notes"] ~ button.sheet-tbtn-notes {
   background: transparent;
   cursor: pointer;
   margin: 0;
+  padding: 0;
   transition: background 0.15s, border-color 0.15s;
-}
-.sheet-dots2 input[type="radio"]:checked,
-.sheet-dots5 input[type="radio"]:checked {
-  background: #b22222;
-  border-color: #b22222;
 }
 .sheet-dots2 input[type="radio"]:hover,
 .sheet-dots5 input[type="radio"]:hover {
   border-color: #b22222;
 }
-.sheet-dot-zero {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 2px solid #3a3a3a;
-  background: transparent;
-  font-size: 0;
+/* Fill checked dot + all siblings after it (visually: all dots up to clicked) */
+.sheet-dots2 input[type="radio"]:checked,
+.sheet-dots2 input[type="radio"]:checked ~ input[type="radio"]:not(.sheet-dot-zero),
+.sheet-dots5 input[type="radio"]:checked,
+.sheet-dots5 input[type="radio"]:checked ~ input[type="radio"]:not(.sheet-dot-zero) {
+  background: #b22222;
+  border-color: #b22222;
+}
+/* Hide the zero-value radio (deselect option) */
+input.sheet-dot-zero {
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
 }
 
 
@@ -390,17 +398,33 @@ input[type="radio"]:checked + .sheet-tracker-box {
   border-color: #ff3333;
 }
 
-/* Humanity Track */
+/* Humanity Track — same reverse-fill trick as dots */
 .sheet-humanity-track {
   display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
   gap: 3px;
 }
 .sheet-humanity-track input[type="radio"] {
-  display: none;
-}
-.sheet-humanity-track .sheet-tracker-box {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
   width: 20px;
   height: 20px;
+  border: 2px solid #3a3a3a;
+  background: transparent;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+.sheet-humanity-track input[type="radio"]:hover {
+  border-color: #b22222;
+}
+.sheet-humanity-track input[type="radio"]:checked,
+.sheet-humanity-track input[type="radio"]:checked ~ input[type="radio"] {
+  background: #b22222;
+  border-color: #b22222;
 }
 
 /* Humanity Effects */
@@ -421,11 +445,8 @@ input[type="radio"]:checked + .sheet-tracker-box {
   font-style: italic;
 }
 
-/* Death Box */
-.sheet-death-box {
-  display: inline-block;
-}
-.sheet-death-box input[type="checkbox"] {
+/* Death Box — class is on the input itself */
+input.sheet-death-box {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -435,8 +456,10 @@ input[type="radio"]:checked + .sheet-tracker-box {
   cursor: pointer;
   background: transparent;
   transition: background 0.15s;
+  margin: 0;
+  padding: 0;
 }
-.sheet-death-box input[type="checkbox"]:checked {
+input.sheet-death-box:checked {
   background: #cc3333;
 }
 
@@ -512,33 +535,35 @@ input[type="radio"]:checked + .sheet-tracker-box {
 
 /* ─── Conditions ─── */
 .sheet-condition-row {
-  padding: 6px 0;
+  padding: 8px 0;
   border-bottom: 1px solid #252525;
 }
 .sheet-condition-row:last-child { border-bottom: none; }
 .sheet-condition-select {
+  display: block;
   width: 100%;
   background: #2a2a2a;
   border: 1px solid #3a3a3a;
   color: #e0e0e0;
-  padding: 5px 8px;
+  padding: 6px 8px;
   font-size: 0.85rem;
   border-radius: 3px;
   font-family: inherit;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 .sheet-condition-select:focus { outline: none; border-color: #8b0000; }
 .sheet-condition-desc {
+  display: block;
   width: 100%;
   background: #2a2a2a;
   border: 1px solid #3a3a3a;
   color: #e0e0e0;
-  padding: 5px 8px;
-  font-size: 0.78rem;
+  padding: 6px 8px;
+  font-size: 0.8rem;
   border-radius: 3px;
   font-family: inherit;
   resize: vertical;
-  min-height: 32px;
+  min-height: 50px;
 }
 .sheet-condition-desc:focus { outline: none; border-color: #8b0000; }
 
@@ -559,30 +584,43 @@ input[type="radio"]:checked + .sheet-tracker-box {
   color: #b22222;
   margin-bottom: 12px;
 }
+/* Hunger uses same reverse-fill pattern as dots */
 .sheet-hunger-dots {
   display: flex;
+  flex-direction: row-reverse;
   justify-content: center;
   gap: 8px;
 }
-.sheet-hunger-dot {
-  display: inline-block;
+.sheet-hunger-dots input[type="radio"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
   width: 32px;
   height: 32px;
   border-radius: 50%;
   border: 3px solid #3a3a3a;
   background: transparent;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
   transition: background 0.15s, border-color 0.15s;
 }
-.sheet-hunger-dots input[type="radio"] {
-  display: none;
+.sheet-hunger-dots input[type="radio"]:hover {
+  border-color: #b22222;
 }
-input[type="radio"]:checked + .sheet-hunger-dot {
+.sheet-hunger-dots input[type="radio"]:checked,
+.sheet-hunger-dots input[type="radio"]:checked ~ input[type="radio"]:not(.sheet-dot-zero) {
   background: #b22222;
   border-color: #b22222;
 }
-.sheet-hunger-dot:hover,
-input[type="radio"] + .sheet-hunger-dot:hover {
-  border-color: #b22222;
+/* Hide the zero radio in hunger */
+.sheet-hunger-dots input.sheet-dot-zero {
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
 }
 .sheet-hunger-actions {
   margin-top: 12px;
@@ -591,13 +629,21 @@ input[type="radio"] + .sheet-hunger-dot:hover {
   gap: 8px;
 }
 .sheet-custom-roll-row {
-  margin-top: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #3a3a3a;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 0.8rem;
   color: #999;
+}
+.sheet-custom-roll-row label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #666;
 }
 .sheet-custom-pool-input {
   width: 50px;
