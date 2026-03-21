@@ -1292,11 +1292,11 @@
     });
   });
 
-  // ─── Auto-calc: Hit Dice Max = Body + Spirit ───
+  // ─── Auto-calc: HP Max & Hit Dice Max = Body + Spirit ───
   on('change:body change:spirit sheet:opened', function () {
     getAttrs(['body', 'spirit'], function (v) {
-      var hd = (parseInt(v.body) || 0) + (parseInt(v.spirit) || 0);
-      setAttrs({ hit_dice_max: hd });
+      var total = (parseInt(v.body) || 0) + (parseInt(v.spirit) || 0);
+      setAttrs({ hp_max: total, hit_dice_max: total });
     });
   });
 
@@ -1389,8 +1389,8 @@
     var normal = Math.max(poolSize - hunger, 0);
     var hungerDice = Math.min(hunger, poolSize);
     var rollStr = '&{template:pool} {{title=' + title + '}} {{breakdown=' + breakdown + ' = ' + poolSize + 'D}}';
-    if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>=5]]}}';
-    if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>=5]]}}';
+    if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>4]]}}';
+    if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>4]]}}';
     rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
     startRoll(rollStr, function(results) {
       var nH = normal > 0 ? results.results.normal.result : 0;
@@ -1446,8 +1446,8 @@
       var hungerDice = Math.min(hunger, total);
 
       var rollStr = '&{template:pool} {{title=Pool Roll}} {{breakdown=' + attr + ' + ' + skill + ' + ' + bonus + '}}';
-      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>=5]]}}';
-      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>=5]]}}';
+      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>4]]}}';
+      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>4]]}}';
       rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
 
       startRoll(rollStr, function (results) {
@@ -1524,8 +1524,8 @@
 
       var rollStr = '&{template:pool} {{title=' + wName + ' Attack}}';
       rollStr += ' {{breakdown=Pool ' + poolSize + '}}';
-      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>=5]]}}';
-      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>=5]]}}';
+      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>4]]}}';
+      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>4]]}}';
       if (dmg) rollStr += ' {{damage=Dmg: ' + dmg + (extraDmg ? ' +' + extraDmg : '') + '}}';
       rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
 
@@ -1550,8 +1550,8 @@
       var hungerDice = Math.min(hunger, poolSize);
 
       var rollStr = '&{template:pool} {{title=Custom Roll}} {{breakdown=Pool ' + poolSize + '}}';
-      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>=5]]}}';
-      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>=5]]}}';
+      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>4]]}}';
+      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>4]]}}';
       rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
 
       startRoll(rollStr, function (results) {
@@ -1803,8 +1803,8 @@
 
       var rollStr = '&{template:pool} {{title=' + abilityName + '}}';
       rollStr += ' {{breakdown=' + breakdown.join(' + ') + ' = ' + poolSize + 'D}}';
-      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>=5]]}}';
-      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>=5]]}}';
+      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>4]]}}';
+      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>4]]}}';
       rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
 
       startRoll(rollStr, function (results) {
@@ -2334,15 +2334,26 @@
   }
 
   // ─── Domain Change Handlers ───
-  ['innate1','innate2','innate3','learned1','learned2','learned3'].forEach(function(slot) {
-    on('change:' + slot + '_name change:' + slot + '_level sheet:opened', function() {
-      getAttrs([slot + '_name', slot + '_level'], function(v) {
-        var name = v[slot + '_name'] || '';
-        var level = parseInt(v[slot + '_level']) || 0;
-        var obj = {};
-        obj[slot + '_abilities'] = name && level > 0 ? buildDomainText(name, level) : '';
-        setAttrs(obj);
-      });
+  function updateDomainSlot(slot) {
+    getAttrs([slot + '_name', slot + '_level'], function(v) {
+      var name = v[slot + '_name'] || '';
+      var level = parseInt(v[slot + '_level']) || 0;
+      var obj = {};
+      obj[slot + '_abilities'] = name && level > 0 ? buildDomainText(name, level) : '';
+      setAttrs(obj);
+    });
+  }
+
+  on('change:innate1_name change:innate1_level', function() { updateDomainSlot('innate1'); });
+  on('change:innate2_name change:innate2_level', function() { updateDomainSlot('innate2'); });
+  on('change:innate3_name change:innate3_level', function() { updateDomainSlot('innate3'); });
+  on('change:learned1_name change:learned1_level', function() { updateDomainSlot('learned1'); });
+  on('change:learned2_name change:learned2_level', function() { updateDomainSlot('learned2'); });
+  on('change:learned3_name change:learned3_level', function() { updateDomainSlot('learned3'); });
+
+  on('sheet:opened', function() {
+    ['innate1','innate2','innate3','learned1','learned2','learned3'].forEach(function(slot) {
+      updateDomainSlot(slot);
     });
   });
 
