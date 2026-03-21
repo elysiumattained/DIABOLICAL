@@ -1384,18 +1384,61 @@
     });
   }
 
-  function executePoolRoll(title, poolSize, hunger, breakdown) {
+  // Core roll executor with optional auto-reroll of non-hunger misses
+  function executePoolRoll(title, poolSize, hunger, breakdown, rerolls) {
     if (poolSize < 1) poolSize = 1;
+    rerolls = rerolls || 0;
     var normal = Math.max(poolSize - hunger, 0);
     var hungerDice = Math.min(hunger, poolSize);
     var rollStr = '&{template:pool} {{title=' + title + '}} {{breakdown=' + breakdown + ' = ' + poolSize + 'D}}';
     if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>4]]}}';
     if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>4]]}}';
     rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
+    if (rerolls > 0) rollStr += ' {{rerolls=[[0]]}}';
     startRoll(rollStr, function(results) {
-      var nH = normal > 0 ? results.results.normal.result : 0;
-      var hH = hungerDice > 0 ? results.results.hunger_roll.result : 0;
-      finishRoll(results.rollId, { hits: nH + hH, misses: poolSize - (nH + hH), net: nH + hH });
+      var normalHits = normal > 0 ? results.results.normal.result : 0;
+      var hungerHits = hungerDice > 0 ? results.results.hunger_roll.result : 0;
+
+      // Count normal dice misses available for reroll
+      var missCount = 0;
+      if (rerolls > 0 && normal > 0 && results.results.normal.dice) {
+        results.results.normal.dice.forEach(function(d) {
+          if (d < 5) missCount++;
+        });
+      }
+      var actualRerolls = Math.min(rerolls, missCount);
+
+      if (actualRerolls > 0) {
+        // Roll replacement dice for misses
+        var rerollStr = '&{template:pool} {{title=' + title + ' (Rerolls)}} {{breakdown=Rerolling ' + actualRerolls + ' misses}}';
+        rerollStr += ' {{normal=[[' + actualRerolls + 'd6cs>4]]}} {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
+        startRoll(rerollStr, function(rerollResults) {
+          var rerollHits = rerollResults.results.normal.result;
+          var totalHits = normalHits + hungerHits + rerollHits;
+          var totalMisses = poolSize - normalHits - hungerHits - rerollHits;
+          finishRoll(rerollResults.rollId, {
+            hits: totalHits,
+            misses: totalMisses,
+            net: totalHits
+          });
+          // Finish original roll showing pre-reroll state
+          finishRoll(results.rollId, {
+            hits: normalHits + hungerHits,
+            misses: poolSize - normalHits - hungerHits,
+            net: normalHits + hungerHits,
+            rerolls: actualRerolls
+          });
+        });
+      } else {
+        var totalHits = normalHits + hungerHits;
+        var computed = {
+          hits: totalHits,
+          misses: poolSize - totalHits,
+          net: totalHits
+        };
+        if (rerolls > 0) computed.rerolls = 0;
+        finishRoll(results.rollId, computed);
+      }
     });
   }
 
@@ -1429,7 +1472,8 @@
         var capBroad = broad.charAt(0).toUpperCase() + broad.slice(1);
         var capFocus = focus.charAt(0).toUpperCase() + focus.slice(1);
         var bdLabel = capAttr + ' ' + attrVal + ' + ' + capBroad + ' ' + broadVal + ' + ' + capFocus + ' ' + focusVal;
-        executePoolRoll(capFocus, pool, hunger, bdLabel);
+        // Auto-reroll misses up to the focused skill value
+        executePoolRoll(capFocus, pool, hunger, bdLabel, focusVal);
       });
     });
   });
@@ -1442,36 +1486,8 @@
       var bonus = parseInt(v.pool_bonus) || 0;
       var hunger = parseInt(v.hunger) || 0;
       var total = attr + skill + bonus;
-      var normal = Math.max(total - hunger, 0);
-      var hungerDice = Math.min(hunger, total);
-
-      var rollStr = '&{template:pool} {{title=Pool Roll}} {{breakdown=' + attr + ' + ' + skill + ' + ' + bonus + '}}';
-      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>4]]}}';
-      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>4]]}}';
-      rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
-
-      startRoll(rollStr, function (results) {
-        var normalHits = normal > 0 ? results.results.normal.result : 0;
-        var hungerHits = hungerDice > 0 ? results.results.hunger_roll.result : 0;
-        var totalHits = normalHits + hungerHits;
-        var totalMisses = total - totalHits;
-
-        // Check for bestial failures (1s on hunger dice)
-        var bestialCount = 0;
-        if (hungerDice > 0 && results.results.hunger_roll.dice) {
-          results.results.hunger_roll.dice.forEach(function (d) {
-            if (d === 1) bestialCount++;
-          });
-        }
-
-        var computed = {
-          hits: totalHits,
-          misses: totalMisses,
-          net: totalHits
-        };
-
-        finishRoll(results.rollId, computed);
-      });
+      var bdLabel = attr + ' + ' + skill + ' + ' + bonus;
+      executePoolRoll('Pool Roll', total, hunger, bdLabel);
     });
   });
 
@@ -1516,28 +1532,13 @@
               prefix + 'weapon_extra_dmg', prefix + 'weapon_name', 'hunger'], function (v) {
       var poolSize = parseInt(v[prefix + 'weapon_pool']) || 1;
       var hunger = parseInt(v.hunger) || 0;
-      var normal = Math.max(poolSize - hunger, 0);
-      var hungerDice = Math.min(hunger, poolSize);
       var wName = v[prefix + 'weapon_name'] || 'Weapon';
       var dmg = v[prefix + 'weapon_damage'] || '';
       var extraDmg = v[prefix + 'weapon_extra_dmg'] || '';
-
-      var rollStr = '&{template:pool} {{title=' + wName + ' Attack}}';
-      rollStr += ' {{breakdown=Pool ' + poolSize + '}}';
-      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>4]]}}';
-      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>4]]}}';
-      if (dmg) rollStr += ' {{damage=Dmg: ' + dmg + (extraDmg ? ' +' + extraDmg : '') + '}}';
-      rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
-
-      startRoll(rollStr, function (results) {
-        var normalHits = normal > 0 ? results.results.normal.result : 0;
-        var hungerHits = hungerDice > 0 ? results.results.hunger_roll.result : 0;
-        finishRoll(results.rollId, {
-          hits: normalHits + hungerHits,
-          misses: poolSize - (normalHits + hungerHits),
-          net: normalHits + hungerHits
-        });
-      });
+      var rerolls = parseInt(v[prefix + 'weapon_rerolls']) || 0;
+      var bdLabel = 'Pool ' + poolSize;
+      if (dmg) bdLabel += ' | Dmg: ' + dmg + (extraDmg ? ' +' + extraDmg : '');
+      executePoolRoll(wName + ' Attack', poolSize, hunger, bdLabel, rerolls);
     });
   });
 
@@ -1546,23 +1547,7 @@
     getAttrs(['custom_pool', 'hunger'], function (v) {
       var poolSize = parseInt(v.custom_pool) || 1;
       var hunger = parseInt(v.hunger) || 0;
-      var normal = Math.max(poolSize - hunger, 0);
-      var hungerDice = Math.min(hunger, poolSize);
-
-      var rollStr = '&{template:pool} {{title=Custom Roll}} {{breakdown=Pool ' + poolSize + '}}';
-      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>4]]}}';
-      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>4]]}}';
-      rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
-
-      startRoll(rollStr, function (results) {
-        var normalHits = normal > 0 ? results.results.normal.result : 0;
-        var hungerHits = hungerDice > 0 ? results.results.hunger_roll.result : 0;
-        finishRoll(results.rollId, {
-          hits: normalHits + hungerHits,
-          misses: poolSize - (normalHits + hungerHits),
-          net: normalHits + hungerHits
-        });
-      });
+      executePoolRoll('Custom Roll', poolSize, hunger, 'Pool ' + poolSize);
     });
   });
 
@@ -1796,26 +1781,8 @@
         }
       });
 
-      if (poolSize < 1) poolSize = 1;
-
-      var normal = Math.max(poolSize - hunger, 0);
-      var hungerDice = Math.min(hunger, poolSize);
-
-      var rollStr = '&{template:pool} {{title=' + abilityName + '}}';
-      rollStr += ' {{breakdown=' + breakdown.join(' + ') + ' = ' + poolSize + 'D}}';
-      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>4]]}}';
-      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>4]]}}';
-      rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
-
-      startRoll(rollStr, function (results) {
-        var normalHits = normal > 0 ? results.results.normal.result : 0;
-        var hungerHits = hungerDice > 0 ? results.results.hunger_roll.result : 0;
-        finishRoll(results.rollId, {
-          hits: normalHits + hungerHits,
-          misses: poolSize - (normalHits + hungerHits),
-          net: normalHits + hungerHits
-        });
-      });
+      var bdLabel = breakdown.join(' + ') + ' = ' + poolSize + 'D';
+      executePoolRoll(abilityName, poolSize, hunger, bdLabel);
     });
   });
 
