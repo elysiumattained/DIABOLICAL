@@ -335,9 +335,8 @@ input[type="radio"]:checked + .sheet-tracker-box {
 .sheet-tracker-box:hover {
   border-color: #b22222;
 }
-.sheet-tracker-row input[type="radio"] {
-  display: none;
-}
+/* Removed: .sheet-tracker-row input[type="radio"] display:none
+   was hiding humanity track radios */
 
 /* HP Display (current/max) */
 .sheet-hp-display {
@@ -771,18 +770,26 @@ input.sheet-death-box:checked {
   font-family: inherit;
 }
 .sheet-domain-level:focus { outline: none; border-color: #8b0000; }
-.sheet-domain-passive {
-  flex: 2;
+.sheet-domain-block {
+  border-bottom: 1px solid #333;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+}
+.sheet-domain-block:last-child { border-bottom: none; }
+.sheet-domain-abilities {
+  width: 100%;
+  min-height: 60px;
   background: #2a2a2a;
   border: 1px solid #3a3a3a;
-  color: #999;
-  padding: 5px 8px;
-  font-size: 0.8rem;
+  color: #ccc;
+  padding: 6px 8px;
+  font-size: 0.75rem;
   border-radius: 3px;
   font-family: inherit;
-  font-style: italic;
+  line-height: 1.4;
+  resize: vertical;
+  margin-top: 4px;
 }
-.sheet-domain-passive:focus { outline: none; border-color: #8b0000; }
 .sheet-domain-note-text {
   width: 100%;
   background: #2a2a2a;

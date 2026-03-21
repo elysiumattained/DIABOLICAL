@@ -148,7 +148,6 @@
           <input type="number" name="attr_bane_severity" value="0" min="0" max="5">
         </div>
       </div>
-      <textarea name="attr_fear_rating_effects" disabled class="sheet-fear-effects-text" placeholder="Select a Fear Rating to see effects..."></textarea>
     </div>
 
     <!-- ─── Attributes & Skills ─── -->
@@ -765,131 +764,143 @@
        ═══════════════════════════════════════════════════════════ -->
   <div class="sheet-tab sheet-tab-domains">
 
-    <!-- Innate Domains (5 fixed slots) -->
+    <!-- Innate Domains -->
     <div class="sheet-section">
       <div class="sheet-section-title">Innate Domains</div>
-      <p class="sheet-section-note">Select your innate domains and set their levels. Passive bonuses auto-display below.</p>
+      <p class="sheet-section-note">Select a domain and level. Abilities auto-populate below.</p>
 
-      <div class="sheet-domain-slot">
-        <select name="attr_innate1_name" class="sheet-domain-select">
-          <option value="">-- None --</option>
-          <option value="The Buried">The Buried</option>
-          <option value="The Corruption">The Corruption</option>
-          <option value="The Dark">The Dark</option>
-          <option value="The End">The End</option>
-          <option value="The Eye">The Eye</option>
-          <option value="The Flesh">The Flesh</option>
-          <option value="The Hunt">The Hunt</option>
-          <option value="The Lonely">The Lonely</option>
-          <option value="The Slaughter">The Slaughter</option>
-          <option value="The Spiral">The Spiral</option>
-          <option value="The Stranger">The Stranger</option>
-          <option value="The Vast">The Vast</option>
-          <option value="The Web">The Web</option>
-        </select>
-        <span class="sheet-domain-level-label">Lvl</span>
-        <select name="attr_innate1_level" class="sheet-domain-level">
-          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
-          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
-        </select>
-        <input type="text" name="attr_innate1_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
+      <div class="sheet-domain-block">
+        <div class="sheet-domain-slot">
+          <select name="attr_innate1_name" class="sheet-domain-select">
+            <option value="">-- None --</option>
+            <option value="The Buried">The Buried</option>
+            <option value="The Corruption">The Corruption</option>
+            <option value="The Dark">The Dark</option>
+            <option value="The End">The End</option>
+            <option value="The Eye">The Eye</option>
+            <option value="The Flesh">The Flesh</option>
+            <option value="The Hunt">The Hunt</option>
+            <option value="The Lonely">The Lonely</option>
+            <option value="The Slaughter">The Slaughter</option>
+            <option value="The Spiral">The Spiral</option>
+            <option value="The Stranger">The Stranger</option>
+            <option value="The Vast">The Vast</option>
+            <option value="The Web">The Web</option>
+          </select>
+          <span class="sheet-domain-level-label">Lvl</span>
+          <select name="attr_innate1_level" class="sheet-domain-level">
+            <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
+            <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+          </select>
+        </div>
+        <textarea name="attr_innate1_abilities" class="sheet-domain-abilities" disabled placeholder="Select a domain to see abilities..."></textarea>
       </div>
 
-      <div class="sheet-domain-slot">
-        <select name="attr_innate2_name" class="sheet-domain-select">
-          <option value="">-- None --</option>
-          <option value="The Buried">The Buried</option><option value="The Corruption">The Corruption</option>
-          <option value="The Dark">The Dark</option><option value="The End">The End</option>
-          <option value="The Eye">The Eye</option><option value="The Flesh">The Flesh</option>
-          <option value="The Hunt">The Hunt</option><option value="The Lonely">The Lonely</option>
-          <option value="The Slaughter">The Slaughter</option><option value="The Spiral">The Spiral</option>
-          <option value="The Stranger">The Stranger</option><option value="The Vast">The Vast</option>
-          <option value="The Web">The Web</option>
-        </select>
-        <span class="sheet-domain-level-label">Lvl</span>
-        <select name="attr_innate2_level" class="sheet-domain-level">
-          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
-          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
-        </select>
-        <input type="text" name="attr_innate2_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
+      <div class="sheet-domain-block">
+        <div class="sheet-domain-slot">
+          <select name="attr_innate2_name" class="sheet-domain-select">
+            <option value="">-- None --</option>
+            <option value="The Buried">The Buried</option><option value="The Corruption">The Corruption</option>
+            <option value="The Dark">The Dark</option><option value="The End">The End</option>
+            <option value="The Eye">The Eye</option><option value="The Flesh">The Flesh</option>
+            <option value="The Hunt">The Hunt</option><option value="The Lonely">The Lonely</option>
+            <option value="The Slaughter">The Slaughter</option><option value="The Spiral">The Spiral</option>
+            <option value="The Stranger">The Stranger</option><option value="The Vast">The Vast</option>
+            <option value="The Web">The Web</option>
+          </select>
+          <span class="sheet-domain-level-label">Lvl</span>
+          <select name="attr_innate2_level" class="sheet-domain-level">
+            <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
+            <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+          </select>
+        </div>
+        <textarea name="attr_innate2_abilities" class="sheet-domain-abilities" disabled placeholder="Select a domain to see abilities..."></textarea>
       </div>
 
-      <div class="sheet-domain-slot">
-        <select name="attr_innate3_name" class="sheet-domain-select">
-          <option value="">-- None --</option>
-          <option value="The Buried">The Buried</option><option value="The Corruption">The Corruption</option>
-          <option value="The Dark">The Dark</option><option value="The End">The End</option>
-          <option value="The Eye">The Eye</option><option value="The Flesh">The Flesh</option>
-          <option value="The Hunt">The Hunt</option><option value="The Lonely">The Lonely</option>
-          <option value="The Slaughter">The Slaughter</option><option value="The Spiral">The Spiral</option>
-          <option value="The Stranger">The Stranger</option><option value="The Vast">The Vast</option>
-          <option value="The Web">The Web</option>
-        </select>
-        <span class="sheet-domain-level-label">Lvl</span>
-        <select name="attr_innate3_level" class="sheet-domain-level">
-          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
-          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
-        </select>
-        <input type="text" name="attr_innate3_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
+      <div class="sheet-domain-block">
+        <div class="sheet-domain-slot">
+          <select name="attr_innate3_name" class="sheet-domain-select">
+            <option value="">-- None --</option>
+            <option value="The Buried">The Buried</option><option value="The Corruption">The Corruption</option>
+            <option value="The Dark">The Dark</option><option value="The End">The End</option>
+            <option value="The Eye">The Eye</option><option value="The Flesh">The Flesh</option>
+            <option value="The Hunt">The Hunt</option><option value="The Lonely">The Lonely</option>
+            <option value="The Slaughter">The Slaughter</option><option value="The Spiral">The Spiral</option>
+            <option value="The Stranger">The Stranger</option><option value="The Vast">The Vast</option>
+            <option value="The Web">The Web</option>
+          </select>
+          <span class="sheet-domain-level-label">Lvl</span>
+          <select name="attr_innate3_level" class="sheet-domain-level">
+            <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
+            <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+          </select>
+        </div>
+        <textarea name="attr_innate3_abilities" class="sheet-domain-abilities" disabled placeholder="Select a domain to see abilities..."></textarea>
       </div>
     </div>
 
-    <!-- Learned Domains (3 fixed slots) -->
+    <!-- Learned Domains -->
     <div class="sheet-section">
       <div class="sheet-section-title">Learned Domains</div>
 
-      <div class="sheet-domain-slot">
-        <select name="attr_learned1_name" class="sheet-domain-select">
-          <option value="">-- None --</option>
-          <option value="Celerity">Celerity</option>
-          <option value="Fortitude">Fortitude</option>
-          <option value="Potence">Potence</option>
-          <option value="Kinetics">Kinetics</option>
-          <option value="Tulpamancy">Tulpamancy</option>
-        </select>
-        <span class="sheet-domain-level-label">Lvl</span>
-        <select name="attr_learned1_level" class="sheet-domain-level">
-          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
-          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
-        </select>
-        <input type="text" name="attr_learned1_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
+      <div class="sheet-domain-block">
+        <div class="sheet-domain-slot">
+          <select name="attr_learned1_name" class="sheet-domain-select">
+            <option value="">-- None --</option>
+            <option value="Celerity">Celerity</option>
+            <option value="Fortitude">Fortitude</option>
+            <option value="Potence">Potence</option>
+            <option value="Kinetics">Kinetics</option>
+            <option value="Tulpamancy">Tulpamancy</option>
+          </select>
+          <span class="sheet-domain-level-label">Lvl</span>
+          <select name="attr_learned1_level" class="sheet-domain-level">
+            <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
+            <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+          </select>
+        </div>
+        <textarea name="attr_learned1_abilities" class="sheet-domain-abilities" disabled placeholder="Select a domain to see abilities..."></textarea>
       </div>
 
-      <div class="sheet-domain-slot">
-        <select name="attr_learned2_name" class="sheet-domain-select">
-          <option value="">-- None --</option>
-          <option value="Celerity">Celerity</option><option value="Fortitude">Fortitude</option>
-          <option value="Potence">Potence</option><option value="Kinetics">Kinetics</option>
-          <option value="Tulpamancy">Tulpamancy</option>
-        </select>
-        <span class="sheet-domain-level-label">Lvl</span>
-        <select name="attr_learned2_level" class="sheet-domain-level">
-          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
-          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
-        </select>
-        <input type="text" name="attr_learned2_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
+      <div class="sheet-domain-block">
+        <div class="sheet-domain-slot">
+          <select name="attr_learned2_name" class="sheet-domain-select">
+            <option value="">-- None --</option>
+            <option value="Celerity">Celerity</option><option value="Fortitude">Fortitude</option>
+            <option value="Potence">Potence</option><option value="Kinetics">Kinetics</option>
+            <option value="Tulpamancy">Tulpamancy</option>
+          </select>
+          <span class="sheet-domain-level-label">Lvl</span>
+          <select name="attr_learned2_level" class="sheet-domain-level">
+            <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
+            <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+          </select>
+        </div>
+        <textarea name="attr_learned2_abilities" class="sheet-domain-abilities" disabled placeholder="Select a domain to see abilities..."></textarea>
       </div>
 
-      <div class="sheet-domain-slot">
-        <select name="attr_learned3_name" class="sheet-domain-select">
-          <option value="">-- None --</option>
-          <option value="Celerity">Celerity</option><option value="Fortitude">Fortitude</option>
-          <option value="Potence">Potence</option><option value="Kinetics">Kinetics</option>
-          <option value="Tulpamancy">Tulpamancy</option>
-        </select>
-        <span class="sheet-domain-level-label">Lvl</span>
-        <select name="attr_learned3_level" class="sheet-domain-level">
-          <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
-          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
-        </select>
-        <input type="text" name="attr_learned3_passive" class="sheet-domain-passive" disabled placeholder="Passive bonus...">
+      <div class="sheet-domain-block">
+        <div class="sheet-domain-slot">
+          <select name="attr_learned3_name" class="sheet-domain-select">
+            <option value="">-- None --</option>
+            <option value="Celerity">Celerity</option><option value="Fortitude">Fortitude</option>
+            <option value="Potence">Potence</option><option value="Kinetics">Kinetics</option>
+            <option value="Tulpamancy">Tulpamancy</option>
+          </select>
+          <span class="sheet-domain-level-label">Lvl</span>
+          <select name="attr_learned3_level" class="sheet-domain-level">
+            <option value="0">0</option><option value="1" selected>1</option><option value="2">2</option>
+            <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+          </select>
+        </div>
+        <textarea name="attr_learned3_abilities" class="sheet-domain-abilities" disabled placeholder="Select a domain to see abilities..."></textarea>
       </div>
     </div>
 
     <!-- Domain Roll (generic) -->
     <div class="sheet-section">
       <div class="sheet-section-title">Domain Ability Roll</div>
-      <p class="sheet-section-note">Enter a pool string (e.g. "Spirit + Buried") and click Roll. The sheet worker resolves attribute + domain level values automatically.</p>
+      <p class="sheet-section-note">Enter a pool string (e.g. "Spirit + Buried") and click Roll.</p>
       <div class="sheet-row">
         <div class="sheet-field">
           <label>Ability Name</label>
@@ -909,7 +920,7 @@
 
     <!-- Domain Ability Notes (free text list) -->
     <div class="sheet-section">
-      <div class="sheet-section-title">Domain Abilities (Quick Reference)</div>
+      <div class="sheet-section-title">Domain Notes</div>
       <fieldset class="repeating_domain_notes">
         <textarea name="attr_domain_note" placeholder="Ability notes..." class="sheet-domain-note-text"></textarea>
       </fieldset>
@@ -1081,10 +1092,10 @@
             <option value="Sandman">Sandman</option>
             <option value="Scene Queen">Scene Queen</option>
             <option value="Siren">Siren</option>
-            <option value="Osiris">Osiris (NPC)</option>
-            <option value="Trapdoor">Trapdoor (NPC)</option>
-            <option value="Montero">Montero (NPC)</option>
-            <option value="Roadside Killer">Roadside Killer (NPC)</option>
+            <option value="Osiris (NPC)">Osiris (NPC)</option>
+            <option value="Trapdoor (NPC)">Trapdoor (NPC)</option>
+            <option value="Montero (NPC)">Montero (NPC)</option>
+            <option value="Roadside Killer (NPC)">Roadside Killer (NPC)</option>
           </select>
         </div>
       </div>
@@ -1281,11 +1292,11 @@
     });
   });
 
-  // ─── Auto-calc: HP Max = Body + Spirit (Hit Dice) ───
+  // ─── Auto-calc: Hit Dice Max = Body + Spirit ───
   on('change:body change:spirit sheet:opened', function () {
     getAttrs(['body', 'spirit'], function (v) {
-      var hp = (parseInt(v.body) || 0) + (parseInt(v.spirit) || 0);
-      setAttrs({ hp_max: hp });
+      var hd = (parseInt(v.body) || 0) + (parseInt(v.spirit) || 0);
+      setAttrs({ hit_dice_max: hd });
     });
   });
 
@@ -1378,8 +1389,8 @@
     var normal = Math.max(poolSize - hunger, 0);
     var hungerDice = Math.min(hunger, poolSize);
     var rollStr = '&{template:pool} {{title=' + title + '}} {{breakdown=' + breakdown + ' = ' + poolSize + 'D}}';
-    if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>4]]}}';
-    if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>4]]}}';
+    if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>=5]]}}';
+    if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>=5]]}}';
     rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
     startRoll(rollStr, function(results) {
       var nH = normal > 0 ? results.results.normal.result : 0;
@@ -1435,8 +1446,8 @@
       var hungerDice = Math.min(hunger, total);
 
       var rollStr = '&{template:pool} {{title=Pool Roll}} {{breakdown=' + attr + ' + ' + skill + ' + ' + bonus + '}}';
-      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>4]]}}';
-      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>4]]}}';
+      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>=5]]}}';
+      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>=5]]}}';
       rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
 
       startRoll(rollStr, function (results) {
@@ -1513,8 +1524,8 @@
 
       var rollStr = '&{template:pool} {{title=' + wName + ' Attack}}';
       rollStr += ' {{breakdown=Pool ' + poolSize + '}}';
-      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>4]]}}';
-      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>4]]}}';
+      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>=5]]}}';
+      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>=5]]}}';
       if (dmg) rollStr += ' {{damage=Dmg: ' + dmg + (extraDmg ? ' +' + extraDmg : '') + '}}';
       rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
 
@@ -1539,8 +1550,8 @@
       var hungerDice = Math.min(hunger, poolSize);
 
       var rollStr = '&{template:pool} {{title=Custom Roll}} {{breakdown=Pool ' + poolSize + '}}';
-      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>4]]}}';
-      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>4]]}}';
+      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>=5]]}}';
+      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>=5]]}}';
       rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
 
       startRoll(rollStr, function (results) {
@@ -1792,8 +1803,8 @@
 
       var rollStr = '&{template:pool} {{title=' + abilityName + '}}';
       rollStr += ' {{breakdown=' + breakdown.join(' + ') + ' = ' + poolSize + 'D}}';
-      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>4]]}}';
-      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>4]]}}';
+      if (normal > 0) rollStr += ' {{normal=[[' + normal + 'd6cs>=5]]}}';
+      if (hungerDice > 0) rollStr += ' {{hunger_roll=[[' + hungerDice + 'd6cs>=5]]}}';
       rollStr += ' {{hits=[[0]]}} {{misses=[[0]]}} {{net=[[0]]}}';
 
       startRoll(rollStr, function (results) {
@@ -1805,6 +1816,552 @@
           net: normalHits + hungerHits
         });
       });
+    });
+  });
+
+  // ─── Domain Ability Data ───
+  var DOMAIN_DATA = {
+    'The Buried': {
+      passive: 'Deep Breath: You no longer need to breathe (not immune to supernatural Choke).',
+      abilities: {
+        1: [
+          {name:'The Clutching Hand',pool:'Spirit + Buried',bp:1,rouse:'No',ap:2,desc:'Grapple a target within 30ft that you can see.'},
+          {name:'Deep Breath',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'You no longer need to breathe.'}
+        ],
+        2: [
+          {name:'The Clutching Hand II',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Range of Clutching Hand extended to 60ft.'},
+          {name:'Too Close',pool:'N/A',bp:1,rouse:'No',ap:1,desc:'Squeeze air from grappled/restrained/paralyzed target; Choke dmg = Buried lvl, -1 to escape.'}
+        ],
+        3: [
+          {name:'The Sinking Earth',pool:'N/A',bp:3,rouse:'Yes',ap:2,desc:'Create 10ft radius difficult terrain circle.'},
+          {name:'The Grasping Arms',pool:'Spirit + Buried',bp:3,rouse:'Yes',ap:2,desc:'Restrain target at range; target may spend 2AP to remake check.'}
+        ],
+        4: [
+          {name:'The Crushing Weight',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Creatures ending turn Restrained/Paralyzed by you or in Sinking Earth take Choke dmg = 2x Buried lvl.'},
+          {name:'The Leaden Chains',pool:'Spirit + Buried',bp:4,rouse:'Yes',ap:'Full',desc:'Paralyze target; lasts rounds = additional hits scored.'}
+        ],
+        5: [
+          {name:'The Earthen Tomb',pool:'Spirit + Buried',bp:5,rouse:'Yes',ap:'Full',desc:'Creature under Leaden Chains is swallowed into unconscious Torpor-like state (permanent until released).'}
+        ]
+      }
+    },
+    'The Corruption': {
+      passive: 'Already Occupied: Bonus to Opposed checks vs Corruption = your Corruption lvl. Disruptive Attacks: Brawl deals chosen Disruptive damage.',
+      abilities: {
+        1: [
+          {name:'Already Occupied',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Bonus to Opposed checks vs others\' Corruption = your Corruption level.'},
+          {name:'Disruptive Attacks',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Brawl attacks deal one chosen type of Disruptive damage.'}
+        ],
+        2: [
+          {name:'Blighted Strike',pool:'Body + Corruption',bp:2,rouse:'Yes',ap:2,desc:'Strike enemy; every hit inflicts one Malady.'},
+          {name:'Dazed Haze',pool:'Body + Corruption',bp:2,rouse:'Yes',ap:1,desc:'Release cloud; every hit inflicts one round of Dazed.'}
+        ],
+        3: [
+          {name:'Toxic Aura',pool:'N/A',bp:3,rouse:'Yes',ap:2,desc:'Creatures within 2BL radius Impaired 1 for 1 min.'},
+          {name:'Exacerbating Bond',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Your blood causes Bonded to fall into worse habits.'}
+        ],
+        4: [
+          {name:'Corrosive Aura',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Creatures with your Malady in Toxic Aura must pass DC2 Spirit+Endure or become Lethargic.'},
+          {name:'Malignant Touch',pool:'Body + Corruption',bp:4,rouse:'Yes',ap:2,desc:'On contact, inflict 6 Malady and Daze for 2 rounds.'},
+          {name:'Dependency',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Your Vitae is addictive; Bonded must take Addiction and Bond Junkie flaws.'}
+        ],
+        5: [
+          {name:'Mastery of Malady',pool:'N/A',bp:6,rouse:'Yes',ap:2,desc:'Regain HP when a target takes damage from your Malady, equal to damage dealt.'},
+          {name:'Infectious Influence',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Those with close ties to your Bonded become partially Bonded to you; -1D to rolls against you.'}
+        ]
+      }
+    },
+    'The Dark': {
+      passive: 'Cloak of Shadows: Bonus to Sneak checks = your Dark level.',
+      abilities: {
+        1: [
+          {name:'Cloak of Shadows',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Bonus to Sneak checks = Dark level.'},
+          {name:'Silence',pool:'N/A',bp:1,rouse:'Yes',ap:1,desc:'Nullify all sound you make for 1 hour.'}
+        ],
+        2: [
+          {name:'Obfuscate',pool:'N/A',bp:2,rouse:'Yes',ap:1,desc:'Invisible while motionless.'},
+          {name:'Silence II',pool:'N/A',bp:2,rouse:'Yes',ap:1,desc:'All sounds from your actions nullified.'},
+          {name:'From the Shadows',pool:'N/A',bp:2,rouse:'Yes',ap:0,desc:'Requires Hidden; attacks gain bonus = Dark lvl, dmg bonus = 2x Dark lvl.'}
+        ],
+        3: [
+          {name:'Obfuscate II',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Move at half speed without breaking Obfuscate.'},
+          {name:'Snuff',pool:'N/A',bp:2,rouse:'No',ap:2,desc:'Extinguish all light sources within 2x Dark lvl BLs.'},
+          {name:'Tenebrous Tentacles',pool:'N/A',bp:3,rouse:'Yes',ap:2,desc:'Reach 3BL, climbing speed 20ft; can only Interact or Half-Attack.'}
+        ],
+        4: [
+          {name:'Blackout',pool:'N/A',bp:3,rouse:'Yes',ap:2,desc:'Disable all electronic devices within Snuff range.'},
+          {name:'Blind',pool:'Mind + Dark',bp:3,rouse:'Yes',ap:2,desc:'Blind target creature (ends when you stop looking at them).'},
+          {name:'Cold Grip',pool:'Body + Dark',bp:3,rouse:'Yes',ap:2,desc:'With Tenebrous Tentacles, Brawl grapples and deals 4 Mystic dmg/hit.'},
+          {name:'Creeping Darkness',pool:'N/A',bp:4,rouse:'Yes',ap:2,desc:'Spread magical darkness from shaded point within 60ft (max 1BL/Dark lvl radius).'}
+        ],
+        5: [
+          {name:'Cloaked Caravan',pool:'N/A',bp:'Base+1/creature',rouse:'Base+1',ap:'Ritual',desc:'Extend any Dark ability to Mind + Dark creatures.'},
+          {name:'The Greatest Trick',pool:'N/A',bp:5,rouse:'Yes',ap:'Full',desc:'Completely invisible and intangible; undetectable even by supernatural means.'}
+        ]
+      }
+    },
+    'The End': {
+      passive: 'Eyes of the Grave: Bonus to Intimidate checks = your End level.',
+      abilities: {
+        1: [
+          {name:'Eyes of the Grave',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Bonus to Intimidate checks = End level.'},
+          {name:'Ferryman\'s Toll',pool:'N/A',bp:1,rouse:'No',ap:'Ritual',desc:'Funeral rites on corpse (10 min): find $50 coin, or consume (1AP) to reduce next Domain BP cost by 2.'}
+        ],
+        2: [
+          {name:'Curtain Call',pool:'N/A',bp:3,rouse:'Yes',ap:2,desc:'Declare something will end and it does before your next turn (not supernatural effects).'},
+          {name:'Voice From Beyond',pool:'N/A',bp:3,rouse:'Yes',ap:'Ritual',desc:'Touch corpse to question spirit; up to 5 questions in 5 min.'}
+        ],
+        3: [
+          {name:'Dust to Dust',pool:'N/A',bp:3,rouse:'Yes',ap:'Full',desc:'Creatures within 1BL cannot regain HP by any means for 1 min.'},
+          {name:'Calm of the Grave',pool:'N/A',bp:4,rouse:'Yes',ap:1,desc:'Cease all conditions affecting you.'}
+        ],
+        4: [
+          {name:'Memento Mori',pool:'Spirit + End',bp:4,rouse:'Yes',ap:'Full',desc:'Loser takes 1 WP damage per hit scored against them.'},
+          {name:'Inevitable',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'At 0 HP, restore to 20 HP and gain additional AP next turn (once between dawns).'}
+        ],
+        5: [
+          {name:'Calm of the Grave II',pool:'N/A',bp:5,rouse:'Yes',ap:1,desc:'Cease all conditions affecting your target.'},
+          {name:'Utter Doom',pool:'Spirit + End',bp:6,rouse:'Yes/turn',ap:'Full',desc:'Mark target for death; their Damage Response lowered by 1 (all types) for 1 min.'}
+        ]
+      }
+    },
+    'The Eye': {
+      passive: 'Watchful: Bonus to Notice checks = your Eye level.',
+      abilities: {
+        1: [
+          {name:'Watchful',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Bonus to Notice checks = Eye level.'},
+          {name:'Advanced Inference',pool:'N/A',bp:1,rouse:'No',ap:1,desc:'Gain info building off a piece you already have (GM discretion).'}
+        ],
+        2: [
+          {name:'Legend Lore',pool:'N/A',bp:2,rouse:'No',ap:'Ritual',desc:'Touch object to learn its history, creator, purpose, and use.'},
+          {name:'Locate I',pool:'N/A',bp:2,rouse:'Yes',ap:2,desc:'Sense direction to a familiar object within range.'},
+          {name:'Metadata',pool:'Spirit + Eye',bp:2,rouse:'Yes',ap:2,desc:'Choose visible creature; spend hits to learn HP, BP, WP, name, type, attributes, skills, domains, or Humanity.'}
+        ],
+        3: [
+          {name:'Many Eyes',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Sigil on objects/creatures you touch; Eye abilities auto-succeed and -1 BP on sigiled targets (max = Eye lvl).'},
+          {name:'Locate II',pool:'N/A',bp:2,rouse:'Yes',ap:2,desc:'Sense direction to a familiar creature within range.'},
+          {name:'Eyes of Warning',pool:'N/A',bp:2,rouse:'No',ap:1,desc:'Until end of next turn, know location of creatures within 60ft using mystics to hide.'}
+        ],
+        4: [
+          {name:'Windows to the Soul',pool:'Spirit + Eye',bp:3,rouse:'Yes',ap:'Full',desc:'Eye contact; loser experiences winner\'s last hour.'},
+          {name:'Scry',pool:'Spirit + Eye',bp:3,rouse:'Yes',ap:'Ritual',desc:'See and hear around a familiar creature/object/location for 10 min.'},
+          {name:'Piercing Gaze',pool:'N/A',bp:3,rouse:'No',ap:2,desc:'Truesight out to 20ft for 1 hour.'}
+        ],
+        5: [
+          {name:'Chrono Camera',pool:'N/A',bp:3,rouse:'Yes',ap:'Ritual',desc:'Perceive a past event (up to 1 month ago, extendable).'},
+          {name:'Foresight',pool:'N/A',bp:5,rouse:'Yes',ap:'R',desc:'Reaction: take your turn before a visible creature\'s action resolves (next turn starts at -3 AP).'}
+        ]
+      }
+    },
+    'The Flesh': {
+      passive: 'Intimacy of the Flesh: Bonus to Surgery checks = your Flesh level.',
+      abilities: {
+        1: [
+          {name:'Intimacy of the Flesh',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Bonus to Surgery checks = Flesh level.'},
+          {name:'Horrid Extremity',pool:'N/A',bp:2,rouse:'Yes',ap:1,desc:'Mutate one limb; Brawl deals Mystic dmg base 3 for 1 min.'}
+        ],
+        2: [
+          {name:'Vicissitude',pool:'Mind + Flesh',bp:'Varies',rouse:'1/op',ap:'Ritual',desc:'Change shape of flesh and bones (complex ability with own rules).'},
+          {name:'Extend Appendage',pool:'N/A',bp:2,rouse:'Yes',ap:2,desc:'Extend reach by 5ft (10ft with extra 2 BP at Flesh 3+).'},
+          {name:'Flawless Transplant',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Organs you remove don\'t die/rot; can be implanted without complication.'}
+        ],
+        3: [
+          {name:'Flesh Motes',pool:'N/A',bp:3,rouse:'Yes',ap:2,desc:'Up to 4 Tiny minions sharing senses (Res = Flesh lvl, base dmg 2, spd 30ft).'},
+          {name:'Vicissitude II',pool:'Mind + Flesh',bp:'—',rouse:'—',ap:'Passive',desc:'Use Vicissitude on others (target must be Unconscious/Incapacitated).'}
+        ],
+        4: [
+          {name:'Undulant Innards',pool:'Body + Flesh',bp:4,rouse:'Yes',ap:2,desc:'Target immune to extra domain dmg, min fall dmg, +2 vs Malady/Pinned; cannot be healed normally.'},
+          {name:'Vicissitude III',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Create horrific living Fleshwrought objects from subjects.'},
+          {name:'Visceral Absorption',pool:'N/A',bp:4,rouse:'No',ap:'Ritual',desc:'Touch floor to absorb gore; clean area and sate Hunger (1 per body).'}
+        ],
+        5: [
+          {name:'Flesh Motes II',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Motes no longer require AP; base dmg 3; can activate Flesh effects from their location.'},
+          {name:'Battleform',pool:'N/A',bp:6,rouse:'Yes/round',ap:'Full',desc:'BL +1 size, Horrid Extremity + Extend; Brawl base 5, Full Attack at 1AP. Speed -10ft, -3 to Frenzy/Mind.'}
+        ]
+      }
+    },
+    'The Hunt': {
+      passive: 'Natural Tracker: Bonus to Track checks = Hunt lvl. Hunter\'s Mark: Extra dmg = Hunt lvl.',
+      abilities: {
+        1: [
+          {name:'Natural Tracker',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Bonus to Track checks = Hunt level.'},
+          {name:'Hunter\'s Mark',pool:'N/A',bp:2,rouse:'No',ap:1,desc:'Mark a visible creature; extra dmg = Hunt lvl, their Sneak vs you at -4.'}
+        ],
+        2: [
+          {name:'Stalking Mark',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Sense your Mark\'s attention; Mark has -4 to Notice vs your Sneak.'},
+          {name:'Constructive Targeting',pool:'N/A',bp:1,rouse:'No',ap:1,desc:'Place Hunter\'s Mark on unseen creature if you have a general description.'}
+        ],
+        3: [
+          {name:'Supernatural Mark',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Your Mark cannot count resistances when you deal damage.'},
+          {name:'Everchase',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Ignore exhaustion while pursuing/combating your Mark; up to Hunt lvl days.'}
+        ],
+        4: [
+          {name:'Savage Mark',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'When you reduce Mark to 0 HP, regain HP = 2x their Spirit.'},
+          {name:'Supernatural Mark II',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Your Mark cannot count immunities when you deal damage.'}
+        ],
+        5: [
+          {name:'Satiating Mark',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'When you reduce Mark to 0 HP, regain BP = their Spirit.'}
+        ]
+      }
+    },
+    'The Lonely': {
+      passive: 'Face in the Crowd: In crowds, creatures have -2x Lonely lvl to Track checks against you.',
+      abilities: {
+        1: [
+          {name:'Deaden',pool:'N/A',bp:1,rouse:'No',ap:1,desc:'Target\'s Resolve and Charm pools reduced by 1 for 1 min.'},
+          {name:'Face in the Crowd',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'In crowded locations, -2x Lonely lvl to Track checks against you.'}
+        ],
+        2: [
+          {name:'Forced Focus',pool:'Mind + Lonely',bp:2,rouse:'Yes',ap:2,desc:'Target -4 to attacks against all creatures other than you for 1 min.'},
+          {name:'Isolation Field',pool:'Mind + Lonely',bp:3,rouse:'Yes',ap:2,desc:'Target cannot benefit from or provide beneficial effects from/to allies for 1 min.'}
+        ],
+        3: [
+          {name:'No One Else',pool:'Mind + Lonely',bp:3,rouse:'Yes',ap:2,desc:'Target unable to perceive other creatures for 1 min (effectively Blinded).'},
+          {name:'Hedgehog\'s Dilemma',pool:'N/A',bp:3,rouse:'Yes',ap:2,desc:'Creatures ending turn within 10ft take Psychic dmg = 2x Lonely lvl.'}
+        ],
+        4: [
+          {name:'Hedgehog\'s Dilemma II',pool:'Mind + Lonely',bp:4,rouse:'Yes',ap:2,desc:'Target takes same damage when ending turn within 10ft of another creature.'},
+          {name:'But Why Would They?',pool:'Mind + Lonely',bp:4,rouse:'Yes',ap:2,desc:'Target Paralyzed and untargetable; ends when ally spends Full Round next to them.'}
+        ],
+        5: [
+          {name:'Lonely Embrace',pool:'Mind + Lonely',bp:6,rouse:'Yes',ap:2,desc:'Banish target from reality until following dawn (one at a time).'}
+        ]
+      }
+    },
+    'The Slaughter': {
+      passive: 'Red Handed: All damage counts as Mystic. Seasoned Killer (lvl 3+): Attacks gain dmg bonus = Slaughter lvl.',
+      abilities: {
+        1: [
+          {name:'Red Handed',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'All damage you deal is considered Mystic.'}
+        ],
+        2: [
+          {name:'Favored Technique',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Choose one weapon trait; applies to any weapon and Brawl.'},
+          {name:'Bloodlust',pool:'N/A',bp:3,rouse:'Yes',ap:1,desc:'Attack bonus = half Slaughter lvl; reduce dmg taken by Slaughter lvl. If no dmg dealt/taken, take psychic dmg = 3x Slaughter lvl.'}
+        ],
+        3: [
+          {name:'Seasoned Killer',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'All attacks gain dmg bonus = Slaughter level.'},
+          {name:'Mayhem',pool:'Spirit + Slaughter',bp:3,rouse:'Yes',ap:2,desc:'Target mortal within 60ft; on fail they randomly attack anything nearby for 1 min.'}
+        ],
+        4: [
+          {name:'Blood Bath',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'During Bloodlust, regain 1 BP/10 dmg dealt/turn (or heal 5 HP); 30+ dmg = Hunger -1.'},
+          {name:'Blitzkrieg',pool:'N/A',bp:4,rouse:'Yes',ap:2,desc:'Move to target within 30ft, Half Attack; spend 2 hits to repeat.'}
+        ],
+        5: [
+          {name:'Unleash the Beast',pool:'N/A',bp:5,rouse:'Yes',ap:2,desc:'Touch a Diabolical target; they must test Fury Frenzy at DC3.'},
+          {name:'Massacre',pool:'N/A',bp:6,rouse:'Yes',ap:'Full',desc:'Full Attack vs every creature within 30ft; targets DC3 WP check or Turned for 1 min.'}
+        ]
+      }
+    },
+    'The Spiral': {
+      passive: 'Twister\'s Tongue: Bonus to Deception checks = your Spiral level.',
+      abilities: {
+        1: [
+          {name:'Twister\'s Tongue',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Bonus to Deception checks = Spiral level.'},
+          {name:'Aberrant Mind',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Select a long-term madness from the list.'},
+          {name:'White Lie',pool:'N/A',bp:0,rouse:'No',ap:1,desc:'Minor one-sensory illusion (not hard to see through) for 1 min.'}
+        ],
+        2: [
+          {name:'Ramp Up',pool:'Spirit + Spiral',bp:2,rouse:'Yes',ap:2,desc:'Cause creature\'s existing emotions to flare up for 1 min.'},
+          {name:'Hallucination',pool:'Spirit + Spiral',bp:2,rouse:'Yes',ap:2,desc:'Illusion up to Huge with olfactory, visual, audible effects for 1 min.'}
+        ],
+        3: [
+          {name:'Folie a Deux',pool:'Spirit + Spiral',bp:2,rouse:'Yes',ap:2,desc:'Share your madness with another for 1 hour.'},
+          {name:'Attention Deficit',pool:'Spirit + Spiral',bp:3,rouse:'Yes',ap:2,desc:'Target must end one active domain effect they maintain.'}
+        ],
+        4: [
+          {name:'Shatter Psyche',pool:'Spirit + Spiral',bp:4,rouse:'Yes',ap:'Full',desc:'Touch to inflict lasting madness (1 week).'},
+          {name:'Massive Mirage',pool:'Spirit + Spiral',bp:'10 then 2/day',rouse:'Yes/day',ap:'Ritual',desc:'Warp up to 1 sq mile terrain for 1 week.'}
+        ],
+        5: [
+          {name:'ALTBTT',pool:'Spirit + Spiral',bp:5,rouse:'Yes',ap:2,desc:'Tell a lie so convincing the universe believes it; becomes true for 1 min.'}
+        ]
+      }
+    },
+    'The Stranger': {
+      passive: 'Seasoned Actor: Bonus to Performance checks = your Stranger level.',
+      abilities: {
+        1: [
+          {name:'Seasoned Actor',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Bonus to Performance checks = Stranger level.'},
+          {name:'Ventriloquism',pool:'Mind + Stranger',bp:1,rouse:'No',ap:1,desc:'Make your voice seem to come from a visible location.'},
+          {name:'Creative Countenance',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'When you Homogenize, appear in any humanoid guise you imagine.'}
+        ],
+        2: [
+          {name:'Homogenization Expert',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Homogenize costs 1 AP; first use per day costs no BP.'},
+          {name:'The Many Mr. Fregoli\'s',pool:'Mind + Stranger',bp:1,rouse:'No',ap:'N/A',desc:'When Homogenizing, spend extra BP to perfectly mimic a target you\'ve seen.'}
+        ],
+        3: [
+          {name:'Introduce to Mr. Capgras',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'While Homogenized, reveal true nature to one mortal; they make checks vs you at -2.'},
+          {name:'Misdirection',pool:'N/A',bp:3,rouse:'No',ap:'R',desc:'Reaction: swap places with humanoid object when attacked; object takes effect.'}
+        ],
+        4: [
+          {name:'Prelest',pool:'N/A',bp:4,rouse:'Yes',ap:'Ritual',desc:'Operate as if one Humanity level higher for 1 night.'},
+          {name:'I Do Not Know You',pool:'Mind + Stranger',bp:4,rouse:'Yes',ap:2,desc:'Target forgets everything about you for 1 hour.'}
+        ],
+        5: [
+          {name:'Misdirection II',pool:'Mind + Stranger',bp:5,rouse:'Yes',ap:'R',desc:'Reaction: swap places with a humanoid creature; they take the full effect.'},
+          {name:'Brand New',pool:'N/A',bp:6,rouse:'No',ap:'Ritual',desc:'Become human for up to 5 nights (no Domains/Bane/Hunger/Frenzy; Body -2, HP 10, AP 2, Humanity +5).'}
+        ]
+      }
+    },
+    'The Vast': {
+      passive: 'Far Sight: Perfect vision with minute detail at up to 200ft.',
+      abilities: {
+        1: [
+          {name:'Far Sight',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Perfect vision, perceiving minute details at up to 200ft.'},
+          {name:'Vertigo',pool:'Spirit + Vast',bp:1,rouse:'No',ap:1,desc:'Target Dazed for rounds = extra hits (or until 15+ft away).'}
+        ],
+        2: [
+          {name:'Seven-League Step',pool:'N/A',bp:2,rouse:'Yes',ap:1,desc:'Teleport to visible location within 20ft/Vast lvl (cannot move after).'},
+          {name:'Event Horizon',pool:'N/A',bp:3,rouse:'Yes',ap:2,desc:'Ranged attacks vs you suffer one auto miss for 1 min.'}
+        ],
+        3: [
+          {name:'Gap Closer',pool:'N/A',bp:3,rouse:'Yes',ap:2,desc:'Target\'s movement, reach, and range doubled until end of their next turn.'},
+          {name:'Like a Gnat',pool:'N/A',bp:3,rouse:'No',ap:'R',desc:'Reaction: resist all dmg and ignore side effects; become Unfocused and Slowed 1.'},
+          {name:'Immense',pool:'N/A',bp:4,rouse:'Yes',ap:'Full',desc:'Become Large for 1 min.'}
+        ],
+        4: [
+          {name:'Bigger Than You',pool:'Spirit + Vast',bp:4,rouse:'Yes',ap:2,desc:'Target cannot reroll any dice for 1 min.'},
+          {name:'Further Than They Appear',pool:'Spirit + Vast',bp:5,rouse:'Yes',ap:2,desc:'Target\'s speed, ability range, attack range halved for 1 min.'},
+          {name:'Immense II',pool:'N/A',bp:5,rouse:'Yes',ap:'Full',desc:'Become Huge for 1 min.'}
+        ],
+        5: [
+          {name:'All For Nothing',pool:'N/A',bp:6,rouse:'Yes',ap:'N/A',desc:'Free action end of round: everything reverts to start of round (except BP spent).'},
+          {name:'Immense III',pool:'N/A',bp:6,rouse:'Yes',ap:'Full',desc:'Become Gargantuan for 1 min.'}
+        ]
+      }
+    },
+    'The Web': {
+      passive: 'Authority: Bonus to Persuasion checks = your Web level.',
+      abilities: {
+        1: [
+          {name:'Authority',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Bonus to Persuasion checks = Web level.'},
+          {name:'Command',pool:'Mind + Web',bp:'1/word',rouse:'Yes',ap:2,desc:'Issue command (up to Web lvl words) to creature that hears you for 1 min.'}
+        ],
+        2: [
+          {name:'Clean Slate',pool:'Mind + Web',bp:2,rouse:'Yes',ap:'Ritual',desc:'Erase memories; minutes erased = hits scored.'},
+          {name:'Tongue Twister',pool:'N/A',bp:2,rouse:'No',ap:'R',desc:'Reaction: modify uttered statement; change up to Web lvl words.'}
+        ],
+        3: [
+          {name:'Flyswaddled',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Your Bonded suffer auto failures = half Web lvl (rounded up) vs your Web effects.'},
+          {name:'Pull the Strings',pool:'Mind + Web',bp:3,rouse:'Yes',ap:2,desc:'Choose how and where target moves on their next turn.'}
+        ],
+        4: [
+          {name:'Prohibition',pool:'N/A',bp:4,rouse:'Yes',ap:2,desc:'Utter prohibitive statement; violators gain Disdain (3 Disdain = Stunned + Agony).'},
+          {name:'Conditioning',pool:'Mind + Web',bp:2,rouse:'Yes',ap:'Ritual',desc:'Alter opinions/personality of creature becoming Bonded (requires 3+ hrs).'}
+        ],
+        5: [
+          {name:'Spider\'s Snare',pool:'Mind + Web',bp:5,rouse:'Yes/turn',ap:'Full',desc:'Completely control target (your body Unconscious/Prone) for 1 min.'}
+        ]
+      }
+    },
+    'Celerity': {
+      passive: 'Devilish Speed: +5ft speed/Celerity lvl. Fleetness (lvl 2+): Add Celerity lvl to Acrobatics.',
+      abilities: {
+        1: [
+          {name:'Rapid Reflexes I',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Interact with an object for free, once per turn.'},
+          {name:'Devilish Speed',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'+5ft movement speed per Celerity level.'}
+        ],
+        2: [
+          {name:'Fleetness',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Add Celerity level to Acrobatics checks.'},
+          {name:'Rapid Reflexes II',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Reload firearm for free, once per turn.'},
+          {name:'Rush Job',pool:'N/A',bp:2,rouse:'Yes',ap:'—',desc:'Perform skill task in quarter time.'}
+        ],
+        3: [
+          {name:'Rapid Reflexes III',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Additional Reaction (breaks Masquerade).'},
+          {name:'Quickness',pool:'N/A',bp:2,rouse:'No',ap:0,desc:'+10ft movement this turn (repeatable).'},
+          {name:'Traversal',pool:'N/A',bp:3,rouse:'Yes',ap:1,desc:'Move on vertical surfaces or liquid at normal speed this turn.'}
+        ],
+        4: [
+          {name:'Blurred Momentum',pool:'N/A',bp:'X',rouse:'No',ap:'R',desc:'Reaction to hit: spend up to 6 BP; per 2 BP, enemy accrues one miss.'},
+          {name:'Unerring Aim',pool:'N/A',bp:3,rouse:'Yes',ap:1,desc:'Ignore Dodge and Block scores this turn.'},
+          {name:'Tireless',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Sprint at 30 mph for 4 hours; auto-succeed Stamina checks.'}
+        ],
+        5: [
+          {name:'Split Second',pool:'N/A',bp:6,rouse:'Yes',ap:0,desc:'Gain additional AP this turn (repeatable).'},
+          {name:'In A Flash',pool:'N/A',bp:5,rouse:'Yes',ap:'Full',desc:'Half Attack + Sprint; deal dmg to every adjacent enemy you pass.'}
+        ]
+      }
+    },
+    'Fortitude': {
+      passive: 'Resilience: +half Fortitude lvl (rounded up) to Fear Rating for HP. Invigorated Vitae (lvl 2+): +Fortitude lvl to regen. Unswayable Mind (lvl 4+): +Fortitude lvl vs mind control.',
+      abilities: {
+        1: [
+          {name:'Resilience',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'+half Fortitude lvl (rounded up) to Fear Rating for HP.'},
+          {name:'Brace',pool:'N/A',bp:2,rouse:'Yes',ap:1,desc:'Cannot be moved against your will until end of next turn.'}
+        ],
+        2: [
+          {name:'Invigorated Vitae',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Regen additional HP = Fortitude level.'},
+          {name:'Stalwart',pool:'N/A',bp:3,rouse:'Yes',ap:1,desc:'Weapon attacks vs you auto-accrue one miss until start of next turn.'}
+        ],
+        3: [
+          {name:'Shake It Off',pool:'Body + Fortitude',bp:3,rouse:'Yes',ap:1,desc:'Roll to remove/reduce status effects on you.'},
+          {name:'Shatter',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'While Stalwart active, failed attacks destroy non-supernatural weapons.'},
+          {name:'Quick Brace',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Activate Brace as reaction to being pushed.'}
+        ],
+        4: [
+          {name:'Above It',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'On failed Rouse, spend 2 WP to succeed instead.'},
+          {name:'Unswayable Mind',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'+Fortitude lvl to checks resisting mind control.'},
+          {name:'Lend Fortitude',pool:'N/A',bp:'X',rouse:'Yes',ap:1,desc:'Per BP spent, creature you touch heals 3 HP.'}
+        ],
+        5: [
+          {name:'Death Defy',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'First time at 0 HP, fall to 1 HP instead (once per dawn).'},
+          {name:'Allguardian',pool:'N/A',bp:5,rouse:'Yes',ap:'Full',desc:'Half damage until next turn; intercept attacks on adjacent allies.'}
+        ]
+      }
+    },
+    'Potence': {
+      passive: 'Potent Strikes: Brawl base dmg = 1 + Potence lvl; extra hit dmg +half Potence lvl (rounded up). Prowess: +Potence lvl to Athletics.',
+      abilities: {
+        1: [
+          {name:'Potent Strikes',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Brawl base dmg = 1 + Potence lvl; extra hit adds half Potence lvl.'},
+          {name:'Prowess',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'+Potence level to Athletics checks.'}
+        ],
+        2: [
+          {name:'Might',pool:'N/A',bp:2,rouse:'Yes',ap:1,desc:'Double carrying capacity for 1 min (stackable above lvl 2).'},
+          {name:'Concussive Strikes',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Add Dazing merit to unarmed strikes.'},
+          {name:'Not So Fast',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Auto hit on Brawl vs creatures with speed 0.'}
+        ],
+        3: [
+          {name:'Soaring Leap',pool:'N/A',bp:3,rouse:'Yes',ap:1,desc:'Running jump = 1.5x runway distance (up to 45ft).'},
+          {name:'Empowered Strikes',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Brawl treats Damage Response as one lower (min 2).'},
+          {name:'Relentless Grasp',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'On Brawl attack, spend 2 hits to grapple (no AP, unavoidable).'}
+        ],
+        4: [
+          {name:'Crushing Grip',pool:'N/A',bp:3,rouse:'Yes',ap:1,desc:'Climb/hang from any surface; 3 auto successes vs objects, double dmg.'},
+          {name:'Rock Bottom',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Add Knockdown merit to unarmed strikes.'}
+        ],
+        5: [
+          {name:'Launching Strike',pool:'Body + Potence',bp:6,rouse:'Yes',ap:'Full',desc:'Base dmg 7; each extra hit deals 5 dmg and pushes 1BL; impacts cause 7 dmg.'},
+          {name:'Shakeup',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'On Brawl, spend 2 hits to force target to reroll initiative.'}
+        ]
+      }
+    },
+    'Kinetics': {
+      passive: 'Force Bolt: Base dmg = 1 + Kinetics lvl, Range = 4BL + 2BL x Kinetics lvl. Kinetics = Focused skill for Force Bolt.',
+      abilities: {
+        1: [
+          {name:'Unseen Shove',pool:'Mind + Kinetics',bp:1,rouse:'No',ap:1,desc:'Push or pull creature within 30ft by 5ft.'},
+          {name:'Force Bolt',pool:'Mind + Kinetics',bp:1,rouse:'No',ap:2,desc:'Ranged Force dmg (base = 1 + Kinetics lvl, range = 4BL + 2BL x lvl).'}
+        ],
+        2: [
+          {name:'Dampening',pool:'N/A',bp:2,rouse:'Yes',ap:'R',desc:'Reaction: reduce damage by Mind + Kinetics score.'},
+          {name:'Manipulate',pool:'N/A',bp:2,rouse:'Yes',ap:1,desc:'Move object under 50 lbs from afar for 1 min.'}
+        ],
+        3: [
+          {name:'Kinetic Battery',pool:'N/A',bp:2,rouse:'Yes',ap:1,desc:'Hits scored against you add dice to reserve pool for attacks until end of next turn.'},
+          {name:'Dampening II',pool:'N/A',bp:3,rouse:'Yes',ap:'R',desc:'Reaction: apply Dampening to ally within 5ft.'},
+          {name:'Force Bolt II',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Force Bolt gains Knockback weapon trait.'}
+        ],
+        4: [
+          {name:'Manipulate II',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'No -3 penalty for fine control with Manipulate.'},
+          {name:'Redirect',pool:'Mind + Kinetics',bp:4,rouse:'Yes',ap:'R',desc:'Reaction to ranged attack: redirect projectile (30 degrees per success).'},
+          {name:'Ballistic Buffer',pool:'N/A',bp:'1+X',rouse:'Yes',ap:1,desc:'Up to X creatures within 60ft fall at 10ft/s, no fall dmg for 1 min.'}
+        ],
+        5: [
+          {name:'Repulse',pool:'Mind + Kinetics',bp:4,rouse:'Yes',ap:2,desc:'4BL cone; 8 Force dmg and push 5ft per hit scored.'},
+          {name:'Bubble',pool:'N/A',bp:5,rouse:'1/turn',ap:2,desc:'Impassible 15ft sphere within 30ft; interior untargetable from outside (50 HP).'}
+        ]
+      }
+    },
+    'Tulpamancy': {
+      passive: 'Famulus uses Spirit + Tulpamancy for attacks and defense.',
+      abilities: {
+        1: [
+          {name:'Minor Manifestation',pool:'N/A',bp:1,rouse:'No',ap:1,desc:'Small extension within 30ft; manipulate objects (no attacks, max 15 lbs).'},
+          {name:'Interference Intuition',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Sense if a beast is supernaturally affected or summoned.'}
+        ],
+        2: [
+          {name:'Beckoning',pool:'N/A',bp:2,rouse:'Yes',ap:2,desc:'Summon Famulus (Small, 8 HP, base dmg 3, Spirit + Tulpamancy).'},
+          {name:'Messenger',pool:'N/A',bp:2,rouse:'No',ap:1,desc:'Send Famulus to relay message to described target (60 mph).'}
+        ],
+        3: [
+          {name:'Beckoning II',pool:'N/A',bp:3,rouse:'Yes',ap:2,desc:'Upgraded Famulus: 20 HP, base dmg 7, may be Medium or group.'},
+          {name:'Subsume the Spirit',pool:'N/A',bp:1,rouse:'No',ap:1,desc:'Possess Famulus; control directly and share senses (your body stunned).'},
+          {name:'Flock of Familiars',pool:'N/A',bp:4,rouse:'Yes',ap:'Full',desc:'Up to 4 Tiny creatures; fly 30ft, base dmg = Tulpamancy lvl.'}
+        ],
+        4: [
+          {name:'Beckoning III',pool:'N/A',bp:4,rouse:'Yes',ap:2,desc:'Upgraded Famulus: 2 AP, 35 HP, base dmg 9, weapon trait, may be Large.'},
+          {name:'Subsume II',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'While possessing Famulus, activate domain abilities from their location.'},
+          {name:'Investiture',pool:'N/A',bp:'—',rouse:'—',ap:1,desc:'Consume Famulus to regain BP used to summon them.'}
+        ],
+        5: [
+          {name:'Beckoning IV',pool:'N/A',bp:5,rouse:'Yes',ap:2,desc:'Upgraded Famulus: 2 AP, 65 HP, base dmg 12, may be Huge.'},
+          {name:'Twin Soul',pool:'N/A',bp:'—',rouse:'—',ap:'Passive',desc:'Choose favored Famulus form; gain a custom merit that form possesses.'},
+          {name:'Dark Draw',pool:'N/A',bp:4,rouse:'Yes',ap:'R',desc:'Reaction: destroy Famulus to take 0 damage instead.'}
+        ]
+      }
+    }
+  };
+
+  var PREDATOR_DATA = {
+    'Alleycat': {pool:'Combat + Brawl or Personal + Streetwise',benefits:'+1 Intimidation or Brawl\n+1 Celerity or Potence\n-1 Humanity\nContacts (3): Street criminals\nFlaw: Hunted (a wronged person)'},
+    'Bagger': {pool:'Personal + Streetwise',benefits:'+1 Deft or Streetwise\nTalent: Sharp Nose\nMerit: Iron Gullet\nFlaw: Hunted (someone you owe)'},
+    'Blood Leech': {pool:'Not abstracted to a dice pool',benefits:'+1 Brawl or Sneak\n+1 Fortitude or Potence\n-1 Humanity\n+5 Blood Point maximum\nFlaw: Infamous or Shunned\nFlaw: Prey Exclusion (Mortals)'},
+    'Cleaver': {pool:'Charm + Deception',benefits:'+1 Persuasion or Deception\nTalent: Mesmerize or Soul Sight\nFlaw: Dark Secret (Cleaver)\nHerd (2)'},
+    'Consensualist': {pool:'Charm + Persuasion',benefits:'+1 Diagnosis or Persuasion\nTalent: Soul Sight or Telepathy\n+1 Humanity\nFlaw: Dark Secret (Consensualist)\nFlaw: Prey Exclusion (Non-consenting)'},
+    'Extortionist': {pool:'Resolve + Intimidation',benefits:'+1 Intimidation or Security\n+1 Fortitude or Potence\n3 levels between Contacts and Wealth\nFlaw: Disliked (police or escaped victim)'},
+    'Farmer': {pool:'Know + Nature',benefits:'+1 Nature or Survival\nTalent: Animal Empathy\n+1 Humanity\nFlaw: Farmer'},
+    'Grim Reaper': {pool:'Medicine + Diagnosis',benefits:'+1 Diagnosis or Etiquette\nTalent: Sharp Nose\nContacts (1): Medical community\n+1 Humanity\nFlaw: Prey Exclusion (Healthy Mortals)'},
+    'Pursuer': {pool:'Know + Investigation or Perception + Track',benefits:'+1 Investigation or Track\nTalent: Sharp Nose or Serendipity\nMerit: Bloodhound\nContacts (1): Morally flexible locals\n-1 Humanity'},
+    'Sandman': {pool:'Dexterity + Sneak',benefits:'+1 Surgery or Sneak\nTalent: Mesmerize or Serendipity\nWealth (2)'},
+    'Scene Queen': {pool:'Charm + Persuasion',benefits:'+1 Etiquette, Leadership, or Streetwise\nTalent: Awe-Inspiring or Serendipity\nFame (1): Your subculture\nContacts (1): Your subculture\nFlaw: Disliked or Prey Exclusion'},
+    'Siren': {pool:'Charm + Performance',benefits:'+1 Persuasion or Performance\nTalent: Mesmerize or Soul Sight\nMerit: Good-Looking (1)\nRisk: May acquire Herpes Flaw'},
+    'Osiris (NPC)': {pool:'Charm + Persuasion or Resolve + Intimidation',benefits:'+1 Occultism or Performance\nTalent: Awe-Inspiring or Soul Sight\n3 levels between Fame and Herd\nFlaw: Disliked (Cops)'},
+    'Trapdoor (NPC)': {pool:'Perception + Notice or Dexterity + Sneak',benefits:'+1 Performance or Security\nTalent: Telepathy\nHaven (1)\nRetainers/Herd (1) or Haven +1\nHaven Flaw: Creepy or Haunted'},
+    'Montero (NPC)': {pool:'Reason + Navigation or Resolve + Endure',benefits:'+1 Leadership or Sneak\n+1 Celerity or Kinetics\nRetainers (2)\n-1 Humanity'},
+    'Roadside Killer (NPC)': {pool:'Charm + Persuasion or Dexterity + Automobile',benefits:'+1 Survival or Automobile\n+1 Fortitude or Potence\nMigrating Herd (2)\nFlaw: Prey Exclusion (locals)'}
+  };
+
+  // ─── Domain Ability Text Builder ───
+  function buildDomainText(domainName, level) {
+    var d = DOMAIN_DATA[domainName];
+    if (!d) return '';
+    var lines = ['[Passive] ' + d.passive];
+    for (var lvl = 1; lvl <= level; lvl++) {
+      var abilities = d.abilities[lvl];
+      if (!abilities) continue;
+      for (var i = 0; i < abilities.length; i++) {
+        var a = abilities[i];
+        var cost = '';
+        if (a.bp !== '—') cost += 'BP:' + a.bp;
+        if (a.rouse !== '—') cost += (cost ? ' ' : '') + 'Rouse:' + a.rouse;
+        cost += (cost ? ' ' : '') + 'AP:' + a.ap;
+        var poolStr = a.pool !== 'N/A' ? ' [' + a.pool + ']' : '';
+        lines.push('Lv' + lvl + ' - ' + a.name + poolStr + ' (' + cost + '): ' + a.desc);
+      }
+    }
+    return lines.join('\n');
+  }
+
+  // ─── Domain Change Handlers ───
+  ['innate1','innate2','innate3','learned1','learned2','learned3'].forEach(function(slot) {
+    on('change:' + slot + '_name change:' + slot + '_level sheet:opened', function() {
+      getAttrs([slot + '_name', slot + '_level'], function(v) {
+        var name = v[slot + '_name'] || '';
+        var level = parseInt(v[slot + '_level']) || 0;
+        var obj = {};
+        obj[slot + '_abilities'] = name && level > 0 ? buildDomainText(name, level) : '';
+        setAttrs(obj);
+      });
+    });
+  });
+
+  // ─── Predator Type Change Handler ───
+  on('change:predator_type sheet:opened', function() {
+    getAttrs(['predator_type'], function(v) {
+      var pt = v.predator_type || '';
+      var data = PREDATOR_DATA[pt];
+      if (data) {
+        setAttrs({
+          predator_pool: data.pool,
+          predator_benefits: data.benefits
+        });
+      } else {
+        setAttrs({
+          predator_pool: '',
+          predator_benefits: ''
+        });
+      }
     });
   });
 
