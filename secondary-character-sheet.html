@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SECONDARY - Character Sheet</title>
+<style>
+  :root {
+    --bg-primary: #0d0d0d;
+    --bg-secondary: #1a1a1a;
+    --bg-tertiary: #252525;
+    --bg-input: #2a2a2a;
+    --border: #3a3a3a;
+    --border-focus: #2a6f4a;
+    --text-primary: #e0e0e0;
+    --text-secondary: #999;
+    --text-muted: #666;
+    --accent: #2a6f4a;
+    --accent-glow: #4ca77a;
+    --danger: #cc3333;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+  }
+
+  .header {
+    background: var(--bg-secondary);
+    border-bottom: 2px solid var(--accent);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header h1 { font-size: 1.5rem; letter-spacing: 4px; text-transform: uppercase; color: var(--accent-glow); }
+  .header-actions { display: flex; gap: 8px; }
+  .header-actions button {
+    background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border);
+    padding: 6px 14px; cursor: pointer; font-size: 0.8rem; border-radius: 3px; transition: border-color 0.2s;
+  }
+  .header-actions button:hover { border-color: var(--accent); }
+
+  .tab-bar {
+    display: flex; background: var(--bg-secondary); border-bottom: 1px solid var(--border); overflow-x: auto;
+  }
+  .tab-btn {
+    background: none; border: none; color: var(--text-secondary); padding: 12px 24px; cursor: pointer;
+    font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase;
+    border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.2s, border-color 0.2s;
+  }
+  .tab-btn:hover { color: var(--text-primary); }
+  .tab-btn.active { color: var(--accent-glow); border-bottom-color: var(--accent-glow); }
+
+  .tab-content { display: none; padding: 24px; max-width: 1100px; margin: 0 auto; }
+  .tab-content.active { display: block; }
+
+  .section {
+    background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 4px;
+    padding: 16px 20px; margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-glow);
+    margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border);
+  }
+
+  .field-row { display: flex; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+  .field { flex: 1; min-width: 140px; }
+  .field label {
+    display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-secondary); margin-bottom: 4px;
+  }
+  .field input, .field select, .field textarea {
+    width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 8px 10px; font-size: 0.9rem; border-radius: 3px; font-family: inherit; transition: border-color 0.2s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--border-focus); }
+  .field textarea { resize: vertical; min-height: 60px; }
+  .field-narrow { flex: 0 0 100px; min-width: 100px; }
+  .field-xs { flex: 0 0 60px; min-width: 60px; }
+
+  /* Dot Tracker */
+  .dot-tracker { display: flex; align-items: center; gap: 4px; }
+  .dot-tracker .dots { display: flex; gap: 4px; }
+  .dot {
+    width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border);
+    background: transparent; cursor: pointer; transition: background 0.15s, border-color 0.15s;
+  }
+  .dot.filled { background: var(--accent-glow); border-color: var(--accent-glow); }
+  .dot:hover { border-color: var(--accent-glow); }
+
+  /* Single proficiency dot */
+  .prof-dot {
+    width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border);
+    background: transparent; cursor: pointer; transition: background 0.15s, border-color 0.15s;
+    display: inline-block; flex-shrink: 0;
+  }
+  .prof-dot.filled { background: var(--accent-glow); border-color: var(--accent-glow); }
+  .prof-dot:hover { border-color: var(--accent-glow); }
+
+  /* Four-column attribute layout */
+  .attr-columns { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 14px; }
+  .attr-col { min-width: 0; }
+
+  .attr-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); gap: 6px;
+  }
+  .attr-name { font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+  .save-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 0; margin-bottom: 6px; border-bottom: 1px dashed var(--border);
+  }
+  .save-label {
+    font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  .skill-row {
+    display: flex; align-items: center; gap: 6px; padding: 3px 0;
+  }
+  .skill-name { font-size: 0.8rem; color: var(--text-primary); flex: 1; }
+
+  /* Skill roll buttons */
+  .skill-roll-btn {
+    width: 22px; height: 22px; border: 1px solid var(--border); border-radius: 3px;
+    background: transparent; color: var(--text-muted); font-size: 0.65rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.15s;
+  }
+  .skill-roll-btn:hover { border-color: var(--accent-glow); color: var(--accent-glow); background: rgba(74,167,122,0.15); }
+
+  /* HP/Resource inputs */
+  .tracker-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+  .tracker-label {
+    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); min-width: 100px;
+  }
+  .hp-display { display: flex; align-items: center; gap: 8px; }
+  .hp-display input {
+    width: 60px; text-align: center; background: var(--bg-input); border: 1px solid var(--border);
+    color: var(--text-primary); padding: 6px; font-size: 1rem; border-radius: 3px; font-family: inherit;
+  }
+  .hp-display input:focus { outline: none; border-color: var(--border-focus); }
+  .hp-display input[readonly] { opacity: 0.7; cursor: default; }
+  .hp-display span { color: var(--text-muted); font-size: 1.1rem; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* Death Box */
+  .death-box-container { display: flex; align-items: center; gap: 12px; }
+  .death-box {
+    width: 28px; height: 28px; border: 2px solid var(--danger); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    color: transparent; transition: all 0.15s;
+  }
+  .death-box.marked { background: var(--danger); color: #fff; }
+  .death-box-label { font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+
+  /* Level Stats Display */
+  .level-stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px;
+  }
+  .level-stat-box {
+    background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 4px;
+    padding: 12px; text-align: center;
+  }
+  .level-stat-label {
+    font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--text-secondary); margin-bottom: 4px;
+  }
+  .level-stat-value {
+    font-size: 1.5rem; font-weight: 700; color: var(--accent-glow);
+  }
+
+  /* List Items */
+  .list-section { margin-bottom: 8px; }
+  .list-item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .list-item:last-child { border-bottom: none; }
+  .list-item input[type="text"], .list-item textarea {
+    flex: 1; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 6px 8px; font-size: 0.85rem; border-radius: 3px; font-family: inherit;
+  }
+  .list-item input:focus, .list-item textarea:focus { outline: none; border-color: var(--border-focus); }
+
+  .btn-remove {
+    background: none; border: 1px solid var(--border); color: var(--text-muted);
+    width: 24px; height: 24px; cursor: pointer; font-size: 0.8rem; border-radius: 3px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 4px;
+  }
+  .btn-remove:hover { border-color: var(--danger); color: var(--danger); }
+
+  .btn-add {
+    background: var(--bg-tertiary); border: 1px dashed var(--border); color: var(--text-muted);
+    padding: 6px 12px; cursor: pointer; font-size: 0.75rem; border-radius: 3px;
+    text-transform: uppercase; letter-spacing: 1px; margin-top: 8px; transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-add:hover { border-color: var(--accent); color: var(--text-primary); }
+
+  /* Notes */
+  .notes-area {
+    width: 100%; min-height: 200px; background: var(--bg-input); border: 1px solid var(--border);
+    color: var(--text-primary); padding: 12px; font-size: 0.9rem; border-radius: 3px;
+    font-family: inherit; resize: vertical;
+  }
+  .notes-area:focus { outline: none; border-color: var(--border-focus); }
+
+  /* Compact weapon row */
+  .weapon-compact { font-size: 0.8rem; }
+  .weapon-row { display: flex; align-items: center; gap: 6px; padding: 6px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .weapon-row:last-child { border-bottom: none; }
+  .weapon-row input { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary); padding: 4px 6px; font-size: 0.8rem; border-radius: 3px; font-family: inherit; }
+  .weapon-row input:focus { outline: none; border-color: var(--border-focus); }
+  .weapon-row .w-name { flex: 2; min-width: 100px; }
+  .weapon-row .w-narrow { width: 50px; flex: none; text-align: center; }
+  .weapon-row .w-traits { flex: 2; min-width: 80px; }
+
+  /* Condition entry */
+  .condition-entry { padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .condition-entry:last-child { border-bottom: none; }
+  .condition-top { display: flex; align-items: center; gap: 8px; }
+  .condition-top select, .condition-top input {
+    background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 6px 8px; font-size: 0.85rem; border-radius: 3px; font-family: inherit;
+  }
+  .condition-top select:focus, .condition-top input:focus { outline: none; border-color: var(--border-focus); }
+  .condition-top select { flex: 1; }
+  .condition-desc {
+    width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 6px 8px; font-size: 0.8rem; border-radius: 3px; font-family: inherit; resize: vertical;
+    min-height: 36px; margin-top: 4px;
+  }
+  .condition-desc:focus { outline: none; border-color: var(--border-focus); }
+
+  /* Feature entry (custom) */
+  .feature-entry { padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .feature-entry:last-child { border-bottom: none; }
+  .feature-top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .feature-top input {
+    flex: 1; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 6px 8px; font-size: 0.9rem; font-weight: 600; border-radius: 3px; font-family: inherit;
+  }
+  .feature-top input:focus { outline: none; border-color: var(--border-focus); }
+  .feature-source {
+    width: 120px; flex: none; font-size: 0.75rem; color: var(--text-muted); font-weight: normal;
+  }
+  .feature-desc {
+    width: 100%; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 6px 8px; font-size: 0.85rem; border-radius: 3px; font-family: inherit; resize: vertical;
+    min-height: 50px;
+  }
+  .feature-desc:focus { outline: none; border-color: var(--border-focus); }
+
+  @media (max-width: 900px) {
+    .attr-columns { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    .attr-columns { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+    .three-col { grid-template-columns: 1fr; }
+    .tab-btn { padding: 10px 14px; font-size: 0.75rem; }
+    .tab-content { padding: 12px; }
+    .level-stats { grid-template-columns: 1fr; }
+  }
+
+  /* ─── Activity Log Popup ─── */
+  .activity-log-fab {
+    position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--accent-glow);
+    color: #fff; font-size: 1.3rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 12px rgba(42,111,74,0.5);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .activity-log-fab:hover { transform: scale(1.1); box-shadow: 0 4px 20px rgba(42,111,74,0.7); }
+  .activity-log-fab .fab-badge {
+    position: absolute; top: -4px; right: -4px;
+    background: #c4a35a; color: #000; font-size: 0.65rem; font-weight: 700;
+    width: 18px; height: 18px; border-radius: 50%;
+    display: none; align-items: center; justify-content: center;
+  }
+
+  .activity-log {
+    position: fixed; bottom: 80px; right: 20px; z-index: 9998;
+    width: 380px; max-height: 520px;
+    background: var(--bg-secondary); border: 1px solid var(--border);
+    border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    display: flex; flex-direction: column;
+  }
+  .activity-log.hidden { display: none; }
+
+  .activity-log-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    cursor: move; user-select: none;
+  }
+  .activity-log-header-title {
+    font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px;
+    color: var(--accent-glow); font-weight: 700;
+  }
+  .activity-log-header-actions { display: flex; gap: 6px; }
+  .activity-log-header-actions button {
+    background: none; border: 1px solid var(--border); color: var(--text-muted);
+    width: 24px; height: 24px; border-radius: 4px; cursor: pointer;
+    font-size: 0.75rem; display: flex; align-items: center; justify-content: center;
+  }
+  .activity-log-header-actions button:hover { border-color: var(--accent); color: var(--text-primary); }
+
+  .activity-log-body {
+    flex: 1; overflow-y: auto; padding: 8px;
+    max-height: 320px; min-height: 80px;
+  }
+  .activity-log-body::-webkit-scrollbar { width: 5px; }
+  .activity-log-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .log-entry {
+    padding: 8px 10px; margin-bottom: 6px;
+    background: var(--bg-tertiary); border-radius: 4px;
+    border-left: 3px solid var(--border); font-size: 0.8rem;
+    line-height: 1.5;
+  }
+  .log-entry.roll-entry { border-left-color: var(--accent-glow); }
+  .log-entry .log-title { font-weight: 600; color: var(--text-primary); margin-bottom: 3px; }
+  .log-entry .log-time { font-size: 0.65rem; color: var(--text-muted); float: right; }
+  .log-entry .log-dice { display: flex; flex-wrap: wrap; gap: 4px; margin: 5px 0; }
+  .log-entry .log-die {
+    width: 28px; height: 28px; border: 2px solid #555; border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; font-weight: 700;
+  }
+  .log-die.hit { color: #4caf50; border-color: #4caf50; }
+  .log-die.miss { color: #cc3333; border-color: #cc3333; }
+  .log-die.neutral { color: #999; border-color: #555; }
+  .log-entry .log-result { font-weight: 700; margin-top: 4px; }
+  .log-result.positive { color: #4caf50; }
+  .log-result.negative { color: #cc3333; }
+  .log-result.zero { color: #999; }
+  .log-die.rerolled { opacity: 0.35; text-decoration: line-through; }
+  .reroll-arrow { color: var(--text-muted); font-size: 0.7rem; display: flex; align-items: center; margin: 0 2px; }
+  .reroll-section { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); }
+  .reroll-label { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .log-sum-total { font-size: 1.1rem; font-weight: 700; color: var(--accent-glow); margin-top: 4px; }
+
+  .activity-log-roller {
+    border-top: 1px solid var(--border); padding: 10px 14px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .roller-row { display: flex; gap: 6px; align-items: center; }
+  .roller-row label {
+    font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;
+    letter-spacing: 1px; width: 50px; flex-shrink: 0;
+  }
+  .roller-picker { display: flex; gap: 3px; flex: 1; flex-wrap: wrap; }
+  .roller-pip {
+    width: 26px; height: 26px; border: 1px solid #444; border-radius: 4px;
+    background: transparent; color: #777; font-size: 0.75rem; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.1s;
+  }
+  .roller-pip:hover { border-color: var(--accent-glow); color: var(--text-primary); }
+  .roller-pip.filled { border-color: var(--accent-glow); background: rgba(74,167,122,0.15); color: var(--accent-glow); }
+  .roller-pip.selected { border-color: var(--accent-glow); background: rgba(74,167,122,0.3); color: #fff; font-weight: 700; }
+
+  .roller-actions { display: flex; gap: 6px; }
+  .roller-btn {
+    flex: 1; padding: 6px; border: 1px solid var(--accent); border-radius: 4px;
+    background: rgba(42,111,74,0.2); color: var(--accent-glow);
+    font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; cursor: pointer;
+  }
+  .roller-btn:hover { background: rgba(42,111,74,0.4); }
+
+  .log-actions { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+  .log-action-btn {
+    padding: 3px 8px; border-radius: 3px; font-size: 0.7rem; font-weight: 600;
+    cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
+    border: 1px solid; display: inline-flex; align-items: center; gap: 3px;
+  }
+  .log-action-btn:hover { filter: brightness(1.3); }
+  .log-action-btn:disabled { opacity: 0.35; cursor: default; filter: none; }
+  .log-action-btn.wp-btn { border-color: #5b8dd9; color: #5b8dd9; background: rgba(91,141,217,0.1); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Secondary</h1>
+  <div class="header-actions">
+    <button onclick="exportSheet()">Export</button>
+    <button onclick="importSheet()">Import</button>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="stats">Stats</button>
+  <button class="tab-btn" data-tab="info">Info</button>
+  <button class="tab-btn" data-tab="features">Features</button>
+  <button class="tab-btn" data-tab="inventory">Inventory</button>
+  <button class="tab-btn" data-tab="notes">Notes</button>
+</div>
+
+<!-- STATS TAB -->
+<div class="tab-content active" id="tab-stats">
+
+  <!-- Identity -->
+  <div class="section">
+    <div class="section-title">Identity</div>
+    <div class="field-row">
+      <div class="field"><label>Character Name</label><input type="text" data-key="name"></div>
+      <div class="field"><label>Player</label><input type="text" data-key="player"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Species</label>
+        <select data-key="species" id="species-select">
+          <option value="">--</option>
+        </select>
+      </div>
+      <div class="field" id="subspecies-field" style="display:none;">
+        <label id="subspecies-label">Subspecies</label>
+        <select data-key="subspecies" id="subspecies-select">
+          <option value="">--</option>
+        </select>
+      </div>
+      <div class="field field-narrow"><label>Level</label>
+        <select data-key="level" id="level-select"></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Level-Dependent Stats -->
+  <div class="section">
+    <div class="section-title">Level Stats</div>
+    <div class="level-stats">
+      <div class="level-stat-box">
+        <div class="level-stat-label">Proficiency Bonus</div>
+        <div class="level-stat-value" id="prof-bonus-display">2</div>
+      </div>
+      <div class="level-stat-box">
+        <div class="level-stat-label">Maximum AP</div>
+        <div class="level-stat-value" id="max-ap-display">2</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attributes & Skills: 4 columns -->
+  <div class="section">
+    <div class="section-title">Attributes &amp; Skills</div>
+    <div class="attr-columns" id="attr-columns"></div>
+  </div>
+
+  <!-- Health, Combat Stats, Resources -->
+  <div class="three-col">
+    <div class="section">
+      <div class="section-title">Health</div>
+      <div class="tracker-row">
+        <span class="tracker-label">HP</span>
+        <div class="hp-display">
+          <input type="number" min="0" data-key="hpCurrent" value="0">
+          <span>/</span>
+          <input type="number" min="0" data-key="hpMax" value="0">
+        </div>
+      </div>
+      <div class="tracker-row">
+        <span class="tracker-label">Hit Dice</span>
+        <div class="hp-display">
+          <input type="number" min="0" data-key="hitDiceCurrent" value="0">
+          <span>/</span>
+          <input type="number" min="0" data-key="hitDiceMax" value="0" readonly title="Auto: Body + Spirit">
+        </div>
+      </div>
+      <div class="death-box-container" style="margin-top: 12px;">
+        <div class="death-box" id="death-box" onclick="toggleDeathBox()"></div>
+        <span class="death-box-label">Death Box</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Combat Stats</div>
+      <div class="field-row">
+        <div class="field field-narrow"><label>AP</label><input type="number" min="0" data-key="apCurrent" value="2"></div>
+        <div class="field field-narrow"><label>Move Speed</label><input type="number" min="0" data-key="moveSpeed" value="30"></div>
+      </div>
+      <div class="field-row">
+        <div class="field field-narrow"><label>Body Length</label><input type="text" data-key="bodyLength" value="5 ft"></div>
+        <div class="field field-narrow"><label>Armor Class</label><input type="number" min="0" data-key="armorClass" value="10"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Resources</div>
+      <div class="tracker-row">
+        <span class="tracker-label">Grit Points</span>
+        <div class="hp-display">
+          <input type="number" min="0" data-key="gritCurrent" value="0">
+          <span>/</span>
+          <input type="number" min="0" data-key="gritMax" value="0" readonly title="Auto: Proficiency Bonus × max Willpower">
+        </div>
+      </div>
+      <div class="tracker-row">
+        <span class="tracker-label">Willpower</span>
+        <div class="hp-display">
+          <input type="number" min="0" data-key="wpCurrent" value="0">
+          <span>/</span>
+          <input type="number" min="0" data-key="wpMax" value="0" readonly title="Auto: Mind + Spirit">
+        </div>
+      </div>
+      <div class="tracker-row">
+        <span class="tracker-label">Speed</span>
+        <div class="hp-display">
+          <input type="number" min="0" data-key="speedCurrent" value="0">
+          <span>/</span>
+          <input type="number" min="0" data-key="speedMax" value="0" readonly title="Auto: Body + Mind">
+        </div>
+        <button class="skill-roll-btn" onclick="rollInitiative()" title="Roll Initiative (Speed pool, sum mode)" style="margin-left:4px;">&#9858;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weapons & Conditions -->
+  <div class="two-col">
+    <div class="section">
+      <div class="section-title">Weapons</div>
+      <div class="list-section weapon-compact" id="weapon-list"></div>
+      <button class="btn-add" onclick="addWeapon()">+ Add Weapon</button>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Active Conditions</div>
+      <div class="list-section" id="condition-list"></div>
+      <button class="btn-add" onclick="addCondition()">+ Add Condition</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- INFO TAB -->
+<div class="tab-content" id="tab-info">
+  <div class="section">
+    <div class="section-title">Personality</div>
+    <div class="field-row">
+      <div class="field"><label>Nature / Demeanor</label><input type="text" data-key="natureDemeanor" placeholder="Nature / Demeanor"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Pride</div>
+    <div class="field-row">
+      <div class="field"><label>Pride Statement</label><input type="text" data-key="pride" placeholder="I am..."></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Iconic Item</div>
+    <div class="field-row">
+      <div class="field"><label>Item</label><input type="text" data-key="iconicItem"></div>
+      <div class="field"><label>Description</label><input type="text" data-key="iconicItemDesc"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Species Notes</div>
+    <div id="species-info" style="font-size:0.85rem;color:var(--text-secondary);line-height:1.5;min-height:40px;"></div>
+  </div>
+</div>
+
+<!-- FEATURES TAB -->
+<div class="tab-content" id="tab-features">
+  <div class="section">
+    <div class="section-title">Features</div>
+    <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;line-height:1.5;">
+      Free-form list of all features your character has. Use the Source field to track where it came from
+      (Species, Level, Item, etc.) so it's easy to audit.
+    </div>
+    <div class="list-section" id="feature-list"></div>
+    <button class="btn-add" onclick="addFeature()">+ Add Feature</button>
+  </div>
+</div>
+
+<!-- INVENTORY TAB -->
+<div class="tab-content" id="tab-inventory">
+  <div class="section">
+    <div class="section-title">Wealth</div>
+    <div class="field-row">
+      <div class="field"><label>Cash on Hand ($)</label><input type="number" min="0" data-key="cash" value="0"></div>
+      <div class="field"><label>Weekly Income ($)</label><input type="number" data-key="weeklyIncome" value="0"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Equipment</div>
+    <div class="list-section" id="equipment-list"></div>
+    <button class="btn-add" onclick="addListItem('equipment-list', 'equipment')">+ Add Item</button>
+  </div>
+</div>
+
+<!-- NOTES TAB -->
+<div class="tab-content" id="tab-notes">
+  <div class="section">
+    <div class="section-title">Character Notes</div>
+    <textarea class="notes-area" data-key="notes" placeholder="Backstory, session notes, plans..."></textarea>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Contacts &amp; Relationships</div>
+    <textarea class="notes-area" data-key="contacts" placeholder="NPCs, allies, enemies..." style="min-height:120px;"></textarea>
+  </div>
+</div>
+
+<!-- Activity Log FAB + Popup -->
+<button class="activity-log-fab" id="activity-log-fab" title="Dice Roller & Activity Log">
+  &#9858;
+  <span class="fab-badge" id="fab-badge">0</span>
+</button>
+
+<div class="activity-log hidden" id="activity-log">
+  <div class="activity-log-header" id="activity-log-header">
+    <span class="activity-log-header-title">Activity Log</span>
+    <div class="activity-log-header-actions">
+      <button onclick="clearActivityLog()" title="Clear log">&#128465;</button>
+      <button onclick="toggleActivityLog()" title="Close">&#10005;</button>
+    </div>
+  </div>
+  <div class="activity-log-body" id="activity-log-body">
+    <div style="text-align:center;color:var(--text-muted);padding:20px 0;font-size:0.8rem;">No activity yet. Use the roller below or roll from your skills.</div>
+  </div>
+  <div class="activity-log-roller">
+    <div class="roller-row">
+      <label>Dice</label>
+      <div class="roller-picker" id="roller-dice-picker"></div>
+    </div>
+    <div class="roller-actions">
+      <button class="roller-btn" onclick="customRoll()">Roll Dice</button>
+      <button class="roller-btn" onclick="customRollSum()" style="font-size:0.65rem;">Roll Total</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─── Game Data ───
+
+  // Attribute & skill definitions
+  // Skills are listed under their parent attribute; each is just a proficiency dot.
+  const ATTRIBUTES = [
+    { key: 'attr-body',    name: 'Body',
+      skills: ['Stamina', 'Strength', 'Brawl', 'Throw', 'Block'] },
+    { key: 'attr-finesse', name: 'Finesse',
+      skills: ['Climb', 'Dodge', 'Acrobatics', 'Stealth', 'Deft'] },
+    { key: 'attr-mind',    name: 'Mind',
+      skills: ['Nature', 'History', 'Arcana', 'Medicine', 'Craft', 'Survival'] },
+    { key: 'attr-spirit',  name: 'Spirit',
+      skills: ['Leadership', 'Intimidation', 'Insight', 'Savvy', 'Rhetoric', 'Perception'] }
+  ];
+
+  function skillKey(skillName) {
+    return 'skill-' + skillName.toLowerCase().replace(/\s+/g, '-');
+  }
+  function saveKey(attrKey) {
+    return 'save-' + attrKey.replace('attr-', '');
+  }
+
+  // Species data. Each species can declare subcategories and a `values` blob
+  // for downstream effects. The `values` shape is intentionally open so it's
+  // easy to attach additional data later (attribute mods, skill profs, features,
+  // resource modifiers, etc.) without changing the rest of the sheet.
+  //
+  // Suggested fields inside `values`:
+  //   attrMods:   { 'attr-body': 1, ... }     // bonus dots
+  //   skillProfs: ['Stamina', ...]            // auto-proficient skills
+  //   saveProfs:  ['attr-body', ...]
+  //   features:   [{ name, desc }]
+  //   notes:      'free-form text'
+  // Subspecies use the same shape under `subspecies[name].values`.
+  const SPECIES_DATA = {
+    'Human': {
+      subcategories: [],
+      values: { notes: '' }
+    },
+    'Dryad': {
+      subcategories: ['Firm', 'Flow', 'Crown', 'Flame', 'Root', 'Pale', 'Wild'],
+      values: { notes: '' },
+      subspecies: {
+        'Firm':  { values: {} },
+        'Flow':  { values: {} },
+        'Crown': { values: {} },
+        'Flame': { values: {} },
+        'Root':  { values: {} },
+        'Pale':  { values: {} },
+        'Wild':  { values: {} }
+      }
+    },
+    'Displacer':  { subcategories: [], values: { notes: '' } },
+    'Amar Kabal': { subcategories: [], values: { notes: '' } },
+    'Lykabal':    { subcategories: [], values: { notes: '' } },
+    'Drakabal':   { subcategories: [], values: { notes: '' } },
+    'Asura': {
+      subcategories: ['Vishnu', 'Ganesh'],
+      values: { notes: '' },
+      subspecies: {
+        'Vishnu': { values: {} },
+        'Ganesh': { values: {} }
+      }
+    }
+  };
+
+  // Resolve the merged values for the currently selected species + subspecies.
+  // Useful hook for any code that needs to read species-supplied bonuses.
+  function getActiveSpeciesValues() {
+    const sp = state.fields['species'];
+    const sub = state.fields['subspecies'];
+    const result = { attrMods: {}, skillProfs: [], saveProfs: [], features: [], notes: '' };
+    if (!sp || !SPECIES_DATA[sp]) return result;
+    const root = SPECIES_DATA[sp];
+    Object.assign(result, deepCopy(root.values || {}));
+    if (sub && root.subspecies && root.subspecies[sub]) {
+      mergeValues(result, root.subspecies[sub].values || {});
+    }
+    return result;
+  }
+  function deepCopy(o) { return JSON.parse(JSON.stringify(o)); }
+  function mergeValues(into, from) {
+    Object.keys(from).forEach(k => {
+      if (Array.isArray(from[k])) {
+        into[k] = (into[k] || []).concat(from[k]);
+      } else if (typeof from[k] === 'object' && from[k] !== null) {
+        into[k] = Object.assign(into[k] || {}, from[k]);
+      } else {
+        into[k] = from[k];
+      }
+    });
+  }
+
+  // Level-dependent values
+  function profBonusForLevel(level) {
+    if (level >= 12) return 5;
+    if (level >= 8)  return 4;
+    if (level >= 4)  return 3;
+    return 2;
+  }
+  function maxApForLevel(level) {
+    if (level >= 11) return 4;
+    if (level >= 6)  return 3;
+    return 2;
+  }
+
+  // ─── State ───
+  const state = {
+    dots: {},        // attribute dots (5 each)
+    skillProfs: {},  // skill proficiency: skillKey -> bool
+    saveProfs: {},   // save proficiency: saveKey -> bool
+    deathBox: false,
+    conditions: [],
+    features: [],
+    equipment: [],
+    weapons: [],
+    fields: {}
+  };
+
+  // ─── Tabs ───
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ─── Build Identity selects (species, level) ───
+  function buildIdentitySelects() {
+    const species = document.getElementById('species-select');
+    species.innerHTML = '<option value="">--</option>';
+    Object.keys(SPECIES_DATA).forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s;
+      opt.textContent = s;
+      species.appendChild(opt);
+    });
+
+    const level = document.getElementById('level-select');
+    level.innerHTML = '';
+    for (let i = 1; i <= 15; i++) {
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = String(i);
+      level.appendChild(opt);
+    }
+
+    species.addEventListener('change', () => {
+      state.fields['species'] = species.value;
+      state.fields['subspecies'] = '';
+      updateSubspeciesField();
+      updateSpeciesInfo();
+      save();
+    });
+
+    level.addEventListener('change', () => {
+      state.fields['level'] = level.value;
+      updateLevelStats();
+      updateDerivedStats();
+      save();
+    });
+  }
+
+  function updateSubspeciesField() {
+    const sp = state.fields['species'];
+    const wrap = document.getElementById('subspecies-field');
+    const sel  = document.getElementById('subspecies-select');
+    const data = sp ? SPECIES_DATA[sp] : null;
+    if (data && data.subcategories && data.subcategories.length > 0) {
+      wrap.style.display = '';
+      sel.innerHTML = '<option value="">--</option>';
+      data.subcategories.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        if (state.fields['subspecies'] === c) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    } else {
+      wrap.style.display = 'none';
+      sel.innerHTML = '<option value="">--</option>';
+    }
+  }
+
+  function updateSpeciesInfo() {
+    const el = document.getElementById('species-info');
+    if (!el) return;
+    const sp = state.fields['species'];
+    if (!sp) {
+      el.textContent = 'Select a Species in the Identity section.';
+      return;
+    }
+    const sub = state.fields['subspecies'];
+    let txt = sp + (sub ? ' (' + sub + ')' : '');
+    const v = getActiveSpeciesValues();
+    if (v.notes) txt += ' — ' + v.notes;
+    el.textContent = txt;
+  }
+
+  // ─── Level Stats ───
+  function getLevel() {
+    return parseInt(state.fields['level']) || 1;
+  }
+  function updateLevelStats() {
+    const lvl = getLevel();
+    const pb = profBonusForLevel(lvl);
+    const ap = maxApForLevel(lvl);
+    const pbEl = document.getElementById('prof-bonus-display');
+    const apEl = document.getElementById('max-ap-display');
+    if (pbEl) pbEl.textContent = String(pb);
+    if (apEl) apEl.textContent = String(ap);
+  }
+
+  // ─── Build Attributes & Skills UI ───
+  function buildAttrColumns() {
+    const wrap = document.getElementById('attr-columns');
+    wrap.innerHTML = '';
+    ATTRIBUTES.forEach(attr => {
+      const col = document.createElement('div');
+      col.className = 'attr-col';
+
+      // Attribute header: name + 5-dot tracker + roll button
+      const header = document.createElement('div');
+      header.className = 'attr-header';
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'attr-name';
+      nameSpan.textContent = attr.name;
+      header.appendChild(nameSpan);
+
+      const right = document.createElement('div');
+      right.className = 'dot-tracker';
+      const dotsDiv = document.createElement('div');
+      dotsDiv.className = 'dots';
+      dotsDiv.setAttribute('data-dots', attr.key);
+      dotsDiv.setAttribute('data-max', '5');
+      right.appendChild(dotsDiv);
+      header.appendChild(right);
+      col.appendChild(header);
+
+      // Save proficiency row
+      const saveRow = document.createElement('div');
+      saveRow.className = 'save-row';
+      const sLabel = document.createElement('span');
+      sLabel.className = 'save-label';
+      sLabel.textContent = 'Save Proficient';
+      saveRow.appendChild(sLabel);
+
+      const sRight = document.createElement('div');
+      sRight.style.cssText = 'display:flex;gap:6px;align-items:center;';
+      const saveBtn = document.createElement('button');
+      saveBtn.className = 'skill-roll-btn';
+      saveBtn.innerHTML = '&#9858;';
+      saveBtn.title = 'Roll ' + attr.name + ' Save';
+      saveBtn.addEventListener('click', () => rollSave(attr));
+      sRight.appendChild(saveBtn);
+
+      const saveDot = document.createElement('div');
+      saveDot.className = 'prof-dot';
+      const sk = saveKey(attr.key);
+      if (state.saveProfs[sk]) saveDot.classList.add('filled');
+      saveDot.addEventListener('click', () => {
+        state.saveProfs[sk] = !state.saveProfs[sk];
+        saveDot.classList.toggle('filled', !!state.saveProfs[sk]);
+        save();
+      });
+      sRight.appendChild(saveDot);
+      saveRow.appendChild(sRight);
+      col.appendChild(saveRow);
+
+      // Skills
+      attr.skills.forEach(skill => {
+        const row = document.createElement('div');
+        row.className = 'skill-row';
+
+        const rollBtn = document.createElement('button');
+        rollBtn.className = 'skill-roll-btn';
+        rollBtn.innerHTML = '&#9858;';
+        rollBtn.title = 'Roll ' + attr.name + ' + ' + skill;
+        rollBtn.addEventListener('click', () => rollSkill(attr, skill));
+        row.appendChild(rollBtn);
+
+        const nm = document.createElement('span');
+        nm.className = 'skill-name';
+        nm.textContent = skill;
+        row.appendChild(nm);
+
+        const dot = document.createElement('div');
+        dot.className = 'prof-dot';
+        const k = skillKey(skill);
+        if (state.skillProfs[k]) dot.classList.add('filled');
+        dot.title = 'Proficient in ' + skill + '?';
+        dot.addEventListener('click', () => {
+          state.skillProfs[k] = !state.skillProfs[k];
+          dot.classList.toggle('filled', !!state.skillProfs[k]);
+          save();
+        });
+        row.appendChild(dot);
+
+        col.appendChild(row);
+      });
+
+      wrap.appendChild(col);
+    });
+  }
+
+  // ─── Dot Trackers ───
+  function initDots() {
+    document.querySelectorAll('[data-dots]').forEach(container => {
+      const key = container.dataset.dots;
+      const max = parseInt(container.dataset.max) || 5;
+      if (state.dots[key] === undefined) state.dots[key] = 0;
+      container.innerHTML = '';
+      for (let i = 1; i <= max; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot' + (i <= state.dots[key] ? ' filled' : '');
+        dot.addEventListener('click', () => {
+          state.dots[key] = (state.dots[key] === i) ? i - 1 : i;
+          initDots();
+          updateDerivedStats();
+          save();
+        });
+        container.appendChild(dot);
+      }
+    });
+  }
+
+  // ─── Death Box ───
+  function toggleDeathBox() {
+    state.deathBox = !state.deathBox;
+    renderDeathBox();
+    save();
+  }
+  function renderDeathBox() {
+    const el = document.getElementById('death-box');
+    el.classList.toggle('marked', state.deathBox);
+    el.textContent = state.deathBox ? 'X' : '';
+  }
+
+  // ─── Generic List ───
+  function addListItem(containerId, stateKey) {
+    state[stateKey].push('');
+    renderList(containerId, stateKey);
+    save();
+  }
+  function renderList(containerId, stateKey) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    state[stateKey].forEach((item, idx) => {
+      const row = document.createElement('div');
+      row.className = 'list-item';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = item;
+      input.addEventListener('input', () => { state[stateKey][idx] = input.value; save(); });
+      const btn = document.createElement('button');
+      btn.className = 'btn-remove';
+      btn.textContent = 'x';
+      btn.addEventListener('click', () => { state[stateKey].splice(idx, 1); renderList(containerId, stateKey); save(); });
+      row.appendChild(input);
+      row.appendChild(btn);
+      container.appendChild(row);
+    });
+  }
+
+  // ─── Weapons ───
+  function addWeapon() {
+    state.weapons.push({ name: '', damage: '', pool: '', rerolls: '', extraDmg: '', traits: '' });
+    renderWeapons();
+    save();
+  }
+  function renderWeapons() {
+    const container = document.getElementById('weapon-list');
+    container.innerHTML = '';
+    state.weapons.forEach((w, idx) => {
+      if (w.pool === undefined) w.pool = '';
+      if (w.rerolls === undefined) w.rerolls = '';
+      if (w.extraDmg === undefined) w.extraDmg = '';
+
+      const row = document.createElement('div');
+      row.className = 'weapon-row';
+
+      const mkInput = (key, placeholder, cls) => {
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.value = w[key] || '';
+        inp.placeholder = placeholder;
+        inp.className = cls;
+        inp.addEventListener('input', () => { state.weapons[idx][key] = inp.value; save(); });
+        return inp;
+      };
+
+      const atkBtn = document.createElement('button');
+      atkBtn.className = 'skill-roll-btn';
+      atkBtn.innerHTML = '&#9858;';
+      atkBtn.title = 'Roll Attack: ' + (w.name || 'Weapon');
+      atkBtn.style.cssText = 'flex-shrink:0;';
+      atkBtn.addEventListener('click', () => rollWeaponAttack(idx));
+      row.appendChild(atkBtn);
+
+      row.appendChild(mkInput('name', 'Name', 'w-name'));
+      row.appendChild(mkInput('damage', 'Dmg', 'w-narrow'));
+      row.appendChild(mkInput('pool', 'Pool', 'w-narrow'));
+      row.appendChild(mkInput('rerolls', 'Reroll', 'w-narrow'));
+      row.appendChild(mkInput('extraDmg', '+Dmg', 'w-narrow'));
+      row.appendChild(mkInput('traits', 'Traits', 'w-traits'));
+
+      const btn = document.createElement('button');
+      btn.className = 'btn-remove';
+      btn.textContent = 'x';
+      btn.addEventListener('click', () => { state.weapons.splice(idx, 1); renderWeapons(); save(); });
+      row.appendChild(btn);
+      container.appendChild(row);
+    });
+  }
+
+  // ─── Conditions ───
+  const CONDITION_DATA = {
+    'Blinded': 'Cannot see, and automatically fails any rolls that rely on sight. Makes melee attacks at -2, and ranged attacks at -4. Attacks against this creature are made at +2.',
+    'Deafened': 'Cannot hear, and automatically fails any rolls that rely on hearing.',
+    'Grappled': 'Movement Speed reduced to 0. Ends when the grappler is incapacitated or the creature moves beyond its reach. Suffers a -2 deficit to Dodge checks.',
+    'Incapacitated': 'Cannot move or take actions or reactions. Still aware of surroundings. Can still speak.',
+    'Invisible': 'Cannot be seen without mystic assistance. Attacks against this creature are made at -2. Makes attacks at +2.',
+    'Paralyzed': 'Is Incapacitated and cannot speak. Attacks against this creature are made at +2. Takes an extra 10 damage from all attacks.',
+    'Hidden': 'Attacks against this creature are made at -2. Makes attacks at +2. Others are unaware of the creature\'s location. Ends when the creature takes any action or makes a noise.',
+    'Prone': 'Moves at half speed. Makes attacks at -2. Attacks from within 5 feet are made at +2. Attacks from further than 5 feet are made at -2.',
+    'Restrained': 'Movement Speed reduced to 0. Makes attacks at -2. Attacks against this creature are made at +2. Suffers a -4 deficit to Dodge checks.',
+    'Unconscious': 'Is Incapacitated and cannot speak. Is unaware of surroundings.',
+    'Slowed': 'For every level of Slowed, Movement Speed is reduced by 10. (Stacks)',
+    'Stunned': 'Is Incapacitated and can speak only falteringly. Attacks against this creature are made at +2.',
+    'Pinned': 'Movement Speed reduced to 0. Ends when the creature spends 1AP to end it.',
+    'Agony': 'Takes damage at the start of each turn. Agony level lowers by one at the end of each turn.',
+    'Malady': 'Takes damage equal to Malady level at the start of each turn. Malady level lowers by one at the end of each turn. (Stacks)',
+    'Bleeding': 'Loses Grit Points equal to Bleeding level at the start of each turn.',
+    'Dazed': 'Cannot take reactions.',
+    'Lethargic': 'AP is reduced to 1.',
+    'Sapped': 'AP is reduced by 1. Can be Sapped by more than one source at a time.',
+    'Impaired': 'Suffers a deficit to all pools equal to Impaired level. Can be Impaired by more than one source at a time.',
+    'Dismembered (Arm)': '-2 deficit to Block score, or -4 with all arms missing. Cannot dual-wield, wield two-handed weapons, or reload firearms with only one arm.',
+    'Dismembered (Leg)': 'Movement speed halved, or reduced to 0 with all legs missing.',
+    'Downed': 'The result of being reduced to 0HP with an unmarked Death Box. Is Incapacitated. Taking any more damage renders them Unconscious.',
+    'Dead': 'Is Unconscious. Cannot regain hit points.',
+    'Custom': ''
+  };
+
+  function addCondition() {
+    state.conditions.push({ name: '', desc: '', custom: false });
+    renderConditions();
+    save();
+  }
+  function renderConditions() {
+    const container = document.getElementById('condition-list');
+    container.innerHTML = '';
+    state.conditions.forEach((c, idx) => {
+      if (typeof c === 'string') {
+        state.conditions[idx] = { name: 'Custom', desc: c, custom: true };
+        c = state.conditions[idx];
+      }
+      const entry = document.createElement('div');
+      entry.className = 'condition-entry';
+      const top = document.createElement('div');
+      top.className = 'condition-top';
+
+      const sel = document.createElement('select');
+      const optBlank = document.createElement('option');
+      optBlank.value = '';
+      optBlank.textContent = '-- Select Condition --';
+      sel.appendChild(optBlank);
+      Object.keys(CONDITION_DATA).forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        if (c.name === name) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', () => {
+        state.conditions[idx].name = sel.value;
+        if (sel.value && sel.value !== 'Custom' && CONDITION_DATA[sel.value]) {
+          state.conditions[idx].desc = CONDITION_DATA[sel.value];
+          state.conditions[idx].custom = false;
+        } else if (sel.value === 'Custom') {
+          state.conditions[idx].desc = '';
+          state.conditions[idx].custom = true;
+        }
+        renderConditions();
+        save();
+      });
+      top.appendChild(sel);
+
+      const btn = document.createElement('button');
+      btn.className = 'btn-remove';
+      btn.textContent = 'x';
+      btn.addEventListener('click', () => { state.conditions.splice(idx, 1); renderConditions(); save(); });
+      top.appendChild(btn);
+      entry.appendChild(top);
+
+      if (c.name) {
+        const desc = document.createElement('textarea');
+        desc.className = 'condition-desc';
+        desc.value = c.desc || '';
+        desc.placeholder = 'Condition description...';
+        desc.addEventListener('input', () => { state.conditions[idx].desc = desc.value; save(); });
+        entry.appendChild(desc);
+      }
+      container.appendChild(entry);
+    });
+  }
+
+  // ─── Features (custom) ───
+  function addFeature() {
+    state.features.push({ name: '', source: '', desc: '' });
+    renderFeatures();
+    save();
+  }
+  function renderFeatures() {
+    const container = document.getElementById('feature-list');
+    container.innerHTML = '';
+    state.features.forEach((f, idx) => {
+      if (typeof f === 'string') {
+        state.features[idx] = { name: f, source: '', desc: '' };
+        f = state.features[idx];
+      }
+      const entry = document.createElement('div');
+      entry.className = 'feature-entry';
+
+      const top = document.createElement('div');
+      top.className = 'feature-top';
+
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.value = f.name || '';
+      nameInput.placeholder = 'Feature name';
+      nameInput.addEventListener('input', () => { state.features[idx].name = nameInput.value; save(); });
+      top.appendChild(nameInput);
+
+      const srcInput = document.createElement('input');
+      srcInput.type = 'text';
+      srcInput.className = 'feature-source';
+      srcInput.value = f.source || '';
+      srcInput.placeholder = 'Source';
+      srcInput.addEventListener('input', () => { state.features[idx].source = srcInput.value; save(); });
+      top.appendChild(srcInput);
+
+      const btn = document.createElement('button');
+      btn.className = 'btn-remove';
+      btn.textContent = 'x';
+      btn.addEventListener('click', () => { state.features.splice(idx, 1); renderFeatures(); save(); });
+      top.appendChild(btn);
+
+      entry.appendChild(top);
+
+      const desc = document.createElement('textarea');
+      desc.className = 'feature-desc';
+      desc.value = f.desc || '';
+      desc.placeholder = 'Description, mechanics, notes...';
+      desc.addEventListener('input', () => { state.features[idx].desc = desc.value; save(); });
+      entry.appendChild(desc);
+
+      container.appendChild(entry);
+    });
+  }
+
+  // ─── Auto-calculations ───
+  function getAttrDots(k) { return state.dots[k] || 0; }
+
+  function updateDerivedStats() {
+    const body   = getAttrDots('attr-body');
+    const mind   = getAttrDots('attr-mind');
+    const spirit = getAttrDots('attr-spirit');
+    const lvl    = getLevel();
+    const pb     = profBonusForLevel(lvl);
+
+    // Willpower max = Mind + Spirit
+    const wpMax = mind + spirit;
+    setReadOnlyField('wpMax', wpMax);
+
+    // Hit Dice max = Body + Spirit
+    const hdMax = body + spirit;
+    setReadOnlyField('hitDiceMax', hdMax);
+
+    // Speed max = Body + Mind
+    const speedMax = body + mind;
+    setReadOnlyField('speedMax', speedMax);
+
+    // Grit Points Maximum = Proficiency Bonus * max Willpower
+    const gritMax = pb * wpMax;
+    setReadOnlyField('gritMax', gritMax);
+  }
+
+  function setReadOnlyField(key, val) {
+    const el = document.querySelector('[data-key="' + key + '"]');
+    if (el) el.value = val;
+    state.fields[key] = String(val);
+  }
+
+  // ─── Resource helpers ───
+  function getFieldVal(k) { return parseInt(state.fields[k]) || 0; }
+  function setFieldVal(k, v) {
+    state.fields[k] = String(v);
+    const el = document.querySelector('[data-key="' + k + '"]');
+    if (el) el.value = v;
+    save();
+  }
+
+  // ─── Dice Engine & Activity Log ───
+  let activityLogOpen = false;
+  let customDicePool = 1;
+  let unseenLogCount = 0;
+  const MAX_LOG_ENTRIES = 50;
+
+  function toggleActivityLog() {
+    activityLogOpen = !activityLogOpen;
+    const popup = document.getElementById('activity-log');
+    popup.classList.toggle('hidden', !activityLogOpen);
+    if (activityLogOpen) {
+      unseenLogCount = 0;
+      updateFabBadge();
+      initRollerPicker();
+    }
+  }
+  document.getElementById('activity-log-fab').addEventListener('click', toggleActivityLog);
+
+  function updateFabBadge() {
+    const badge = document.getElementById('fab-badge');
+    if (unseenLogCount > 0) {
+      badge.style.display = 'flex';
+      badge.textContent = unseenLogCount > 9 ? '9+' : unseenLogCount;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  function initRollerPicker() {
+    const picker = document.getElementById('roller-dice-picker');
+    picker.innerHTML = '';
+    for (let i = 1; i <= 10; i++) {
+      const pip = document.createElement('button');
+      pip.className = 'roller-pip' + (i < customDicePool ? ' filled' : '') + (i === customDicePool ? ' selected' : '');
+      pip.textContent = i;
+      pip.addEventListener('click', () => {
+        customDicePool = i;
+        initRollerPicker();
+      });
+      picker.appendChild(pip);
+    }
+  }
+
+  function getTimestamp() {
+    const now = new Date();
+    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  function rollD6() { return Math.floor(Math.random() * 6) + 1; }
+
+  function rollPool(totalDice) {
+    const results = [];
+    for (let i = 0; i < totalDice; i++) results.push({ value: rollD6() });
+    return results;
+  }
+
+  function tallyResults(dice) {
+    let hits = 0, misses = 0;
+    dice.forEach(d => {
+      if (d.value >= 5) hits++;
+      else if (d.value === 1) misses++;
+    });
+    return { hits, misses, net: hits - misses };
+  }
+
+  function buildDiceHTML(dice) {
+    let html = '<div class="log-dice">';
+    dice.forEach(d => {
+      let cls = 'log-die';
+      if (d.value >= 5) cls += ' hit';
+      else if (d.value === 1) cls += ' miss';
+      else cls += ' neutral';
+      html += '<div class="' + cls + '">' + d.value + '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function buildResultHTML(tally) {
+    let cls, label;
+    if (tally.net > 0) { cls = 'positive'; label = tally.net + ' Net ' + (tally.net === 1 ? 'Success' : 'Successes'); }
+    else if (tally.net === 0) { cls = 'zero'; label = '0 Net Successes'; }
+    else { cls = 'negative'; label = Math.abs(tally.net) + ' Net ' + (Math.abs(tally.net) === 1 ? 'Miss' : 'Misses'); }
+    let html = '<div class="log-result ' + cls + '">' + label + '</div>';
+    html += '<div style="font-size:0.7rem;color:var(--text-muted);">' + tally.hits + ' hits, ' + tally.misses + ' misses</div>';
+    return html;
+  }
+
+  function buildSumHTML(dice) {
+    const total = dice.reduce((s, d) => s + d.value, 0);
+    return '<div class="log-sum-total">Total: ' + total + '</div>';
+  }
+
+  function autoReroll(dice, maxRerolls) {
+    if (!maxRerolls || maxRerolls <= 0) return { dice: dice, rerolled: [] };
+    let rerolled = [];
+    let remaining = maxRerolls;
+    const newDice = dice.map(d => {
+      if (remaining > 0 && d.value < 5) {
+        const oldVal = d.value;
+        const newVal = rollD6();
+        remaining--;
+        rerolled.push({ oldVal, newVal });
+        return { value: newVal, wasRerolled: true, oldValue: oldVal };
+      }
+      return Object.assign({}, d);
+    });
+    return { dice: newDice, rerolled };
+  }
+
+  function buildDiceHTMLWithRerolls(dice) {
+    let html = '<div class="log-dice">';
+    dice.forEach(d => {
+      if (d.wasRerolled) {
+        let oldCls = 'log-die rerolled';
+        if (d.oldValue >= 5) oldCls += ' hit';
+        else if (d.oldValue === 1) oldCls += ' miss';
+        else oldCls += ' neutral';
+        html += '<div class="' + oldCls + '">' + d.oldValue + '</div>';
+        html += '<span class="reroll-arrow">→</span>';
+      }
+      let cls = 'log-die';
+      if (d.value >= 5) cls += ' hit';
+      else if (d.value === 1) cls += ' miss';
+      else cls += ' neutral';
+      html += '<div class="' + cls + '">' + d.value + '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  let rollIdCounter = 0;
+
+  function addLogEntry(title, contentHTML, entryClass, meta) {
+    const body = document.getElementById('activity-log-body');
+    const placeholder = body.querySelector('div[style*="text-align:center"]');
+    if (placeholder) placeholder.remove();
+
+    const entry = document.createElement('div');
+    entry.className = 'log-entry ' + (entryClass || '');
+    if (meta && meta.rollId) {
+      entry.id = 'roll-' + meta.rollId;
+      entry.setAttribute('data-dice', JSON.stringify(meta.dice || []));
+    }
+    entry.innerHTML = '<span class="log-time">' + getTimestamp() + '</span><div class="log-title">' + title + '</div>' + contentHTML;
+    body.appendChild(entry);
+    body.scrollTop = body.scrollHeight;
+
+    while (body.children.length > MAX_LOG_ENTRIES) body.removeChild(body.firstChild);
+
+    if (!activityLogOpen) {
+      unseenLogCount++;
+      updateFabBadge();
+    }
+  }
+
+  function clearActivityLog() {
+    const body = document.getElementById('activity-log-body');
+    body.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px 0;font-size:0.8rem;">Log cleared.</div>';
+  }
+
+  function customRoll() {
+    if (customDicePool < 1) return;
+    rollFromSheet('Custom Roll', customDicePool);
+  }
+  function customRollSum() {
+    if (customDicePool < 1) return;
+    rollFromSheet('Custom Roll (Total)', customDicePool, { sumMode: true });
+  }
+
+  // Initiative roll uses the Speed pool
+  function rollInitiative() {
+    const speedPool = getFieldVal('speedCurrent') || getFieldVal('speedMax');
+    if (speedPool < 1) {
+      addLogEntry('Initiative', '<div class="log-result negative">Speed pool is 0!</div>', 'roll-entry');
+      if (!activityLogOpen) toggleActivityLog();
+      return;
+    }
+    rollFromSheet('Initiative', speedPool, { sumMode: true });
+  }
+
+  // Skill roll: pool = attribute dots; if proficient, add proficiency bonus
+  function rollSkill(attr, skill) {
+    const attrVal = getAttrDots(attr.key);
+    const lvl = getLevel();
+    const pb = profBonusForLevel(lvl);
+    const proficient = !!state.skillProfs[skillKey(skill)];
+    const pool = Math.min(10, Math.max(1, attrVal + (proficient ? pb : 0)));
+    const parts = [attr.name + ' ' + attrVal];
+    if (proficient) parts.push('Prof +' + pb);
+    rollFromSheet(attr.name + ' + ' + skill, pool, { poolBreakdown: parts.join(' + ') });
+  }
+
+  // Save roll: pool = attribute dots; if save proficient, add proficiency bonus
+  function rollSave(attr) {
+    const attrVal = getAttrDots(attr.key);
+    const lvl = getLevel();
+    const pb = profBonusForLevel(lvl);
+    const proficient = !!state.saveProfs[saveKey(attr.key)];
+    const pool = Math.min(10, Math.max(1, attrVal + (proficient ? pb : 0)));
+    const parts = [attr.name + ' ' + attrVal];
+    if (proficient) parts.push('Prof +' + pb);
+    rollFromSheet(attr.name + ' Save', pool, { poolBreakdown: parts.join(' + ') });
+  }
+
+  // Pool string parser: supports "Body + Brawl", numeric values, etc.
+  const ATTR_NAME_TO_KEY = {
+    'body': 'attr-body', 'finesse': 'attr-finesse', 'mind': 'attr-mind', 'spirit': 'attr-spirit'
+  };
+  const SKILL_NAME_LOOKUP = (() => {
+    const map = {};
+    ATTRIBUTES.forEach(a => a.skills.forEach(s => { map[s.toLowerCase()] = { skill: s, attr: a }; }));
+    return map;
+  })();
+
+  function parsePoolString(poolStr) {
+    if (!poolStr) return null;
+    const cleaned = poolStr.split(' or ')[0].replace(/\s*\([^)]*\)/g, '').trim();
+    const parts = cleaned.split('+').map(s => s.trim().toLowerCase());
+    if (parts.length < 1) return null;
+    let total = 0;
+    const breakdown = [];
+    const lvl = getLevel();
+    const pb = profBonusForLevel(lvl);
+    parts.forEach(part => {
+      if (ATTR_NAME_TO_KEY[part]) {
+        const v = getAttrDots(ATTR_NAME_TO_KEY[part]);
+        total += v;
+        breakdown.push(part.charAt(0).toUpperCase() + part.slice(1) + ' ' + v);
+        return;
+      }
+      if (SKILL_NAME_LOOKUP[part]) {
+        const info = SKILL_NAME_LOOKUP[part];
+        const proficient = !!state.skillProfs[skillKey(info.skill)];
+        if (proficient) {
+          total += pb;
+          breakdown.push(info.skill + ' (Prof +' + pb + ')');
+        } else {
+          breakdown.push(info.skill + ' (no prof)');
+        }
+        return;
+      }
+      if (part === 'willpower') {
+        const v = getFieldVal('wpCurrent');
+        total += v;
+        breakdown.push('Willpower ' + v);
+        return;
+      }
+      const num = parseInt(part);
+      if (!isNaN(num)) { total += num; breakdown.push(String(num)); return; }
+      breakdown.push(part + ' ?');
+    });
+    return { total: Math.max(0, total), breakdown };
+  }
+
+  function rollWeaponAttack(idx) {
+    const w = state.weapons[idx];
+    if (!w) return;
+    let poolSize = parseInt(w.pool);
+    let breakdown = '';
+    if (isNaN(poolSize)) {
+      const parsed = parsePoolString(w.pool);
+      if (parsed) {
+        poolSize = parsed.total;
+        breakdown = parsed.breakdown.join(' + ');
+      } else {
+        poolSize = 1;
+      }
+    }
+    poolSize = Math.min(10, Math.max(1, poolSize));
+    const rerolls = parseInt(w.rerolls) || 0;
+    const opts = {
+      poolBreakdown: breakdown || (poolSize + 'd6'),
+      focusedRerolls: rerolls
+    };
+    const result = rollFromSheet('Attack: ' + (w.name || 'Weapon'), poolSize, opts);
+    if (result.tally.net > 0 && w.damage) {
+      const body = document.getElementById('activity-log-body');
+      const lastEntry = body.lastElementChild;
+      if (lastEntry) {
+        const dmgDiv = document.createElement('div');
+        const extraDmg = parseInt(w.extraDmg) || 0;
+        const baseDmg = parseInt(w.damage) || 0;
+        const totalDmg = baseDmg + result.tally.net + extraDmg;
+        let dmgText = 'Damage: ' + baseDmg + ' base';
+        if (result.tally.net > 0) dmgText += ' + ' + result.tally.net + ' net';
+        if (extraDmg > 0) dmgText += ' + ' + extraDmg + ' bonus';
+        dmgText += ' = ' + totalDmg;
+        dmgDiv.style.cssText = 'font-size:0.8rem;font-weight:700;color:var(--accent-glow);margin-top:4px;';
+        dmgDiv.textContent = '⚔ ' + dmgText;
+        if (w.traits) {
+          const traitSpan = document.createElement('div');
+          traitSpan.style.cssText = 'font-size:0.65rem;color:var(--text-muted);';
+          traitSpan.textContent = 'Traits: ' + w.traits;
+          dmgDiv.appendChild(traitSpan);
+        }
+        lastEntry.appendChild(dmgDiv);
+      }
+    }
+  }
+
+  function doWillpowerReroll(rollId) {
+    const entry = document.getElementById('roll-' + rollId);
+    if (!entry) return;
+    const wpCur = getFieldVal('wpCurrent');
+    if (wpCur <= 0) {
+      addLogEntry('Willpower Reroll', '<div class="log-result negative">No Willpower remaining!</div>', 'roll-entry');
+      return;
+    }
+    const storedDice = JSON.parse(entry.getAttribute('data-dice'));
+    let rerolled = 0;
+    const newDice = storedDice.map(d => {
+      if (rerolled < 3 && d.value < 5) {
+        rerolled++;
+        return { value: rollD6(), wasRerolled: true, oldValue: d.value };
+      }
+      return Object.assign({}, d);
+    });
+    if (rerolled === 0) {
+      addLogEntry('Willpower Reroll', '<div class="log-result zero">No dice to reroll.</div>', 'roll-entry');
+      return;
+    }
+    setFieldVal('wpCurrent', wpCur - 1);
+    const newTally = tallyResults(newDice);
+    let html = '<div class="reroll-section">';
+    html += '<div class="reroll-label">Willpower Reroll (' + rerolled + ' dice, WP ' + wpCur + ' → ' + (wpCur - 1) + ')</div>';
+    html += buildDiceHTMLWithRerolls(newDice);
+    html += buildResultHTML(newTally);
+    html += '</div>';
+    entry.insertAdjacentHTML('beforeend', html);
+    entry.setAttribute('data-dice', JSON.stringify(newDice));
+    const wpBtn = entry.querySelector('.wp-btn');
+    if (wpBtn) { wpBtn.disabled = true; wpBtn.textContent = 'WP Used'; }
+    const body = document.getElementById('activity-log-body');
+    body.scrollTop = body.scrollHeight;
+  }
+
+  // options: { poolBreakdown, focusedRerolls, sumMode }
+  function rollFromSheet(label, poolSize, options) {
+    options = options || {};
+    let dice = rollPool(poolSize);
+    const title = label + ' (' + poolSize + 'd6)';
+    let content = '';
+    if (options.poolBreakdown) {
+      content += '<div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:3px;">' + options.poolBreakdown + ' = ' + poolSize + '</div>';
+    }
+    let hadAutoReroll = false;
+    if (options.focusedRerolls && options.focusedRerolls > 0) {
+      const result = autoReroll(dice, options.focusedRerolls);
+      if (result.rerolled.length > 0) {
+        hadAutoReroll = true;
+        dice = result.dice;
+        content += buildDiceHTMLWithRerolls(dice);
+        content += '<div style="font-size:0.65rem;color:var(--text-muted);margin-top:2px;font-style:italic;">Auto-rerolled ' + result.rerolled.length + ' die</div>';
+      }
+    }
+    if (!hadAutoReroll) content += buildDiceHTML(dice);
+
+    const tally = tallyResults(dice);
+    if (options.sumMode) content += buildSumHTML(dice);
+    else content += buildResultHTML(tally);
+
+    const rollId = ++rollIdCounter;
+    if (!options.sumMode) {
+      const wpCur = getFieldVal('wpCurrent');
+      content += '<div class="log-actions">';
+      content += '<button class="log-action-btn wp-btn" onclick="doWillpowerReroll(' + rollId + ')"' + (wpCur <= 0 ? ' disabled' : '') + '>WP Reroll</button>';
+      content += '</div>';
+    }
+
+    addLogEntry(title, content, 'roll-entry', { rollId, dice });
+    if (!activityLogOpen) toggleActivityLog();
+    return { dice, tally };
+  }
+
+  // ─── Draggable popup ───
+  (function() {
+    const header = document.getElementById('activity-log-header');
+    const popup = document.getElementById('activity-log');
+    let dragging = false, offsetX = 0, offsetY = 0;
+    header.addEventListener('mousedown', (e) => {
+      if (e.target.tagName === 'BUTTON') return;
+      dragging = true;
+      const rect = popup.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+      popup.style.transition = 'none';
+    });
+    document.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      popup.style.left = (e.clientX - offsetX) + 'px';
+      popup.style.top = (e.clientY - offsetY) + 'px';
+      popup.style.right = 'auto';
+      popup.style.bottom = 'auto';
+    });
+    document.addEventListener('mouseup', () => { dragging = false; popup.style.transition = ''; });
+  })();
+
+  // ─── Field Persistence ───
+  function initFields() {
+    document.querySelectorAll('[data-key]').forEach(el => {
+      const key = el.dataset.key;
+      if (state.fields[key] !== undefined) el.value = state.fields[key];
+      el.addEventListener('input', () => { state.fields[key] = el.value; save(); });
+      el.addEventListener('change', () => { state.fields[key] = el.value; save(); });
+      if (state.fields[key] === undefined) state.fields[key] = el.value;
+    });
+  }
+
+  function restoreFields() {
+    document.querySelectorAll('[data-key]').forEach(el => {
+      const key = el.dataset.key;
+      if (state.fields[key] !== undefined) el.value = state.fields[key];
+    });
+  }
+
+  // ─── Save / Load ───
+  const STORAGE_KEY = 'secondary-character-sheet';
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+  function load() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      try {
+        const saved = JSON.parse(raw);
+        Object.assign(state, saved);
+      } catch (e) { /* ignore */ }
+    }
+  }
+
+  function exportSheet() {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const name = state.fields.name || 'character';
+    a.download = name.replace(/\s+/g, '_').toLowerCase() + '_secondary_sheet.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function importSheet() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.addEventListener('change', () => {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const imported = JSON.parse(reader.result);
+          Object.assign(state, imported);
+          save();
+          renderAll();
+        } catch (e) {
+          alert('Failed to import: invalid file.');
+        }
+      };
+      reader.readAsText(file);
+    });
+    input.click();
+  }
+
+  // Hook subspecies select after first render
+  function hookSubspecies() {
+    const sel = document.getElementById('subspecies-select');
+    if (!sel) return;
+    sel.addEventListener('change', () => {
+      state.fields['subspecies'] = sel.value;
+      updateSpeciesInfo();
+      save();
+    });
+  }
+
+  // ─── Render All ───
+  function renderAll() {
+    buildIdentitySelects();
+    if (!state.fields['level']) state.fields['level'] = '1';
+    document.getElementById('level-select').value = state.fields['level'];
+    buildAttrColumns();
+    initDots();
+    renderDeathBox();
+    renderConditions();
+    renderFeatures();
+    renderList('equipment-list', 'equipment');
+    renderWeapons();
+    restoreFields();
+    document.getElementById('level-select').value = state.fields['level'];
+    updateSubspeciesField();
+    hookSubspecies();
+    updateSpeciesInfo();
+    updateLevelStats();
+    updateDerivedStats();
+  }
+
+  // ─── Init ───
+  load();
+  initFields();
+  renderAll();
+</script>
+</body>
+</html>
