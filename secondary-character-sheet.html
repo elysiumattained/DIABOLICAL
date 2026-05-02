@@ -399,6 +399,7 @@
 <div class="tab-bar">
   <button class="tab-btn active" data-tab="stats">Stats</button>
   <button class="tab-btn" data-tab="info">Info</button>
+  <button class="tab-btn" data-tab="class">Class</button>
   <button class="tab-btn" data-tab="features">Features</button>
   <button class="tab-btn" data-tab="inventory">Inventory</button>
   <button class="tab-btn" data-tab="notes">Notes</button>
@@ -428,6 +429,14 @@
       </div>
       <div class="field field-narrow"><label>Level</label>
         <select data-key="level" id="level-select"></select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label id="art-label">Art</label>
+        <select data-key="art" id="art-select"><option value="">--</option></select>
+      </div>
+      <div class="field"><label id="style-label">Style</label>
+        <select data-key="style" id="style-select"><option value="">--</option></select>
       </div>
     </div>
   </div>
@@ -487,7 +496,6 @@
       </div>
       <div class="field-row">
         <div class="field field-narrow"><label>Body Length</label><input type="text" data-key="bodyLength" value="5 ft"></div>
-        <div class="field field-narrow"><label>Armor Class</label><input type="number" min="0" data-key="armorClass" value="10"></div>
       </div>
     </div>
 
@@ -514,7 +522,7 @@
         <div class="hp-display">
           <input type="number" min="0" data-key="speedCurrent" value="0">
           <span>/</span>
-          <input type="number" min="0" data-key="speedMax" value="0" readonly title="Auto: Body + Mind">
+          <input type="number" min="0" data-key="speedMax" value="0" readonly title="Auto: Body + Finesse">
         </div>
         <button class="skill-roll-btn" onclick="rollInitiative()" title="Roll Initiative (Speed pool, sum mode)" style="margin-left:4px;">&#9858;</button>
       </div>
@@ -568,6 +576,16 @@
   </div>
 </div>
 
+<!-- CLASS TAB -->
+<div class="tab-content" id="tab-class">
+  <div class="section">
+    <div class="section-title">Class</div>
+    <div style="font-size:0.85rem;color:var(--text-muted);line-height:1.5;">
+      Class details will go here.
+    </div>
+  </div>
+</div>
+
 <!-- FEATURES TAB -->
 <div class="tab-content" id="tab-features">
   <div class="section">
@@ -586,15 +604,14 @@
   <div class="section">
     <div class="section-title">Wealth</div>
     <div class="field-row">
-      <div class="field"><label>Cash on Hand ($)</label><input type="number" min="0" data-key="cash" value="0"></div>
-      <div class="field"><label>Weekly Income ($)</label><input type="number" data-key="weeklyIncome" value="0"></div>
+      <div class="field"><label>Gold (gp)</label><input type="number" min="0" data-key="gold" value="0"></div>
     </div>
   </div>
 
   <div class="section">
     <div class="section-title">Equipment</div>
     <div class="list-section" id="equipment-list"></div>
-    <button class="btn-add" onclick="addListItem('equipment-list', 'equipment')">+ Add Item</button>
+    <button class="btn-add" onclick="addEquipment()">+ Add Item</button>
   </div>
 </div>
 
@@ -678,31 +695,84 @@
   const SPECIES_DATA = {
     'Human': {
       subcategories: [],
-      values: { notes: '' }
+      values: { traits: [] }
     },
     'Dryad': {
       subcategories: ['Firm', 'Flow', 'Crown', 'Flame', 'Root', 'Pale', 'Wild'],
-      values: { notes: '' },
+      values: { traits: [] },
       subspecies: {
-        'Firm':  { values: {} },
-        'Flow':  { values: {} },
-        'Crown': { values: {} },
-        'Flame': { values: {} },
-        'Root':  { values: {} },
-        'Pale':  { values: {} },
-        'Wild':  { values: {} }
+        'Firm':  { values: { traits: [] } },
+        'Flow':  { values: { traits: [] } },
+        'Crown': { values: { traits: [] } },
+        'Flame': { values: { traits: [] } },
+        'Root':  { values: { traits: [] } },
+        'Pale':  { values: { traits: [] } },
+        'Wild':  { values: { traits: [] } }
       }
     },
-    'Displacer':  { subcategories: [], values: { notes: '' } },
-    'Amar Kabal': { subcategories: [], values: { notes: '' } },
-    'Lykabal':    { subcategories: [], values: { notes: '' } },
-    'Drakabal':   { subcategories: [], values: { notes: '' } },
+    'Displacer': {
+      subcategories: [],
+      values: { traits: [
+        { name: 'Displace', desc:
+          "You have the defining ability of the Displacer, the ability to displace your body parts. This gives you a number of benefits that follow certain rules. None of the following features may be used during combat, except for senses.\n" +
+          "• You may remove your body parts at will. The removed part remains connected to your body through a “displacement field” that causes the space between your displaced body parts to be contiguous.\n" +
+          "• Your maximum HP is split amongst your displaced body parts. If you remove your hand, that might take 3 max HP from you and give it to your hand. If you reattach it, you recombine your max HP.\n" +
+          "• You can still sense through your displaced body parts and control them. Anything that affects your displaced body parts affects you too. This includes poisons, power effects, damage, etc.\n" +
+          "• If a body part has enough muscle and joint, you can move it by concentrating on it. Most parts that can move have a 5 foot moving speed, but your hands have a 10 foot speed.\n" +
+          "• You can graft a body part onto a living thing. If you do this, the creature you have grafted the part onto has exclusive control over the part, while you are only able to sense through it.\n" +
+          "• You can willingly end the displacement field attaching you to a displaced body part at any time, effectively losing that part. If the part is grafted to another creature at that time, it does not die and they retain use of it, but you can never reattach it.\n" +
+          "This ability allows for an astounding amount of flexibility and creativity, and just like everything else final rulings as to the possibilities or mechanics of this fall to the GM."
+        }
+      ] }
+    },
+    'Amar Kabal': {
+      subcategories: [],
+      values: { traits: [
+        { name: 'Seedborne', desc:
+          "You possess the defining feature of your race, the amar. Your amar is a tiny wooden seed a little bit larger than a walnut which sits firmly under the skin at the nape of your neck. It stores your memories and your soul. Upon death, the amar pops out of the skin.\n" +
+          "If planted in good soil, the amar regrows your body at the age and state of your First Death, with all of your memories intact except perhaps the final few moments before the seed was ejected. The regrowing process takes 2d6 weeks in good soil, 1d6 weeks in the fertile soil of the Vales, and longer in dry or infertile soil.\n" +
+          "The amar does not rot or decay, and can be planted any amount of time after your death. It is, however, destructible. It has 10 HP and is vulnerable to Fire and Bludgeoning damage. If destroyed, it cannot be planted and can never grow again.\n" +
+          "Upon regrowth, you must roll a d100. On a roll of 1, your seed regrows deformed, and cannot be replanted. In such a case, this life is your last."
+        }
+      ] }
+    },
+    'Lykabal':  { subcategories: [], values: { traits: [] } },
+    'Drakabal': { subcategories: [], values: { traits: [] } },
     'Asura': {
       subcategories: ['Vishnu', 'Ganesh'],
-      values: { notes: '' },
+      values: { traits: [
+        { name: 'Ceramic Skin', desc:
+          "Asura were created to serve in all environments without losing function. You are immune to the effects of Hot and Chilly environments.\n" +
+          "However, spending more than eight hours in Chilly conditions or 1 hour in Freezing conditions lowers your damage response to Bludgeoning damage by 1. Becoming Chilled also causes this to occur.\n" +
+          "On the other end, spending more than eight hours in Hot conditions or 1 hour in Scorching conditions lowers your damage response to Slashing damage by 1.\n" +
+          "All of these effects end when you Recover."
+        },
+        { name: 'Fragile Mind', desc:
+          "Asura were created to be slaves, and were designed with several innate weaknesses to make them easier to control. You have a -4D penalty to any check to avoid a mind-controlling or charming effect."
+        }
+      ] },
       subspecies: {
-        'Vishnu': { values: {} },
-        'Ganesh': { values: {} }
+        'Vishnu': { values: { traits: [
+          { name: 'Four-Armed', desc:
+            "You have two sets of arms, giving you the following effects.\n" +
+            "• Clothes and armor must be specially tailored or altered to fit your strange build.\n" +
+            "• You can use four rings instead of two.\n" +
+            "• You gain one free object interaction per turn."
+          },
+          { name: 'Language Synapse', desc:
+            "Vishnu were designed to comprehend languages easier than other creatures. You gain a +1 to checks made to decipher, comprehend, or communicate with language. This applies to Vailic as well."
+          }
+        ] } },
+        'Ganesh': { values: { traits: [
+          { name: 'Six-Armed', desc:
+            "You have three sets of arms, giving you the following effects.\n" +
+            "• Clothes and armor must be specially tailored or altered to fit your strange build.\n" +
+            "• You can use six rings instead of two.\n" +
+            "• You gain one free object interaction per turn.\n" +
+            "• You have +2 to checks made to grapple a creature.\n" +
+            "• You can grapple two Medium creatures at once, or one Large creature."
+          }
+        ] } }
       }
     }
   };
@@ -733,6 +803,13 @@
       }
     });
   }
+
+  // Class data: Arts (paired with Styles) and Acolyte's Gods (paired with the
+  // Acolyte class). When Style = Acolyte, the Art slot becomes "God" and uses
+  // the GODS list instead.
+  const ARTS  = ['Medium', 'Battlemaster', 'Dryad', 'Artificer', 'Dedicated'];
+  const STYLES = ['Warrior', 'Ranger', 'Bard', 'Evoker', 'Acolyte'];
+  const GODS  = ['Kyrios', 'Veritas', 'Medala', 'Forga', 'Luna', 'Vindicto', 'Fraus'];
 
   // Level-dependent values
   function profBonusForLevel(level) {
@@ -806,6 +883,50 @@
     });
   }
 
+  function fillSelectOptions(select, options, currentValue) {
+    select.innerHTML = '<option value="">--</option>';
+    options.forEach(o => {
+      const opt = document.createElement('option');
+      opt.value = o;
+      opt.textContent = o;
+      if (currentValue === o) opt.selected = true;
+      select.appendChild(opt);
+    });
+  }
+
+  function buildArtStyleSelects() {
+    const styleSel = document.getElementById('style-select');
+    const artSel   = document.getElementById('art-select');
+    fillSelectOptions(styleSel, STYLES, state.fields['style']);
+    refreshArtField();
+
+    styleSel.addEventListener('change', () => {
+      state.fields['style'] = styleSel.value;
+      // If swapping to/from Acolyte, the Art selection no longer applies
+      const wasGod = state.fields['style'] === 'Acolyte';
+      const prevValueValid = wasGod
+        ? GODS.includes(state.fields['art'])
+        : ARTS.includes(state.fields['art']);
+      if (!prevValueValid) state.fields['art'] = '';
+      refreshArtField();
+      save();
+    });
+
+    artSel.addEventListener('change', () => {
+      state.fields['art'] = artSel.value;
+      save();
+    });
+  }
+
+  function refreshArtField() {
+    const styleVal = state.fields['style'] || '';
+    const isAcolyte = styleVal === 'Acolyte';
+    document.getElementById('style-label').textContent = isAcolyte ? 'Class' : 'Style';
+    document.getElementById('art-label').textContent   = isAcolyte ? 'God'   : 'Art';
+    const artSel = document.getElementById('art-select');
+    fillSelectOptions(artSel, isAcolyte ? GODS : ARTS, state.fields['art']);
+  }
+
   function updateSubspeciesField() {
     const sp = state.fields['species'];
     const wrap = document.getElementById('subspecies-field');
@@ -827,6 +948,9 @@
     }
   }
 
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+  }
   function updateSpeciesInfo() {
     const el = document.getElementById('species-info');
     if (!el) return;
@@ -836,10 +960,20 @@
       return;
     }
     const sub = state.fields['subspecies'];
-    let txt = sp + (sub ? ' (' + sub + ')' : '');
+    const heading = sp + (sub ? ' (' + sub + ')' : '');
     const v = getActiveSpeciesValues();
-    if (v.notes) txt += ' — ' + v.notes;
-    el.textContent = txt;
+    let html = '<div style="font-weight:600;color:var(--text-primary);margin-bottom:8px;">' + escapeHtml(heading) + '</div>';
+    if (v.traits && v.traits.length > 0) {
+      v.traits.forEach(t => {
+        html += '<div style="margin-bottom:10px;">';
+        html += '<div style="font-weight:600;color:var(--accent-glow);margin-bottom:3px;">' + escapeHtml(t.name) + '</div>';
+        html += '<div style="white-space:pre-wrap;">' + escapeHtml(t.desc) + '</div>';
+        html += '</div>';
+      });
+    } else {
+      html += '<div style="color:var(--text-muted);font-style:italic;">No species traits defined.</div>';
+    }
+    el.innerHTML = html;
   }
 
   // ─── Level Stats ───
@@ -1002,6 +1136,51 @@
       btn.textContent = 'x';
       btn.addEventListener('click', () => { state[stateKey].splice(idx, 1); renderList(containerId, stateKey); save(); });
       row.appendChild(input);
+      row.appendChild(btn);
+      container.appendChild(row);
+    });
+  }
+
+  // ─── Equipment (with Attuned tickbox) ───
+  function addEquipment() {
+    state.equipment.push({ name: '', attuned: false });
+    renderEquipment();
+    save();
+  }
+  function renderEquipment() {
+    const container = document.getElementById('equipment-list');
+    container.innerHTML = '';
+    state.equipment.forEach((item, idx) => {
+      // Migrate legacy string items
+      if (typeof item === 'string') {
+        state.equipment[idx] = { name: item, attuned: false };
+        item = state.equipment[idx];
+      }
+      const row = document.createElement('div');
+      row.className = 'list-item';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = item.name || '';
+      input.placeholder = 'Item name';
+      input.addEventListener('input', () => { state.equipment[idx].name = input.value; save(); });
+      row.appendChild(input);
+
+      const attLabel = document.createElement('label');
+      attLabel.style.cssText = 'display:flex;align-items:center;gap:4px;font-size:0.75rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;cursor:pointer;flex-shrink:0;margin-top:6px;';
+      const attBox = document.createElement('input');
+      attBox.type = 'checkbox';
+      attBox.checked = !!item.attuned;
+      attBox.style.cssText = 'cursor:pointer;';
+      attBox.addEventListener('change', () => { state.equipment[idx].attuned = attBox.checked; save(); });
+      attLabel.appendChild(attBox);
+      attLabel.appendChild(document.createTextNode('Attuned'));
+      row.appendChild(attLabel);
+
+      const btn = document.createElement('button');
+      btn.className = 'btn-remove';
+      btn.textContent = 'x';
+      btn.addEventListener('click', () => { state.equipment.splice(idx, 1); renderEquipment(); save(); });
       row.appendChild(btn);
       container.appendChild(row);
     });
@@ -1222,8 +1401,9 @@
     const hdMax = body + spirit;
     setReadOnlyField('hitDiceMax', hdMax);
 
-    // Speed max = Body + Mind
-    const speedMax = body + mind;
+    // Speed max = Body + Finesse
+    const finesse = getAttrDots('attr-finesse');
+    const speedMax = body + finesse;
     setReadOnlyField('speedMax', speedMax);
 
     // Grit Points Maximum = Proficiency Bonus * max Willpower
@@ -1303,20 +1483,16 @@
   }
 
   function tallyResults(dice) {
-    let hits = 0, misses = 0;
-    dice.forEach(d => {
-      if (d.value >= 5) hits++;
-      else if (d.value === 1) misses++;
-    });
-    return { hits, misses, net: hits - misses };
+    let hits = 0;
+    dice.forEach(d => { if (d.value === 6) hits++; });
+    return { hits, net: hits };
   }
 
   function buildDiceHTML(dice) {
     let html = '<div class="log-dice">';
     dice.forEach(d => {
       let cls = 'log-die';
-      if (d.value >= 5) cls += ' hit';
-      else if (d.value === 1) cls += ' miss';
+      if (d.value === 6) cls += ' hit';
       else cls += ' neutral';
       html += '<div class="' + cls + '">' + d.value + '</div>';
     });
@@ -1325,13 +1501,9 @@
   }
 
   function buildResultHTML(tally) {
-    let cls, label;
-    if (tally.net > 0) { cls = 'positive'; label = tally.net + ' Net ' + (tally.net === 1 ? 'Success' : 'Successes'); }
-    else if (tally.net === 0) { cls = 'zero'; label = '0 Net Successes'; }
-    else { cls = 'negative'; label = Math.abs(tally.net) + ' Net ' + (Math.abs(tally.net) === 1 ? 'Miss' : 'Misses'); }
-    let html = '<div class="log-result ' + cls + '">' + label + '</div>';
-    html += '<div style="font-size:0.7rem;color:var(--text-muted);">' + tally.hits + ' hits, ' + tally.misses + ' misses</div>';
-    return html;
+    const cls = tally.hits > 0 ? 'positive' : 'zero';
+    const label = tally.hits + ' ' + (tally.hits === 1 ? 'Hit' : 'Hits');
+    return '<div class="log-result ' + cls + '">' + label + '</div>';
   }
 
   function buildSumHTML(dice) {
@@ -1344,7 +1516,7 @@
     let rerolled = [];
     let remaining = maxRerolls;
     const newDice = dice.map(d => {
-      if (remaining > 0 && d.value < 5) {
+      if (remaining > 0 && d.value < 6) {
         const oldVal = d.value;
         const newVal = rollD6();
         remaining--;
@@ -1361,15 +1533,13 @@
     dice.forEach(d => {
       if (d.wasRerolled) {
         let oldCls = 'log-die rerolled';
-        if (d.oldValue >= 5) oldCls += ' hit';
-        else if (d.oldValue === 1) oldCls += ' miss';
+        if (d.oldValue === 6) oldCls += ' hit';
         else oldCls += ' neutral';
         html += '<div class="' + oldCls + '">' + d.oldValue + '</div>';
         html += '<span class="reroll-arrow">→</span>';
       }
       let cls = 'log-die';
-      if (d.value >= 5) cls += ' hit';
-      else if (d.value === 1) cls += ' miss';
+      if (d.value === 6) cls += ' hit';
       else cls += ' neutral';
       html += '<div class="' + cls + '">' + d.value + '</div>';
     });
@@ -1427,28 +1597,34 @@
     rollFromSheet('Initiative', speedPool, { sumMode: true });
   }
 
-  // Skill roll: pool = attribute dots; if proficient, add proficiency bonus
+  // Skill roll: pool = attribute dots; if proficient, add proficiency bonus dice and reroll up to PB dice
   function rollSkill(attr, skill) {
     const attrVal = getAttrDots(attr.key);
     const lvl = getLevel();
     const pb = profBonusForLevel(lvl);
     const proficient = !!state.skillProfs[skillKey(skill)];
-    const pool = Math.min(10, Math.max(1, attrVal + (proficient ? pb : 0)));
+    const pool = Math.max(1, attrVal + (proficient ? pb : 0));
     const parts = [attr.name + ' ' + attrVal];
     if (proficient) parts.push('Prof +' + pb);
-    rollFromSheet(attr.name + ' + ' + skill, pool, { poolBreakdown: parts.join(' + ') });
+    rollFromSheet(attr.name + ' + ' + skill, pool, {
+      poolBreakdown: parts.join(' + '),
+      focusedRerolls: proficient ? pb : 0
+    });
   }
 
-  // Save roll: pool = attribute dots; if save proficient, add proficiency bonus
+  // Save roll: pool = attribute dots; if save proficient, add prof bonus dice and reroll up to PB dice
   function rollSave(attr) {
     const attrVal = getAttrDots(attr.key);
     const lvl = getLevel();
     const pb = profBonusForLevel(lvl);
     const proficient = !!state.saveProfs[saveKey(attr.key)];
-    const pool = Math.min(10, Math.max(1, attrVal + (proficient ? pb : 0)));
+    const pool = Math.max(1, attrVal + (proficient ? pb : 0));
     const parts = [attr.name + ' ' + attrVal];
     if (proficient) parts.push('Prof +' + pb);
-    rollFromSheet(attr.name + ' Save', pool, { poolBreakdown: parts.join(' + ') });
+    rollFromSheet(attr.name + ' Save', pool, {
+      poolBreakdown: parts.join(' + '),
+      focusedRerolls: proficient ? pb : 0
+    });
   }
 
   // Pool string parser: supports "Body + Brawl", numeric values, etc.
@@ -1515,7 +1691,7 @@
         poolSize = 1;
       }
     }
-    poolSize = Math.min(10, Math.max(1, poolSize));
+    poolSize = Math.max(1, poolSize);
     const rerolls = parseInt(w.rerolls) || 0;
     const opts = {
       poolBreakdown: breakdown || (poolSize + 'd6'),
@@ -1558,7 +1734,7 @@
     const storedDice = JSON.parse(entry.getAttribute('data-dice'));
     let rerolled = 0;
     const newDice = storedDice.map(d => {
-      if (rerolled < 3 && d.value < 5) {
+      if (rerolled < 3 && d.value < 6) {
         rerolled++;
         return { value: rollD6(), wasRerolled: true, oldValue: d.value };
       }
@@ -1727,12 +1903,13 @@
     buildIdentitySelects();
     if (!state.fields['level']) state.fields['level'] = '1';
     document.getElementById('level-select').value = state.fields['level'];
+    buildArtStyleSelects();
     buildAttrColumns();
     initDots();
     renderDeathBox();
     renderConditions();
     renderFeatures();
-    renderList('equipment-list', 'equipment');
+    renderEquipment();
     renderWeapons();
     restoreFields();
     document.getElementById('level-select').value = state.fields['level'];
