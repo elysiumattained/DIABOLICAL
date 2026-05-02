@@ -627,6 +627,9 @@
       Features unlocked by your Style and Art (or your Class and God) up to your current Level,
       listed in level order. Set Art, Style, and Level on the Stats tab to populate this list.
     </div>
+    <div style="margin-bottom:10px;">
+      <button class="btn-add" id="class-toggle-all-btn" onclick="toggleAllClassFeatures()" style="margin-top:0;">Expand All</button>
+    </div>
     <div id="class-features-list"></div>
   </div>
 </div>
@@ -1165,6 +1168,29 @@
     return out;
   }
 
+  function updateClassToggleAllButton() {
+    const btn = document.getElementById('class-toggle-all-btn');
+    const list = document.getElementById('class-features-list');
+    if (!btn || !list) return;
+    const cards = list.querySelectorAll('details.class-feature');
+    if (cards.length === 0) {
+      btn.style.display = 'none';
+      return;
+    }
+    btn.style.display = '';
+    const anyClosed = Array.from(cards).some(d => !d.open);
+    btn.textContent = anyClosed ? 'Expand All' : 'Collapse All';
+  }
+
+  function toggleAllClassFeatures() {
+    const list = document.getElementById('class-features-list');
+    if (!list) return;
+    const cards = list.querySelectorAll('details.class-feature');
+    const anyClosed = Array.from(cards).some(d => !d.open);
+    cards.forEach(d => { d.open = anyClosed; });
+    updateClassToggleAllButton();
+  }
+
   function renderClassTab() {
     const summary = document.getElementById('class-summary');
     const profsSec = document.getElementById('class-proficiencies-section');
@@ -1230,6 +1256,8 @@
       return;
     }
 
+    updateClassToggleAllButton();
+
     list.innerHTML = featureRows.map(r =>
       '<details class="class-feature">' +
         '<summary>' +
@@ -1243,6 +1271,11 @@
         '<div class="class-feature-desc">' + escapeHtml(r.desc) + '</div>' +
       '</details>'
     ).join('');
+
+    list.querySelectorAll('details.class-feature').forEach(d => {
+      d.addEventListener('toggle', updateClassToggleAllButton);
+    });
+    updateClassToggleAllButton();
   }
 
   // Level-dependent values
