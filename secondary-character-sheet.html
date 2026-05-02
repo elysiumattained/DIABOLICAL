@@ -236,6 +236,36 @@
   }
   .condition-desc:focus { outline: none; border-color: var(--border-focus); }
 
+  /* Class feature card (auto-populated from CLASS_DATA) */
+  .class-feature {
+    padding: 10px 12px; margin-bottom: 8px;
+    background: var(--bg-tertiary); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent-glow); border-radius: 4px;
+  }
+  .class-feature-head {
+    display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;
+  }
+  .class-feature-level {
+    font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--text-muted); background: var(--bg-input);
+    padding: 2px 6px; border-radius: 3px; flex-shrink: 0;
+  }
+  .class-feature-source {
+    font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted);
+  }
+  .class-feature-name { font-size: 0.95rem; font-weight: 700; color: var(--accent-glow); }
+  .class-feature-desc {
+    font-size: 0.85rem; color: var(--text-primary); line-height: 1.55;
+    white-space: pre-wrap;
+  }
+  .class-feature-desc table {
+    border-collapse: collapse; margin: 6px 0; font-size: 0.8rem;
+  }
+  .class-feature-desc th, .class-feature-desc td {
+    border: 1px solid var(--border); padding: 4px 8px;
+  }
+  .class-feature-desc th { background: var(--bg-input); color: var(--accent-glow); }
+
   /* Feature entry (custom) */
   .feature-entry { padding: 10px 0; border-bottom: 1px solid var(--border); }
   .feature-entry:last-child { border-bottom: none; }
@@ -400,6 +430,7 @@
   <button class="tab-btn active" data-tab="stats">Stats</button>
   <button class="tab-btn" data-tab="info">Info</button>
   <button class="tab-btn" data-tab="class">Class</button>
+  <button class="tab-btn" data-tab="powers">Powers</button>
   <button class="tab-btn" data-tab="features">Features</button>
   <button class="tab-btn" data-tab="inventory">Inventory</button>
   <button class="tab-btn" data-tab="notes">Notes</button>
@@ -579,9 +610,31 @@
 <!-- CLASS TAB -->
 <div class="tab-content" id="tab-class">
   <div class="section">
-    <div class="section-title">Class</div>
+    <div class="section-title">Class Summary</div>
+    <div id="class-summary" style="font-size:0.9rem;line-height:1.5;"></div>
+  </div>
+
+  <div class="section" id="class-proficiencies-section">
+    <div class="section-title">Style Proficiencies</div>
+    <div id="class-proficiencies" style="font-size:0.85rem;line-height:1.6;"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Class Features</div>
+    <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;line-height:1.5;">
+      Features unlocked by your Style and Art (or your Class and God) up to your current Level,
+      listed in level order. Set Art, Style, and Level on the Stats tab to populate this list.
+    </div>
+    <div id="class-features-list"></div>
+  </div>
+</div>
+
+<!-- POWERS TAB -->
+<div class="tab-content" id="tab-powers">
+  <div class="section">
+    <div class="section-title">Powers</div>
     <div style="font-size:0.85rem;color:var(--text-muted);line-height:1.5;">
-      Class details will go here.
+      Powers will go here in a later iteration.
     </div>
   </div>
 </div>
@@ -811,6 +864,167 @@
   const STYLES = ['Warrior', 'Ranger', 'Bard', 'Evoker', 'Acolyte'];
   const GODS  = ['Kyrios', 'Veritas', 'Medala', 'Forga', 'Luna', 'Vindicto', 'Fraus'];
 
+  // ─── Class / Art / God feature data ───
+  // Each entry: { type: 'Style'|'Art'|'God',
+  //               proficiencies?: { savingThrows, weapons, skills },
+  //               features: [{ level, name, desc }] }
+  // The Class tab pulls features whose level <= character level from the
+  // currently-selected Art and Style (or, when Style = Acolyte, the
+  // currently-selected God), sorts them by level, and renders them in order.
+  // Add new Arts/Styles/Gods by extending this object.
+  const CLASS_DATA = {
+    // ── Styles ─────────────────────────────────────────────────────────
+    'Warrior': {
+      type: 'Style',
+      proficiencies: {
+        savingThrows: 'Body, Finesse',
+        weapons: 'All weapons',
+        skills: 'Choose 2: Stamina, Strength, Throw, Brawl, Block, Craft (Regular Weapons), Intimidate'
+      },
+      features: [
+        { level: 1, name: 'Martial Training',
+          desc: 'You have access to Warrior Maneuvers, and can learn additional maneuvers on top of the amount indicated by the Table. You can learn a number of additional maneuvers equal to your Proficiency Bonus.' },
+        { level: 1, name: 'Second Wind',
+          desc: 'You can search within yourself and find the strength to keep going. By spending 1AP, you can regain HP equal to 3 times your level. You can only do this once before you must take a long rest to regain the ability.' },
+        { level: 4, name: 'Action Surge',
+          desc: 'You gain the ability to push yourself beyond your usual limits, if only for a moment. As a free action on your turn, you gain a number of special AP equal to half your usual AP amount. You must spend these points on the turn you gain them. You must take a long rest before you are able to use this ability again.' },
+        { level: 4, name: 'Attack Specialist',
+          desc: 'You are trained to do this one thing really, really well. And quickly, too. You can perform the Full Attack action using 1AP.' },
+        { level: 7, name: 'Indomitable',
+          desc: 'You can shrug off even the toughest of blows. Once per rest, when you fail a saving throw you may instead choose to succeed.' },
+        { level: 7, name: 'Battle-Ready',
+          desc: 'You are always ready for a fight. You can add your Proficiency Bonus to Initiative rolls.' },
+        { level: 10, name: 'True Strike',
+          desc: 'When you attack a creature, you may choose to automatically succeed with as many hits as dice you would have rolled. You can do this once before needing to rest to regain the ability.' },
+        { level: 10, name: 'Relentless',
+          desc: 'There is little that can keep you down. Once per rest when you are reduced to 0HP, you can drop to 1HP instead.' },
+        { level: 13, name: 'Impenetrable',
+          desc: 'You may choose one of the following conditions to become permanently immune to: Blinded, Deafened, Restrained, Slowed, Stunned, Lethargic, Unfocused.' },
+        { level: 13, name: 'Banneret',
+          desc: 'When you use Indomitable or Battle-Ready, you can choose a number of creatures equal to your Leadership pool within 60 feet of you to gain the same benefits.' }
+      ]
+    },
+
+    // ── Arts ───────────────────────────────────────────────────────────
+    'Medium': {
+      type: 'Art',
+      features: [
+        { level: 2, name: 'Echosight',
+          desc: 'Put simply, you can see echoes. You see these psychic impressions as faint, translucent images overlaid on the physical world. You can tell the dominant emotion or alignment of an echo without making a check, as they are usually color coded (rage being red, anguish blue, joy yellow, etc.). Attempting to read deeper and gain more information requires an Insight check. Echosight can be toggled at will. While active, you can perceive echoes out to a range of 30 feet.' },
+        { level: 2, name: 'Communion',
+          desc: 'You can perform a one minute Ritual to commune with an echo and channel their skills and memories. At the completion of the ritual, you expend 1GP and gain proficiency with one skill of your choice for ten minutes. You can only commune with one echo at a time.' },
+        { level: 5, name: 'Emotional Resonance',
+          desc: 'To practiced eyes, everyone gives off tiny echoes. While your Echosight is active, you can perceive the surface-level emotions of living creatures you can see within its range.' },
+        { level: 5, name: 'Enhanced Communion',
+          desc: 'Your Communion ritual improves. The proficiency granted now lasts for an hour, and the first time you use the ritual each day, it costs no GP. You can also choose to eschew the skill proficiency and instead gain proficiency in two weapons, tools, or musical instruments.' },
+        { level: 8, name: 'Empowered Echosight',
+          desc: 'Your Echosight is growing ever more potent. The range of your Echosight doubles, and you can perceive the echoes of creatures within that range even through walls. Certain metals and thick enough stone can block your sight.' },
+        { level: 8, name: 'Resonant Body',
+          desc: 'Your body, at this point, is used to carrying the resonance of an echo, and echoes recognize you as a preferable point to latch onto. This may make you a more preferable target for possessions, but it also allows you to commune with three echoes at a time with Communion, gaining three skill proficiencies. Additionally, the effects of your Communion last until you start a rest or perform the ritual again.' },
+        { level: 11, name: 'Evoke Echo',
+          desc: 'You have learned techniques that allow you to dredge up an echo where there wasn’t one before. As a one hour long Ritual, you can force an echo to manifest, tied to an object or place you have access to for the duration of the ritual. Once it is manifested, you may spend 1GP to ask it one question, which it must answer as best as it can. It can elaborate and use context, too, because this is a complex echo. You can ask as many questions as you like, but they each cost 1GP. Other Mediums have warned you of the risks of giving so much power to an echo, though.' },
+        { level: 11, name: 'Eternal Commitment',
+          desc: 'By spending a significant amount of gold during a Communion, you can gain one chosen proficiency permanently. You can replace this permanent choice by performing the modified ritual and spending the gold again, but doing so will cause the echo who you learned the original skill from to be furious and begin to haunt you.' },
+        { level: 14, name: 'Usurper',
+          desc: 'This act is considered the epitome of the Mediumship Art, and the riskiest. You can enact a ten hour Ritual that costs all of your GP and a lot of gold. At the end of the ritual, you lose 20 maximum HP and can select one Power from any list, ignoring any requirements. You do not gain any benefits that require features that you don’t have. Both of the effects of this ritual are permanent. You can enact this ritual again, but you lose 10 maximum HP more each time. So the second use would take 30HP, the fourth 40HP, etc.\n\nThis ritual carries secret, severe consequences even beyond the loss in vitality.' },
+        { level: 14, name: 'As They See',
+          desc: 'You permanently bind an echo to your Echosight, giving you the ability to see as it sees. You gain 15 feet of Truesight while your Echosight is active.' }
+      ]
+    }
+  };
+
+  // Resolve the active class entry for an Art/Style/God slot. When Style is
+  // Acolyte, the Art slot is repurposed for a God selection.
+  function getActiveClassEntries() {
+    const styleVal = state.fields['style'] || '';
+    const artVal   = state.fields['art']   || '';
+    const out = [];
+    if (styleVal && CLASS_DATA[styleVal]) {
+      out.push({ slot: styleVal === 'Acolyte' ? 'Class' : 'Style', name: styleVal, data: CLASS_DATA[styleVal] });
+    }
+    if (artVal && CLASS_DATA[artVal]) {
+      const slot = (styleVal === 'Acolyte') ? 'God' : 'Art';
+      out.push({ slot, name: artVal, data: CLASS_DATA[artVal] });
+    }
+    return out;
+  }
+
+  function renderClassTab() {
+    const summary = document.getElementById('class-summary');
+    const profsSec = document.getElementById('class-proficiencies-section');
+    const profs = document.getElementById('class-proficiencies');
+    const list = document.getElementById('class-features-list');
+    if (!summary || !list) return;
+
+    const styleVal = state.fields['style'] || '';
+    const artVal   = state.fields['art']   || '';
+    const lvl      = getLevel();
+    const isAcolyte = styleVal === 'Acolyte';
+
+    // Summary
+    let sumHTML = '';
+    if (!styleVal && !artVal) {
+      sumHTML = '<span style="color:var(--text-muted);">Set Art and Style on the Stats tab.</span>';
+    } else {
+      const styleLbl = isAcolyte ? 'Class' : 'Style';
+      const artLbl   = isAcolyte ? 'God'   : 'Art';
+      sumHTML += '<div><strong>' + styleLbl + ':</strong> ' + escapeHtml(styleVal || '—') + '</div>';
+      sumHTML += '<div><strong>' + artLbl   + ':</strong> ' + escapeHtml(artVal   || '—') + '</div>';
+      sumHTML += '<div><strong>Level:</strong> ' + lvl + '</div>';
+    }
+    summary.innerHTML = sumHTML;
+
+    // Proficiencies (Style only)
+    const styleEntry = styleVal && CLASS_DATA[styleVal] && CLASS_DATA[styleVal].proficiencies
+      ? CLASS_DATA[styleVal] : null;
+    if (styleEntry) {
+      profsSec.style.display = '';
+      const p = styleEntry.proficiencies;
+      profs.innerHTML =
+        '<div><strong>Saving Throws:</strong> ' + escapeHtml(p.savingThrows || '—') + '</div>' +
+        '<div><strong>Weapons:</strong> '       + escapeHtml(p.weapons      || '—') + '</div>' +
+        '<div><strong>Skills:</strong> '        + escapeHtml(p.skills       || '—') + '</div>';
+    } else {
+      profsSec.style.display = 'none';
+      profs.innerHTML = '';
+    }
+
+    // Features (merged from active entries, sorted by level then source order)
+    const entries = getActiveClassEntries();
+    const featureRows = [];
+    entries.forEach((entry, sourceIdx) => {
+      (entry.data.features || []).forEach(f => {
+        if (f.level <= lvl) {
+          featureRows.push({
+            level: f.level,
+            sourceIdx,
+            sourceLabel: entry.slot + ': ' + entry.name,
+            name: f.name,
+            desc: f.desc
+          });
+        }
+      });
+    });
+    featureRows.sort((a, b) => a.level - b.level || a.sourceIdx - b.sourceIdx);
+
+    if (featureRows.length === 0) {
+      list.innerHTML = '<div style="color:var(--text-muted);font-style:italic;">' +
+        (entries.length === 0 ? 'Nothing selected yet.' : 'No features unlocked at this level.') + '</div>';
+      return;
+    }
+
+    list.innerHTML = featureRows.map(r =>
+      '<div class="class-feature">' +
+        '<div class="class-feature-head">' +
+          '<span class="class-feature-level">Lv ' + r.level + '</span>' +
+          '<span class="class-feature-name">' + escapeHtml(r.name) + '</span>' +
+          '<span class="class-feature-source">' + escapeHtml(r.sourceLabel) + '</span>' +
+        '</div>' +
+        '<div class="class-feature-desc">' + escapeHtml(r.desc) + '</div>' +
+      '</div>'
+    ).join('');
+  }
+
   // Level-dependent values
   function profBonusForLevel(level) {
     if (level >= 12) return 5;
@@ -879,6 +1093,7 @@
       state.fields['level'] = level.value;
       updateLevelStats();
       updateDerivedStats();
+      renderClassTab();
       save();
     });
   }
@@ -909,11 +1124,13 @@
         : ARTS.includes(state.fields['art']);
       if (!prevValueValid) state.fields['art'] = '';
       refreshArtField();
+      renderClassTab();
       save();
     });
 
     artSel.addEventListener('change', () => {
       state.fields['art'] = artSel.value;
+      renderClassTab();
       save();
     });
   }
@@ -1918,6 +2135,7 @@
     updateSpeciesInfo();
     updateLevelStats();
     updateDerivedStats();
+    renderClassTab();
   }
 
   // ─── Init ───
