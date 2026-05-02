@@ -238,12 +238,15 @@
 
   /* Class feature card (auto-populated from CLASS_DATA) */
   .class-feature {
-    padding: 10px 12px; margin-bottom: 8px;
+    margin-bottom: 8px;
     background: var(--bg-tertiary); border: 1px solid var(--border);
     border-left: 3px solid var(--accent-glow); border-radius: 4px;
   }
+  .class-feature summary { list-style: none; cursor: pointer; padding: 10px 12px; }
+  .class-feature summary::-webkit-details-marker { display: none; }
+  .class-feature summary:hover { background: rgba(74,167,122,0.08); }
   .class-feature-head {
-    display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;
+    display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
   }
   .class-feature-level {
     font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px;
@@ -254,17 +257,16 @@
     font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted);
   }
   .class-feature-name { font-size: 0.95rem; font-weight: 700; color: var(--accent-glow); }
+  .class-feature-toggle {
+    margin-left: auto; color: var(--text-muted); font-size: 0.8rem;
+    transition: transform 0.15s; flex-shrink: 0;
+  }
+  .class-feature[open] .class-feature-toggle { transform: rotate(90deg); }
   .class-feature-desc {
     font-size: 0.85rem; color: var(--text-primary); line-height: 1.55;
-    white-space: pre-wrap;
+    white-space: pre-wrap; padding: 0 12px 12px;
+    margin-top: 4px; border-top: 1px solid var(--border); padding-top: 10px;
   }
-  .class-feature-desc table {
-    border-collapse: collapse; margin: 6px 0; font-size: 0.8rem;
-  }
-  .class-feature-desc th, .class-feature-desc td {
-    border: 1px solid var(--border); padding: 4px 8px;
-  }
-  .class-feature-desc th { background: var(--bg-input); color: var(--accent-glow); }
 
   /* Feature entry (custom) */
   .feature-entry { padding: 10px 0; border-bottom: 1px solid var(--border); }
@@ -930,6 +932,220 @@
         { level: 14, name: 'As They See',
           desc: 'You permanently bind an echo to your Echosight, giving you the ability to see as it sees. You gain 15 feet of Truesight while your Echosight is active.' }
       ]
+    },
+
+    'Ranger': {
+      type: 'Style',
+      proficiencies: {
+        savingThrows: 'Finesse, Mind',
+        weapons: 'Shortbow, Dagger, Rapier, Crossbow, Shortsword, Spear, Longbow',
+        skills: 'Choose 3: Climb, Dodge, Acrobatics, Stealth, Deft, Nature, Survival, Perception'
+      },
+      features: [
+        { level: 1, name: 'Ranger Training',
+          desc: 'You have access to Ranger Maneuvers, and can choose either the Hunter’s Mark or Sneak Attack maneuver to gain for free in addition to the number of maneuvers listed on the Table.' },
+        { level: 1, name: 'Natural Explorer',
+          desc: 'You are particularly familiar with one type of natural environment and are adept at traveling and surviving in such regions. Choose one type of favored terrain: arctic, coast, desert, forest, grassland, mountain, swamp, or caves. When you make a Mind check related to your favored terrain, your Proficiency Bonus is doubled if you are using a skill you are proficient in.\n\nWhile traveling for an hour or more in your favored terrain, you gain the following benefits:\n• Difficult terrain doesn’t slow your group’s travel.\n• Your group can’t become lost except by magical means.\n• Even when you are engaged in another activity while traveling (such as foraging, navigating, or tracking), you remain alert to danger.\n• If you are traveling alone, you can move stealthily at a normal pace.\n• When you forage, you find twice as much food as you normally would.\n• While tracking other creatures, you also learn their exact number, their sizes, and how long ago they passed through the area.\n\nYou choose additional favored terrain types at 4th and 10th level.' },
+        { level: 4, name: 'Favored Foe',
+          desc: 'At this point in your Ranger training, you dedicate yourself to the pursuit of a single type of foe. Choose one of the following creature types: Erratics, Monsters, Beasts, Goblinoids, Divines, Elementals, Constructs, Undead, or two races of Humanoid. Whenever you make a skill check against your chosen type of creature and would not use your Proficiency Bonus, you may use it.' },
+        { level: 4, name: 'Quick Feet',
+          desc: 'You have developed quite the skill for deft movement. You may perform the Sprint, Disengage, and Hide actions for 1AP.' },
+        { level: 7, name: 'Uncanny Dodge',
+          desc: 'When you are struck by an attack from a source you can see, you can use your reaction to halve the damage you take.' },
+        { level: 7, name: 'Foil Foe',
+          desc: 'When you make a Saving Throw against an effect from one of your Favored Foes that would not use your Proficiency bonus, you may use it.' },
+        { level: 10, name: 'Evasion',
+          desc: 'When you are subject to a Finesse Save to take half damage, you instead take half damage if you fail and no damage if you succeed.' },
+        { level: 10, name: 'Nimble Footwork',
+          desc: 'When you Sprint, you are immune to difficult terrain until the end of the turn and opportunity attacks against you have a -2.' },
+        { level: 13, name: 'Unrivalled Hunter',
+          desc: 'Your skill in tracking and navigating are nearly unrivalled. You gain your favored terrain effects in all terrains, and your Favored Foes cannot gain any benefit against you from being Hidden or Invisible.' },
+        { level: 13, name: 'Tireless',
+          desc: 'Your AP can never be reduced below 2, and you can go up to a week without sleep before starting to feel ill effects.' }
+      ]
+    },
+
+    'Bard': {
+      type: 'Style',
+      proficiencies: {
+        savingThrows: 'Spirit, Finesse',
+        weapons: 'Rapier, Crossbow, Shortbow',
+        skills: 'Choose 4: Leadership, Intimidate, Insight, Savvy, Persuasion, Deception, Perception, History, Deft'
+      },
+      features: [
+        { level: 1, name: 'Bardic Training',
+          desc: 'You have been trained as a Bard, giving you proficiency with performance checks with a musical instrument of your choosing. You have access to the Bard Maneuvers, and gain the Bardic Inspiration maneuver for free in addition to the number of maneuvers listed on the Table.' },
+        { level: 1, name: 'The Show Must Go On',
+          desc: 'You are trained to keep up a performance even in the thick of battle. You add double your proficiency bonus to Spirit saves to maintain concentration instead of just adding it once.' },
+        { level: 4, name: 'Master of None',
+          desc: 'Whenever you make a check for a skill you aren’t proficient in, you can add half your proficiency bonus to the pool.' },
+        { level: 4, name: 'Hardened Eardrums',
+          desc: 'You have listened to plenty of bad practice sessions, your own included. Your damage response to Sonic damage increases by one, to a max level of Immune.' },
+        { level: 7, name: 'Reliable Talent',
+          desc: 'You may choose one skill that you are proficient in and gain Expertise in it instead, allowing you to double your proficiency bonus for this skill.' },
+        { level: 7, name: 'That Universal Language',
+          desc: 'Music is a language that bridges gaps in understanding. Through your music, you may communicate simple ideas and concepts to any creature, even if they don’t know any language at all. This does not allow you to understand them.' },
+        { level: 10, name: 'Incessant Song',
+          desc: 'Your extensive experience has led to your music being more reliable and consistent than ever before. When you make a Spirit save to maintain concentration, you gain one automatic success.' },
+        { level: 10, name: 'Fall for Nothing',
+          desc: 'Your Master of None feature extends to Saving Throws too.' },
+        { level: 13, name: 'Invigorating Inspiration',
+          desc: 'Your inspiration of others inspires you, too. Whenever a creature benefits from your Bardic Inspiration when you can see it, you regain Hit Points equal to a roll of your Speed Die.' },
+        { level: 13, name: 'Bard’s Renown',
+          desc: 'By this point, for better or worse, your songs have led to the fame of you and your entire party. You gain one of two features, depending on the nature of your fame:\n\nHero’s Fame. Once per rest, you can automatically succeed (with as many Hits as possible) on any Leadership, Persuasion, Savvy, or performance check against anyone that has heard of you.\n\nTrue Infamy. Once per rest, you can automatically succeed (with as many Hits as possible) on any Deception, Intimidation, Perception, or Insight check against anyone that has heard of you.' }
+      ]
+    },
+
+    'Evoker': {
+      type: 'Style',
+      proficiencies: {
+        savingThrows: 'Mind, Spirit',
+        weapons: 'Staff',
+        skills: 'Choose 2: Arcana, Medicine, History, Nature'
+      },
+      features: [
+        { level: 1, name: 'Power Specialist',
+          desc: 'You have chosen to really lean into the casting aspect of this whole thing. You can learn extra Powers equal to half your proficiency bonus, and when you calculate your Grit Points, you may calculate it as if your proficiency bonus was one number higher.' },
+        { level: 4, name: 'Potent Powers',
+          desc: 'You can add your proficiency bonus to the damage of powers.' },
+        { level: 7, name: 'Precision Powers',
+          desc: 'You have learned to manipulate your Powers to protect people from harm. You can select a number of creatures in the power’s area of effect up to your proficiency bonus to be unaffected by your power.' },
+        { level: 10, name: 'Custom Charge',
+          desc: 'When you activate a Power effect, you can spend 3 extra Grit points (not counted against your Grit Maximum), to choose between one of the following effects:\n• Reroll a number of damage dice equal to your PB once\n• The duration of the effect is doubled\n• The DC of the effect is increased by 2' },
+        { level: 13, name: 'Overexertion',
+          desc: 'When you activate a Power effect, you can decide to consider the damage roll as if it had rolled maximum damage. The first time you do this each long rest, you suffer no ill effects. Each subsequent time, however, you take True damage equal to twice the damage dealt.' }
+      ]
+    },
+
+    'Dryad': {
+      type: 'Art',
+      features: [
+        { level: 2, name: 'Essence Attunement',
+          desc: 'You are a living expression of your Circle’s element. Your body can sustain itself through elemental connection rather than food and water. Your current state of connection is measured on the Attunement Scale (Starving, Fading, Sustained, Thriving, Overflowing), determined by your proximity to and immersion in your Circle’s element as outlined in the Circle Table.\n\n1. Starving. You must make an Environment Check every hour or gain one level of Sapped. You cannot benefit from any Dryadism Art features or powers while Starving. You must eat like the mortals. You are dying, slowly, and you know it.\n2. Fading. You lose the healing and the condition immunity. Dryadism features and powers cost 1GP more than usual to activate. You feel a persistent discomfort, like hunger or thirst.\n3. At Sustained or higher, you gain the following:\n   • You do not need to eat or drink.\n   • At the start of each of your turns in combat unless you are downed, you regain 1 HP.\n   • You are immune to your Circle’s associated condition.\n4. At Thriving, your Attunement healing increases to HP equal to your Proficiency Bonus per turn. Any attack or power you activate that deals your circle’s damage type deals an extra 1d6 damage.\n5. At Overflowing, your Attunement healing increases to HP equal to twice your Proficiency Bonus per turn, your elemental sense range extends to 300 feet, and your damage response to your Circle’s damage type is raised by 1 level.' },
+        { level: 2, name: 'Elemental Sense',
+          desc: 'You can sense the presence of your element within a certain range. This range is equal to your total level times 5 feet.' },
+        { level: 5, name: 'Deepened Attunement',
+          desc: 'Your connection to your element intensifies. You gain the following improvements:\n• Your baseline Attunement healing at Sustained increases to your Proficiency Bonus (instead of 1). Thriving and Overflowing scale accordingly (PB × 2 and PB × 3 respectively).\n• Your additional elemental damage takes effect when Sustained, and when Thriving, it is increased to 2d6.\n• While at Thriving or higher, you gain a minor enhancement: Flame flickers with unnatural speed (+5 movement), Flow moves fluidly through tight spaces (can squeeze without penalty), Crown is buoyed by air currents (resistant to fall damage), Pale moves across ice and snow without slipping, Firm gains a climbing speed equal to their movement speed, Root can move through dense undergrowth without penalty, Wild gains the ability to communicate basic concepts with animals.' },
+        { level: 5, name: 'Enhanced Elemental Sense',
+          desc: 'Your passive awareness of your element becomes more informative. You constantly perceive detailed information about your element within your sense range, like the temperature and behavior of nearby flames, the flow rate and depth of water, the structural integrity of stone, the health and types of plants, and so on. This information is more intuitive and less verbal or technical. Additionally, you can spend 1 AP to pulse your sense outward, doubling its range for one round.' },
+        { level: 8, name: 'Elemental Imposition',
+          desc: 'You can project your element into the world, creating a zone of your power. Using a Full Round Action, you designate a point you can see within 60 feet. A 15-foot radius area centered on that point becomes saturated with your element for 1 minute. The area counts as Thriving for creatures of your Circle and Fading for creatures who are opposed by your Circle. You can use this ability a number of times equal to half your Proficiency Bonus (rounded up) per long rest.\n\nThe area inflicts an environmental effect on all creatures other than you:\nFlame  — 1d6 Fire damage at the start of each turn\nPale   — 1d6 Cold damage at the start of each turn\nCrown  — 1d6 Lightning damage at the start of each turn\nFlow   — Creatures become Wet upon entering or starting their turn there\nFirm   — Difficult terrain; creatures starting their turn must make a Body Save or take 2d6 physical damage.\nRoot   — Difficult terrain; creatures starting their turn must make a Body Save or be Pinned by roots\nWild   — Creatures starting their turn must make a Spirit Save or be Frightened of you for one round' },
+        { level: 8, name: 'Elemental Resilience',
+          desc: 'Your body’s elemental nature hardens. Your condition immunity from Attunement now persists even at Fading. Your damage response bonus from your race increases by an additional level at the higher Attunement rungs (Thriving gives +1, Overflowing gives +2).' },
+        { level: 11, name: 'Expanded Imposition',
+          desc: 'Your Elemental Imposition improves:\n• The radius increases to 25 feet.\n• You can sustain an Imposition indefinitely by remaining within it. If you leave the Imposition after the normal duration is up, it vanishes instantly.\n• You can activate an Imposition using 2AP.\n• The area now counts as Overflowing for your Attunement purposes and Starving for element-opposed Dryads.' },
+        { level: 11, name: 'Elemental Overflow',
+          desc: 'When you are at Thriving or Overflowing, your elemental power bleeds into the space around you. All allies within 10 feet of you ignore your Imposition’s effects and gain your Circle’s condition immunity. Additionally, once per round, when a creature hits you with a melee attack while you are at Thriving or higher, they take 1d6 of your Circle’s damage type as elemental backlash.' },
+        { level: 14, name: 'Primordial Attunement',
+          desc: 'You have become your element so completely that the scale barely applies anymore. You gain the following benefits:\n• You are never considered below Sustained, regardless of environment. Even in the most hostile conditions, your body generates enough of its own element to sustain itself. You can still benefit from Thriving and Overflowing when in favorable conditions.\n• Your additional elemental damage on attacks increases to 2d6 while Sustained and 3d6 while Thriving.\n• Your Elemental Imposition no longer has a limited number of uses.\n• Your Elemental Overflow radius increases to 20 feet, and the retaliatory damage increases to 2d6.' },
+        { level: 14, name: 'Living Element',
+          desc: 'You gain a permanent physical transformation tied to your Circle:\nFlame — You can fly at a speed of 30 feet, carried by your own heat. You shed bright light in a 20-foot radius.\nFlow  — You gain a swim speed of 60 feet and can breathe underwater. You can move through spaces as narrow as 1 inch without squeezing.\nCrown — You gain a fly speed of 45 feet. You cannot be knocked Prone while airborne.\nPale  — You gain +20 movement speed on any cold terrain. You leave no tracks and cannot be tracked by non-magical means.\nFirm  — You gain a burrow speed of 20 feet through natural earth and stone. You gain a +2 to checks to resist grappling and forced movement.\nRoot  — You gain a climb speed equal to your full movement speed on any natural surface. You can root yourself as a reaction, reducing your speed to 0 but becoming immune to forced movement until the end of your next turn.\nWild  — You gain +10 to any movement speed you have in any form. You can communicate telepathically with any beast within 120 feet.' }
+      ]
+    },
+
+    'Artificer': {
+      type: 'Art',
+      features: [
+        { level: 2, name: 'Jury-Rigger',
+          desc: 'You gain proficiency in Craft (Tech) and in two kinds of tools. As a 1 minute long, 1GP Ritual, you can take materials around you or that you have on hand to create a makeshift version of a mundane item like a weapon, a set of tools, or a piece of equipment like a rope or torch. This can be used by anyone as if it were the item it resembles, but it falls apart after ten minutes.' },
+        { level: 2, name: 'Device Deviser',
+          desc: 'You gain the ability to craft devices that can mimic the Powers you know. As part of a rest, you can create a number of devices equal to half your Proficiency bonus. Each device copies one activated effect from a power you know, and costs the relevant number of GP to craft. This device can be used by anyone to activate the effect for the normal number of AP, using your Power DC as required.\n\nEach device lasts until you finish a rest, and you choose whether it falls apart at that time, is repurposed into your devices for the new day, or just becomes unfunctional.' },
+        { level: 5, name: 'Crafting Savant',
+          desc: 'You can perform Craft tasks in half the usual required time, and for a discounted cost in gold as determined by the GM. Additionally, your Jury-Rigged creations last for an hour before falling apart.' },
+        { level: 5, name: 'Upgraded Devices',
+          desc: 'You are getting better at creating devices, too. Devices you make can now benefit from passive Powers that you know, at a cost of half the level requirement in GP (minimum 2). Such devices must be activated using 1AP and convey the passive to the user for the next hour.' },
+        { level: 8, name: 'Inspired Inventor',
+          desc: 'For each creature other than you that has activated one of your devices since your last rest, you gain a stacking +1 to all checks.' },
+        { level: 8, name: 'Dedicated Devices',
+          desc: 'The devices you make that mimic activated effects cost you 1 less GP than normal to create, to a minimum of 1.' },
+        { level: 11, name: 'Minor Intelligence',
+          desc: 'You can put the burden of maintaining concentration on your Core Device, risking its integrity in return for more power. You can spend 1AP to transfer the concentration of an effect you are concentrating on to your Core Device. It maintains the effect, freeing up your concentration for something else. However, any effect you make the Core Device concentrate on has its duration halved, and it can only handle doing this once before you must spend an hour repairing it for it to regain the ability. Additionally, if the effect has ongoing choices for targets or effects, the GM makes any such decisions (though they always favor your side, it may not be optimal). This feature (and thus any effect the Core is concentrating on) ends if you go down.' },
+        { level: 11, name: 'Integrated Network',
+          desc: 'You have learned to support even more devices from your Core Device, and to integrate them into your system. You can create a number of devices equal to your proficiency bonus, and devices you make cannot be activated against your will.' },
+        { level: 14, name: 'Arcane Intelligence',
+          desc: 'Your Core Device gets even better at concentrating. It can now maintain effects for their full duration, and the effect lasts that duration even if you go down.' },
+        { level: 14, name: 'Masterwork',
+          desc: 'When you create devices, you can make one extra device for free. This device does not count against your limit for devices made, and it costs no GP to make. Additionally, it can mimic any effect from any Power that you could potentially choose from the power list, even if you do not know it. You can remake this device every subsequent time you create devices, but you can only change the Masterwork you create with great expense and effort.' }
+      ]
+    },
+
+    'Battlemaster': {
+      type: 'Art',
+      features: [
+        { level: 2, name: 'Weapon Devotion',
+          desc: 'You must choose one type of weapon (like Shortswords, Clubs, Warhammers, Spears, etc.) to utterly devote yourself to. You gain proficiency in Craft checks to repair, create, or maintain weapons of your Devotion, and can utilize only that kind of weapon for your Battlemaster features.\n\nIf you ever use a weapon you are not Devoted to, you lose all Battlemaster Art features and Powers until you Bond with a weapon.' },
+        { level: 2, name: 'Mystic Bond',
+          desc: 'You have learned to align your body’s energies with that of a weapon, and can gain an uncanny connection to it. To gain the benefits of this feature, you must kill a creature with a weapon you are Devoted to. When you do so, that weapon becomes Bonded and you gain the following benefits for that specific weapon only:\n• You cannot be disarmed against your will.\n• It can use any Attribute you like to determine the base pool for attacks and damage.\n• You can call it into your hand from anywhere within 30 feet of you using 1AP.\n\nThe benefits of this feature fade when you finish a rest.' },
+        { level: 5, name: 'Uncanny Speed',
+          desc: 'Your devotion serves you well. While you wield a weapon you are Devoted to, you gain an additional reaction per turn.' },
+        { level: 5, name: 'Mystic Defense',
+          desc: 'You can perform a Full Defend action for 1AP while you wield a Bonded weapon.' },
+        { level: 8, name: 'Improved Maneuvers',
+          desc: 'When you roll a Speed Die for a Maneuver, you can add your Proficiency Bonus to the result.' },
+        { level: 8, name: 'Flawless Technique',
+          desc: 'Choose one weapon trait. This trait is applied to all Bonded weapons you wield.' },
+        { level: 11, name: 'Serene Specificity',
+          desc: 'Bonding to the same weapon over and over has beneficial effects. Once you have Bonded to a weapon ten times, you can choose to maintain the Bond forever. In such a case, you gain the following benefits:\n• You are always considered to be wielding the weapon as long as it is on your person, as it seems to materialize in your hand moments before you even know you need it.\n• You can call it to your hand from 60 feet away, and it does not require any AP.\n• You cannot ever disguise the weapon’s presence, but no one ever questions it or tries to take it from you.\n• Activating the weapon’s Trait effects cost one less Hit, to a minimum of one.' },
+        { level: 11, name: 'Mystic Form',
+          desc: 'Just as your weapon is a part of you, you are a part of it. You gain one of the following abilities:\n\nTranslocation. When your weapon is out of your hand but within 60 feet, you may spend 1AP to teleport to wherever the weapon is, immediately wielding it again. If the weapon is any further than 60 feet away, you may spend a Full Round Action and 3GP to teleport to it.\n\nUnity. Your damage response to the damage type dealt by your weapon increases by one. You may spend 1GP and 2AP to gain a damage reduction equal to half the Attribute you use to attack with your Bonded weapon. The activated effect lasts for 1 minute.' },
+        { level: 14, name: 'One',
+          desc: 'The effects of this feature are a secret. They’re really good though trust me.' },
+        { level: 14, name: 'The Weapon Perfected',
+          desc: 'It is difficult to imagine a more accomplished wielder than you. You gain the following benefits:\n• The Attribute associated with your Bonded weapon increases by 1. If it is at maximum already, raise the next Attribute to the right by 1 instead.\n• When you make a Full Attack with your Bonded Weapon, you may spend 3 hits to force the target to make a Body Save or suffer the effects of all the weapon’s Traits at once.\n• Your Bonded Weapon gains +2 to its base damage.' }
+      ]
+    },
+
+    'Dedicated': {
+      type: 'Art',
+      // Each level has a Style-specific feature; the renderer filters by
+      // the active Style via the `requires` field.
+      features: [
+        // Level 2
+        { level: 2, name: 'Dedicated Warrior', requires: { style: 'Warrior' },
+          desc: 'You can use Second Wind twice and learn 2 additional Maneuvers.' },
+        { level: 2, name: 'Dedicated Ranger', requires: { style: 'Ranger' },
+          desc: 'You can choose an additional kind of Favored Terrain and gain the Hunter’s Mark or Sneak Attack maneuver for free, whichever one you didn’t pick at level 1.' },
+        { level: 2, name: 'Dedicated Bard', requires: { style: 'Bard' },
+          desc: 'You can use Bardic Inspiration for free a number of times equal to your Proficiency Bonus per rest.' },
+        { level: 2, name: 'Dedicated Evoker', requires: { style: 'Evoker' },
+          desc: 'Instead of learning additional Powers equal to half your Proficiency Bonus, you can learn additional Powers equal to your full Proficiency Bonus. You also gain a number of additional GP equal to your Proficiency Bonus.' },
+        // Level 5
+        { level: 5, name: 'Dedicated Warrior', requires: { style: 'Warrior' },
+          desc: 'You can use Action Surge twice before needing to rest to use it again.' },
+        { level: 5, name: 'Dedicated Ranger', requires: { style: 'Ranger' },
+          desc: 'You can choose an additional kind of Favored Foe.' },
+        { level: 5, name: 'Dedicated Bard', requires: { style: 'Bard' },
+          desc: 'Your Damage Response to Sonic damage increases by 2, to a maximum of Absorbent.' },
+        { level: 5, name: 'Dedicated Evoker', requires: { style: 'Evoker' },
+          desc: 'You can add a further half your Proficiency Bonus to the damage rolls of Powers.' },
+        // Level 8
+        { level: 8, name: 'Dedicated Warrior', requires: { style: 'Warrior' },
+          desc: 'You can use Indomitable twice before needing to rest to use it again.' },
+        { level: 8, name: 'Dedicated Ranger', requires: { style: 'Ranger' },
+          desc: 'Uncanny Dodge instead allows you to ignore all the damage of an attack, but not any accompanying effects.' },
+        { level: 8, name: 'Dedicated Bard', requires: { style: 'Bard' },
+          desc: 'You gain Expertise in two additional skills.' },
+        { level: 8, name: 'Dedicated Evoker', requires: { style: 'Evoker' },
+          desc: 'You can use Precision Powers on a number of targets equal to twice your Proficiency Bonus.' },
+        // Level 11
+        { level: 11, name: 'Dedicated Warrior', requires: { style: 'Warrior' },
+          desc: 'You can use True Strike and Relentless twice each before needing to rest to use them again.' },
+        { level: 11, name: 'Dedicated Ranger', requires: { style: 'Ranger' },
+          desc: 'You may automatically fully succeed on a Finesse Save once per rest, and Nimble Footwork renders you immune to opportunity attacks when you Sprint.' },
+        { level: 11, name: 'Dedicated Bard', requires: { style: 'Bard' },
+          desc: 'Incessant Song grants you two automatic successes instead of one.' },
+        { level: 11, name: 'Dedicated Evoker', requires: { style: 'Evoker' },
+          desc: 'When you use Custom Charge, you can choose to spend one additional GP and get to choose a second effect.' },
+        // Level 14
+        { level: 14, name: 'Dedicated Warrior', requires: { style: 'Warrior' },
+          desc: 'Impenetrable grants two condition immunities instead of one.' },
+        { level: 14, name: 'Dedicated Ranger', requires: { style: 'Ranger' },
+          desc: 'Tireless instead makes you immune to Sapped and you do not ever have to sleep.' },
+        { level: 14, name: 'Dedicated Bard', requires: { style: 'Bard' },
+          desc: 'You double the healing given by Invigorating Inspiration and gain the effects of both Hero’s Renown and True Infamy.' },
+        { level: 14, name: 'Dedicated Evoker', requires: { style: 'Evoker' },
+          desc: 'You can use Overexertion once more before it starts to deal damage to you.' }
+      ]
     }
   };
 
@@ -994,15 +1210,16 @@
     const featureRows = [];
     entries.forEach((entry, sourceIdx) => {
       (entry.data.features || []).forEach(f => {
-        if (f.level <= lvl) {
-          featureRows.push({
-            level: f.level,
-            sourceIdx,
-            sourceLabel: entry.slot + ': ' + entry.name,
-            name: f.name,
-            desc: f.desc
-          });
-        }
+        if (f.level > lvl) return;
+        // Optional requirements (e.g. Dedication features depend on Style)
+        if (f.requires && f.requires.style && state.fields['style'] !== f.requires.style) return;
+        featureRows.push({
+          level: f.level,
+          sourceIdx,
+          sourceLabel: entry.slot + ': ' + entry.name,
+          name: f.name,
+          desc: f.desc
+        });
       });
     });
     featureRows.sort((a, b) => a.level - b.level || a.sourceIdx - b.sourceIdx);
@@ -1014,14 +1231,17 @@
     }
 
     list.innerHTML = featureRows.map(r =>
-      '<div class="class-feature">' +
-        '<div class="class-feature-head">' +
-          '<span class="class-feature-level">Lv ' + r.level + '</span>' +
-          '<span class="class-feature-name">' + escapeHtml(r.name) + '</span>' +
-          '<span class="class-feature-source">' + escapeHtml(r.sourceLabel) + '</span>' +
-        '</div>' +
+      '<details class="class-feature">' +
+        '<summary>' +
+          '<div class="class-feature-head">' +
+            '<span class="class-feature-level">Lv ' + r.level + '</span>' +
+            '<span class="class-feature-name">' + escapeHtml(r.name) + '</span>' +
+            '<span class="class-feature-source">' + escapeHtml(r.sourceLabel) + '</span>' +
+            '<span class="class-feature-toggle">▸</span>' +
+          '</div>' +
+        '</summary>' +
         '<div class="class-feature-desc">' + escapeHtml(r.desc) + '</div>' +
-      '</div>'
+      '</details>'
     ).join('');
   }
 
