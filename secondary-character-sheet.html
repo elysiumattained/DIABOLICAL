@@ -617,8 +617,13 @@
   </div>
 
   <div class="section" id="class-proficiencies-section">
-    <div class="section-title">Style Proficiencies</div>
+    <div class="section-title">Proficiencies</div>
     <div id="class-proficiencies" style="font-size:0.85rem;line-height:1.6;"></div>
+  </div>
+
+  <div class="section" id="class-tenets-section" style="display:none;">
+    <div class="section-title">Tenets</div>
+    <div id="class-tenets" style="font-size:0.85rem;line-height:1.6;"></div>
   </div>
 
   <div class="section">
@@ -1149,6 +1154,295 @@
         { level: 14, name: 'Dedicated Evoker', requires: { style: 'Evoker' },
           desc: 'You can use Overexertion once more before it starts to deal damage to you.' }
       ]
+    },
+
+    // ── Acolyte (occupies the Style slot, repurposed as "Class") ───────
+    'Acolyte': {
+      type: 'Class',
+      proficiencies: {
+        savingThrows: 'Spirit',
+        weapons: 'Shortsword',
+        skills: 'Choose 2: Arcana, Medicine, History, Savvy (Religious Groups), Insight, Leadership'
+      },
+      features: [
+        { level: 1, name: 'Clergical Training',
+          desc: 'You received training in religious matters, and this has several benefits. You have a +2 to Arcana checks about religious matters, and can reliably receive care, shelter, and minor support from churches and Bastions throughout the world, except at those dedicated to your opposing god.' },
+        { level: 1, name: 'Channel Divinity',
+          desc: 'You can present your holy symbol and channel divine power to fuel magical effects. When you gain this feature, you only have access to the universal effect Priat Supremacy, but when you choose a specific god to follow at level 2, you gain another option depending on the god you choose. You can use Channel Divinity one time before needing to rest to regain the ability.\n\nPriat Supremacy. Proclaim the gods’ ownership of the Priat and force invaders away from your holy presence. For 2AP, any creature within 30 feet which is not rooted in the Priat must succeed on a Spirit Save or be Turned for 1 minute or until it takes any damage.' },
+        { level: 4, name: 'Divine Strike',
+          desc: 'You can manifest your devotion through powerful bursts of godly energy. Once per turn, when you deal damage to a creature with a weapon attack or an Acolyte Power, you can spend additional GP to deal additional damage. This damage is equal to 1d6 per 1GP spent. The damage type this energy takes the form of depends on your god, as follows:\n• Kyrios: Radiant\n• Veritas: Radiant\n• Medala: Radiant\n• Forga: Fire\n• Luna: Random Energy damage every time\n• Vindicto: Fire\n• Fraus: Dark' },
+        { level: 4, name: 'Fortified Faith',
+          desc: 'Your belief shields your mind, and your commitment commands your body. You have a +2 on Saves against effects that would charm, frighten, or control you. You gain a further +1 on the save if the source of the effect is not from the Priat.' },
+        { level: 7, name: 'Channel Divinity II',
+          desc: 'You can use Channel Divinity twice before needing to rest to regain the ability. Also, Priat Supremacy’s range increases to 60 feet.' },
+        { level: 7, name: 'Divine Aura',
+          desc: 'The godly energy rolls off of you at this point. Allies within ten feet of you benefit from your Fortified Faith feature. This effect ceases to function if you are Downed.' },
+        { level: 10, name: 'Contact God',
+          desc: 'You can perform an hour long ritual that involves a sacrifice worth a reasonable amount of gold. At the end of this ritual, you may speak directly to your god and have a conversation with them. Whether this is helpful or not depends on the situation, but it is a symbol of your high rank within their church. Not everyone gets to call god.' },
+        { level: 10, name: 'Divine Intervention',
+          desc: 'You can call upon your god when your need is great. Using this feature is a free action that can be done at any time, even on someone else’s turn. You describe to the GM the nature of the intervention you are requesting, and she will have you roll a d100 to determine whether or not your god intervenes. Your god may not intervene exactly as you wish or even at all if your situation is not worth their time.\n\nIf your god intervenes, you cannot use this feature again for seven days. If not, you can use it again after you rest.' },
+        { level: 13, name: 'Enhanced Aura',
+          desc: 'Your Divine Aura radius increases to 20 feet.' },
+        { level: 13, name: 'Manifest Avatar',
+          desc: 'You can fully conjure up the image of your god around you and momentarily become your god’s worldly avatar. This effect folds in the benefits from your level 8 Partial Avatar feature; they cannot both be active at once. You can activate this feature once per rest as a Full Round Action, after which you gain the following benefits for one minute:\n• Your size increases by one category as you project a holographic shell in the shape of your god around you that mimics your movement.\n• Your movement speed is 60 feet.\n• You gain temporary hit points equal to four times your level.\n\nYour Avatar gains additional, specific effects at level 14.' },
+        { level: 15, name: 'Champion',
+          desc: 'The pinnacle of Acolytism is the title of Champion of your god. Each god has only one Champion at a time, and to claim this title and ascend to level 15, you must replace this champion somehow. The specifics of how this is done depends on your god and your story. When you become your god’s Champion, you gain a unique feature depending on your god. Also, your Divine Intervention succeeds automatically without needing a roll.' },
+        { level: 15, name: 'Enhanced Avatar',
+          desc: 'You can activate your god’s Avatar twice per rest, turn it on using only 2AP, and it lasts ten minutes. Additionally, the temporary hit points you gain increase to five times your level, Divine Strike costs 2 less GP, and your size increases by two categories.' }
+      ]
+    },
+
+    // ── Gods (occupy the Art slot when Style = Acolyte) ────────────────
+    'Kyrios': {
+      type: 'God',
+      proficiencies: {
+        savingThrows: 'Body',
+        weapons: 'Greataxe, Greatsword, Warhammer',
+        skills: 'Choose 2: Strength, Block, Stamina, Leadership'
+      },
+      tenets: [
+        { name: 'Law',   desc: 'The law is paramount to the operation of society in a chaotic world. Uphold the law of the Empire and enforce it.' },
+        { name: 'Might', desc: 'Justice and order cannot prevail if its crusaders are too weak to foster them. Hone your body, maintain your equipment, and seek out strength that you may succeed.' },
+        { name: 'Right', desc: 'In the reaches of the Kingdoms, where the Empire has not reached, it is your word that makes law. Uphold your oaths and enforce order on the orderless with your commands.' }
+      ],
+      features: [
+        { level: 2, name: 'Channel Divinity: Word of Law',
+          desc: 'Invoke the authority of Kyrios for 2AP. When you activate this Channel Divinity, you may make a forbidding statement or rule that every creature within 30 feet of you must follow for one minute. During the duration, if a creature breaks the rule you set, they take 2d8 Radiant damage. The rule you set cannot make a creature do something, but it can make them not do something, like attacking you or approaching your party’s support or what have you.' },
+        { level: 2, name: 'Crusader Training',
+          desc: 'You are trained in certain common melee moves. You gain access to the Warrior Maneuvers.' },
+        { level: 5, name: 'Divine Smite',
+          desc: 'Your Divine Strike is enhanced by the might of Kyrios. All of your Divine Strikes on weapon attacks gain a free additional 1d6 damage.' },
+        { level: 5, name: 'Commanding Presence',
+          desc: 'You can use 1AP and 1GP on your turn to give your allies a divine command. One ally of your choice that can hear you can immediately use their reaction to either move up to half their movement speed or make one half attack.' },
+        { level: 8, name: 'Aura of Order',
+          desc: 'Your Divine Aura renders you and allies within its range immune to being charmed.' },
+        { level: 8, name: 'Partial Avatar: Kyrios',
+          desc: 'You can channel a fraction of your god’s very being as a minor, partial Avatar for 2AP. Once per long rest, you can use this feature to manifest the spectral Crown of Kyrios above your head for one minute, granting you the following:\n• You can use Commanding Presence once per turn for no AP, though it still costs one GP.\n• Allies that can see the Crown gain a +1 to weapon attacks and damage rolls.' },
+        { level: 11, name: 'Dictum of the Prince',
+          desc: 'Your Channel Divinity: Word of Law is enhanced. The radius is increased to 60 feet and the damage for breaking the rule is increased to 4d8. Additionally, you may now make a creature do something with your rule, though the action you prescribe must not cost a creature more than 1AP to carry out on a single turn.' },
+        { level: 11, name: 'Unyielding Crusader',
+          desc: 'Your devotion to Kyrios makes you difficult to keep down. Once per rest when you are reduced to 0 HP, you may instead drop to 1HP and immediately regain a use of your Channel Divinity.' },
+        { level: 14, name: 'Avatar of Kyrios',
+          desc: 'While your Avatar is active, you gain the following additional effects:\n• Your Channel Divinity: Word of Law now affects all creatures that can hear you regardless of distance.\n• Your Commanding Presence can be used once per turn for no AP and no GP.\n• You are immune to all effects that would influence your movement or actions against your will.\n• Allies that can see you gain a +2 to weapon attacks and damage rolls.' },
+        { level: 14, name: 'Unquestionable Authority',
+          desc: 'You exude such presence that lesser beings find it difficult to oppose you. Any time a creature with fewer hit dice than you attempts to attack you, they must first succeed on a DC3 Spirit Save or forego the attack and lose the AP in the attempt. A creature that succeeds on this save is immune to its effects for 24 hours.' }
+      ]
+    },
+
+    'Veritas': {
+      type: 'God',
+      proficiencies: {
+        savingThrows: 'Mind',
+        weapons: 'Mace, Club, Spear',
+        skills: 'Choose 2: Stamina, History, Insight, Perception'
+      },
+      tenets: [
+        { name: 'Truth', desc: 'If your word cannot be trusted, how can your actions? Do not lie, and uphold your oaths.' },
+        { name: 'Light', desc: 'Seek out secrets wherever you can and reveal them as quickly as you can. Do not keep knowledge hidden, for that is dishonest.' },
+        { name: 'Blind', desc: 'Be a judge for those with disagreements, and dispense punishment on liars wherever they are found. There is no gray area under Veritas’ light, for you decide the truth.' }
+      ],
+      features: [
+        { level: 2, name: 'Channel Divinity: Circle of Truth',
+          desc: 'You can invoke Veritas’ light at a point you can see within 60 feet for 2AP. A 10 foot radius circle manifests centered on the point you chose. The area within the circle is brightly lit, and any creature that ends its turn Invisible or Hidden within the radius loses the condition immediately and takes 2d8 Radiant damage. The area lasts for 1 minute, and you can use 2AP and 1GP on your subsequent turns to reposition it to another point you can see during that duration.' },
+        { level: 2, name: 'Inquisitor’s Insight',
+          desc: 'You are trained to seek out the truth. You are considered proficient in Insight. If you are already proficient in Insight, you gain Expertise instead.' },
+        { level: 5, name: 'Effective Analyzation',
+          desc: 'Any Power you use to gain information about creatures that requires you to roll a pool to determine success gains one automatic success. Insight checks you make against Humanoids gain this same bonus.' },
+        { level: 5, name: 'Radiant Specialist',
+          desc: 'Your Powers that deal radiant damage add your proficiency bonus to the damage.' },
+        { level: 8, name: 'Aura of Light',
+          desc: 'Your Divine Aura displaces darkness, including magical darkness as long as it comes from a source weaker than you. Besides being brightly illuminated, you and allies within its area are also immune to being Blinded.' },
+        { level: 8, name: 'Partial Avatar: Veritas',
+          desc: 'You can channel a fraction of your god’s very being as a minor, partial Avatar for 2AP. Once per long rest, you can use this feature to manifest the spectral Lantern of Veritas in your right hand, granting you the following benefits for one minute:\n• Your Acolyte Powers and Features that deal Radiant damage ignore resistance to Radiant damage.\n• Your Divine Aura radius is doubled.' },
+        { level: 11, name: 'Light of the Inquisitor',
+          desc: 'Your Channel Divinity: Circle of Truth is enhanced. The range is increased to 90 feet and the radius to 15 feet, and the damage suffered by creatures having an obscuring condition stripped from them is increased to 4d8. You may reposition the area for 1AP and 0GP.' },
+        { level: 11, name: 'Perjury',
+          desc: 'Whenever a creature you can see tells a deliberate lie or attempts to Hide, you can use your reaction to deal 3d8 Radiant damage to them.' },
+        { level: 14, name: 'Avatar of Veritas',
+          desc: 'While your Avatar is active, you gain the following additional effects:\n• Your Acolyte Powers and Features that deal Radiant damage ignore resistance and immunity to Radiant damage.\n• You are Absorbent to Radiant damage.\n• Your Divine Aura radius is tripled.\n• Your Circle of Truth no longer requires AP to reposition, as it instead centers on you and moves with you. Its radius is increased to 20 feet.' },
+        { level: 14, name: 'Unyielding Eye',
+          desc: 'You have Truesight out to a range of 30 feet.' }
+      ]
+    },
+
+    'Medala': {
+      type: 'God',
+      proficiencies: {
+        savingThrows: 'Mind',
+        weapons: 'None',
+        skills: 'Choose 2: Medicine, Persuasion, Insight, Block'
+      },
+      tenets: [
+        { name: 'Life',         desc: 'Life must be tended and fostered in all its many forms. Heal those that deserve it wherever they are found, and let suffering wilt in your presence.' },
+        { name: 'Discernment',  desc: 'Telling who deserves the touch of the Mother can be difficult, so you must keep your mind clear and your heart open.' },
+        { name: 'Withhold',     desc: 'Your hands cannot be soaked in the blood of your allies and your enemies at once. Though you may participate in battle, you are not to kill, for that burden is carried by your divine brothers and sisters.' }
+      ],
+      features: [
+        { level: 2, name: 'Channel Divinity: Preserve Life',
+          desc: 'You can summon the healing touch of Medala for 2AP. When you do this, choose any number of creatures within 30 feet of you. You have a pool of hit points equal to five times your level that you can divide among them.' },
+        { level: 2, name: 'Mother’s Medicine',
+          desc: 'You are trained to maintain life. You are considered proficient in Medicine. If you are already proficient in Medicine, gain Expertise instead.' },
+        { level: 5, name: 'Divine Salve',
+          desc: 'Your Divine Strike feature is replaced with this Divine Salve. Once per turn, when you heal a creature with an Acolyte feature or a Power, you can spend additional GP to heal additional HP. This healing is equal to 1d6 per 1GP spent.\n\nYou can still use Divine Strike too, if you like, but once you do you cannot use Divine Salve until you rest.' },
+        { level: 5, name: 'Healing Specialist',
+          desc: 'Any of your Powers that cause a creature to regain hit points cause the target to regain additional hit points equal to your proficiency bonus.' },
+        { level: 8, name: 'Aura of Life',
+          desc: 'You and allies within range of your Divine Aura regain hit points equal to your proficiency bonus at the beginning of each of your turns. A Downed creature does not benefit from this effect.' },
+        { level: 8, name: 'Partial Avatar: Medala',
+          desc: 'You can channel a fraction of your god’s very being as a minor, partial Avatar for 2AP. Once per long rest, you can use this feature to manifest the spectral Hand of Medala over your right hand, granting you the following benefits for one minute:\n• The range of your healing effects and powers is doubled.\n• Your Divine Aura can affect Downed creatures.' },
+        { level: 11, name: 'Bolstering Hand',
+          desc: 'When you heal a creature, they gain one automatic success that they can apply to any one check or save they make before the beginning of your next turn.' },
+        { level: 11, name: 'Blessed Healer',
+          desc: 'Your potent healing washes back over you, too. Whenever you spend AP to heal a creature, you heal a number of HP equal to half the healing you provided.' },
+        { level: 14, name: 'Avatar of Medala',
+          desc: 'While your Avatar is active, you gain the following additional effects:\n• The range of your healing effects and powers is tripled.\n• Your Divine Aura causes creatures to regain hit points equal to twice your proficiency bonus at the beginning of each of your turns.\n• Bolstering Hand now grants 2 automatic successes.' },
+        { level: 14, name: 'Supreme Healing',
+          desc: 'Your healing ability is nearly unmatched, as you are a truly pure conduit of Medala. Whenever you would roll to determine the number of hit points you heal a creature, you instead heal them for the maximum possible amount. So, instead of healing for 2d6 you would just heal them for 12HP.' }
+      ]
+    },
+
+    'Forga': {
+      type: 'God',
+      proficiencies: {
+        savingThrows: 'Body',
+        weapons: 'Staff, Club, Dagger',
+        skills: 'Choose 2: Block, Dodge, Survival, Medicine'
+      },
+      tenets: [
+        { name: 'Peace',  desc: 'Strive to mitigate conflict wherever you can, and end them when you cannot prevent them. Any weapon you wield must have purpose beyond violence, though it may be used in battle too.' },
+        { name: 'Home',   desc: 'Remind others why they fight by being the hearth wherever you go. Prepare meals, promote rest, and let no one among you go to sleep hungry or afraid.' },
+        { name: 'Mercy',  desc: 'Though the forces of darkness and left-handedness cannot feel the warmth of the hearth, you shall not prolong their suffering. Grant them the peace of a swift end.' }
+      ],
+      features: [
+        { level: 2, name: 'Channel Divinity: Homestead’s Peace',
+          desc: 'You invoke the soothing warmth of Forga for 2AP. All allies within 30 feet of you are immediately cleansed of any negative effects (unless they are more permanent or potent like diseases or curses) and have +2 to saves to avoid negative effects for one minute.' },
+        { level: 2, name: 'Home’s Heart',
+          desc: 'You are proficient in checks made to enhance the comfort of a camp or home, be it Survival or Craft or what have you. If you would use a skill you are already proficient in, you can add your proficiency bonus again. Additionally, you are cleansed from all negative effects from things like exhaustion or environmental effects whenever you complete a rest.' },
+        { level: 5, name: 'Serene Sanctuary',
+          desc: 'You can spend 10 minutes in ritual prayer to designate a 30 foot area around you as a Sanctuary under the protection of Forga. The area is under the following effects:\n• A hostile creature that attempts to enter the Sanctuary must succeed on a Spirit Save or be unable to try again until their next turn. You are aware when this happens and when a hostile creature enters the Sanctuary.\n• Rests take 1/4th less time to complete.\n• Allied creatures that complete a rest within the Sanctuary benefit from the cleansing effects of your Home’s Heart feature.\n• The Sanctuary provides one point of insulation towards Temperate.\n\nA Sanctuary remains in place for 12 hours or until combat begins within it, which immediately dispels the effect. You can only create one Sanctuary before you must complete a rest to regain the ability.' },
+        { level: 5, name: 'Comforting Presence',
+          desc: 'You exude a calm warmth while you sleep. Any creature that performs a rest within 15 feet of you cannot be affected by nightmares or psychic intrusions while they sleep, and when they wake they gain temporary hit points equal to twice your level. You always gain these effects.' },
+        { level: 8, name: 'Aura of Peace',
+          desc: 'Your Divine Aura renders you and allies within its range immune to being frightened.' },
+        { level: 8, name: 'Partial Avatar: Forga',
+          desc: 'You can channel a fraction of your god’s very being as a minor, partial Avatar for 2AP. Once per long rest, you can use this feature to manifest the spectral Halo of Forga around your body, granting you the following benefits for one minute:\n• Any creature within 10 feet of you that takes hostile action takes Fire damage equal to your proficiency bonus.\n• You may spend 1AP to cleanse a status effect from a creature you can see, once per turn.\n• Your damage response to cold and fire damage are raised by one, to a maximum of Resistant.' },
+        { level: 11, name: 'Soothing Hand',
+          desc: 'Any time you remove a negative effect from a creature, that creature gains temporary hit points equal to your level.' },
+        { level: 11, name: 'Greater Sanctuary',
+          desc: 'Your Serene Sanctuary improves.\n• Its radius increases to 60 feet.\n• Creatures that fail the Spirit Save to enter the area also take 2d8 Fire damage.\n• Rests take half as much time as usual to complete.\n• Your Comforting Presence affects all allied creatures within the Sanctuary.\n• Curses and diseases are suppressed, but not ended, while within the area.\n• The Sanctuary is always Temperate.' },
+        { level: 14, name: 'Avatar of Forga',
+          desc: 'While your Avatar is active, you gain the following additional effects:\n• Any creature within 30 feet of you that takes hostile action takes Fire damage equal to your proficiency bonus, unless you don’t want them to.\n• Once per turn, you may clear a status effect from a creature you can see for no AP.\n• Your damage response to all damage is increased by one, to a maximum of Immune.\n• You are Absorbent to Fire damage.' },
+        { level: 14, name: 'Hearth Undying',
+          desc: 'The Eternal Flame lives inside you. You are immune to environmental effects, and are resistant to cold and fire damage. When combat begins and you are not surprised, you can choose one combatant to reduce the will to fight in, and set their Initiative to 0. You are Absorbent to Fire damage whenever you are Downed, as the flame within you is stirred back up.' }
+      ]
+    },
+
+    'Luna': {
+      type: 'God',
+      proficiencies: {
+        savingThrows: 'Finesse',
+        weapons: 'Club, Rapier, Handaxe, Shortbow',
+        skills: 'Choose 2: Acrobatics, Arcana, Persuasion, Perception'
+      },
+      tenets: [
+        { name: 'Chaos',    desc: 'There is no rule baser than Change. Wherever choice is made, strive to never keep things the same.' },
+        { name: 'Fluidity', desc: 'There is no truth in sameness. Do not allow yourself to be easily defined or named.' },
+        { name: 'Cycles',   desc: 'Sometimes change is linear. Do not prevent the old from replacing the new, for all things have their time. All the same, do not allow the old to prevent the new from arising, for the moon does not settle on a shape it finds pleasing.' }
+      ],
+      features: [
+        { level: 2, name: 'Channel Divinity: Invoke Chaos',
+          desc: 'This is a gigantic wild magic effect with lots of random effects. I will not write them all unless somebody picks this, but you get the idea.' },
+        { level: 2, name: 'Alternating Arsenal',
+          desc: 'Each time you complete a rest, you may select three Maneuvers from any list to gain access to. You cannot gain access to the same Maneuvers twice in a row.' },
+        { level: 5, name: 'Tidal Shift',
+          desc: 'When you roll Initiative, you may select any other combatant and attempt to trade Initiative positions with them. A creature may choose to willingly trade with you, or they may attempt a Spirit Save to resist the effect. If you successfully trade against a non-willing target, you get +2 to all rolls during the first round of combat as they suffer a -2 to all rolls for the same duration. If you trade with a willing creature, both of you gain +1 to all rolls for the first round.' },
+        { level: 5, name: 'Flux Resistance',
+          desc: 'Luna’s protection churns around you. Each time you end a rest, you become Resistant to a random damage type until you begin a rest.' },
+        { level: 8, name: 'Aura of Change',
+          desc: 'Any time a creature within your Divine Aura takes an action that they performed on their previous turn, they take psychic damage equal to your proficiency bonus.' },
+        { level: 8, name: 'Partial Avatar: Luna',
+          desc: 'You can channel a fraction of your god’s very being as a minor, partial Avatar for 2AP. Once per long rest, you can use this feature to manifest the spectral Moonhalo of Luna behind your head, granting you the following benefits for one minute:\n• You can teleport up to 30 feet to a point you can see using 1AP once per turn.\n• You can use Tidal Shift at any point during combat, once per combat.' },
+        { level: 11, name: 'Cascading Chaos',
+          desc: 'Your Channel Divinity: Invoke Chaos improves. You may now roll on the table twice and choose the effect that takes place from the two results.' },
+        { level: 11, name: 'Warping Presence',
+          desc: 'Whenever a creature within your Divine Aura deals damage to another creature, you can use your reaction to change the damage type to a random one within the same category.' },
+        { level: 14, name: 'Avatar of Luna',
+          desc: 'While your Avatar is active, you gain the following additional effects:\n• You can teleport up to 60 feet to a point you can see once per turn.\n• You can use Tidal Shift at any point during combat as many times as you like.\n• You Invoke Chaos at the beginning of every turn, and the effects end at the beginning of your next turn. You cannot use Cascading Chaos on this special activation.' },
+        { level: 14, name: 'Ever-Change',
+          desc: 'It is easy for you to change everything about yourself. Any alterations that would be made during a rest or on a level up can instead be made using a one minute ritual. This includes Power choices, maximum HP rolls, Alternating Arsenal, Flux Resistance, and other things.' }
+      ]
+    },
+
+    'Vindicto': {
+      type: 'God',
+      proficiencies: {
+        savingThrows: 'Body',
+        weapons: 'Greataxe, Greatsword, Warhammer',
+        skills: 'Choose 2: Strength, Stamina, Intimidation, Perception'
+      },
+      tenets: [
+        { name: 'Revenge',     desc: 'Let nothing stop you from destroying those that have wronged you personally and severely. There is nothing that can make it right, and mercy is forbidden.' },
+        { name: 'Retaliation', desc: 'Death need not be the response to every slight. The comeuppance felt by wrongdoers shall be one hundred degrees worse than what they did, rounded up. One death must be paid with two, but a single eye taken need only be repaid with both eyes.' },
+        { name: 'Immunity',    desc: 'The actions you commit while enacting vengeance cannot be righteously considered for countervengeance. Do not apologize for them, for if you followed the other two tenets, you did nothing wrong.' }
+      ],
+      features: [
+        { level: 2, name: 'Channel Divinity: Blind Rage',
+          desc: 'You may channel Vindicto’s blinding rage for 2AP. For one minute, you gain blindsight out to 15 feet but are completely blind beyond that range. You also gain 1 Armor and 1 automatic hit on any weapon attacks you perform for the duration.' },
+        { level: 2, name: 'Avenger Training',
+          desc: 'You are trained to perform the more personal, brutal techniques. You gain access to the Warrior Maneuvers.' },
+        { level: 5, name: 'Retaliatory Combatant',
+          desc: 'When you take damage from a creature within your reach, you may perform an Opportunity Attack against them. All of your Opportunity Attacks can be made as Full Attacks.' },
+        { level: 5, name: 'Grudge',
+          desc: 'When a creature deals damage to you, it is inflicted with a spectral mark called the Grudge that only you can see. You have a +1 to attack rolls against the Grudged creature, and any attack you perform against them deals an additional 1d6 Fire damage. You may only hold one Grudge at a time — taking damage from another creature ends the previous Grudge and grants it to the new one.' },
+        { level: 8, name: 'Aura of Vengeance',
+          desc: 'Within the range of your Divine Aura, any enemy that deals damage to you or one of your allies takes Fire damage equal to your Proficiency Bonus. Each enemy can only suffer this damage once per turn.' },
+        { level: 8, name: 'Partial Avatar: Vindicto',
+          desc: 'You can channel a fraction of your god’s very being as a minor, partial Avatar for 2AP. Once per long rest, you can use this feature to manifest the spectral Arm of Vindicto over your left arm, granting you the following benefits for one minute:\n• Your reach increases by 5 feet.\n• You can hold a Grudge against two creatures at once.\n• Your Grudge bonus increases to +2 and the damage increases to 2d6.' },
+        { level: 11, name: 'Unyielding Rage',
+          desc: 'Your Channel Divinity: Blind Rage improves. The blindsight it grants extends to 30 feet. Additionally, whenever you would be reduced to 0HP during the Blind Rage, you may make a DC1 Spirit Save to remain at 1HP instead. This DC increases by 1 every time you use this feature.' },
+        { level: 11, name: 'Furious Flame',
+          desc: 'Your Acolyte features and Powers treat all damage responses to Fire damage as if they were one level lower, to a minimum of Standard.' },
+        { level: 14, name: 'Avatar of Vindicto',
+          desc: 'While your Avatar is active, you gain the following additional effects:\n• You can hold a Grudge against any number of creatures.\n• Your Grudge bonus increases to +3 and the damage increases to 3d6.\n• During the Blind Rage, you gain +2 armor and 2 automatic hits on weapon attacks, and the DC for Unyielding Rage cannot be raised above 3.' },
+        { level: 14, name: 'Internal Immolation',
+          desc: 'The fire of Vindicto’s fury lives within you. You are immune to Fire damage, but on each turn in combat that you do not deal damage to a creature, you take True Fire damage equal to twice your Proficiency Bonus. This flame pours out from you when you fall; while you are Downed, your Divine Aura radius triples and the damage it deals does too.' }
+      ]
+    },
+
+    'Fraus': {
+      type: 'God',
+      proficiencies: {
+        savingThrows: 'Finesse',
+        weapons: 'Dagger, Shortbow, Longbow, Crossbow',
+        skills: 'Choose 2: Deception, Stealth, Deft'
+      },
+      tenets: [
+        { name: 'Lies',       desc: 'You are to lie to whoever you can, whenever you can, even when the truth would serve you better. Let no one see your true face or know your true name, even those you have accepted.' },
+        { name: 'Secrecy',    desc: 'Never reveal a secret to any who you have not accepted, and never one that is not your own.' },
+        { name: 'Acceptance', desc: 'Those shunned by society for their truths and tales shall be accepted by you with open arms. Those you accept, defined as those you give to, cavort, travel, or sleep with shall not be lied to unless it is in the following of the first two tenets. Or in the pulling of a prank.' }
+      ],
+      features: [
+        { level: 2, name: 'Channel Divinity: Cloak of Shadows',
+          desc: 'You may wreathe yourself in Fraus’ shadow for 2AP. For one minute, you are Invisible as long as you are within dim light or darkness. This invisibility is still broken by action, but it takes effect again at the end of your turn if you end your turn in dim light or darkness.' },
+        { level: 2, name: 'Fraus’ Falsehood',
+          desc: 'You are trained to lie as easily as you breathe. You are considered proficient in Deception. If you are already proficient in Deception, gain Expertise in it instead.' },
+        { level: 5, name: 'Step From Sight',
+          desc: 'You are really pretty good at this whole hiding thing. You can Hide for 1AP.' },
+        { level: 5, name: 'Ambush Artist',
+          desc: 'When you hit a creature that you were Hidden from with an attack, you can activate your Divine Strike for one less GP, to a minimum of 0.' },
+        { level: 8, name: 'Aura of Falsehood',
+          desc: 'Your Divine Aura grants you and allies within its range 2 automatic hits on Stealth checks.' },
+        { level: 8, name: 'Partial Avatar: Fraus',
+          desc: 'You can channel a fraction of your god’s very being as a minor, partial Avatar for 2AP. Once per long rest, you can use this feature to manifest the spectral Mask of Fraus over your face, granting you the following benefits for one minute:\n• You gain Darkvision equal to your normal vision.\n• You are always considered to be in dim light unless you are in darkness for the purposes of others’ visually-based checks against you.' },
+        { level: 11, name: 'Prime Misdirection',
+          desc: 'As a reaction when you are struck by an attack, you may switch places with another creature you can see, forcing them to take the attack instead of you. An unwilling creature can attempt a Spirit Save to resist this effect. You may use this as many times as you like, but the DC to succeed against it decreases by 1 each time it is used. This feature’s DC resets when you finish a rest.' },
+        { level: 11, name: 'Phantom Blade',
+          desc: 'Fraus’ darkness suffuses even your lightest attacks. Your Ambush Artist feature can activate Divine Strike for two less GP instead of one less.' },
+        { level: 14, name: 'Avatar of Fraus',
+          desc: 'While your Avatar is active, you gain the following additional effects:\n• You gain Devilsight equal to your normal vision.\n• You are always considered to be in magical darkness for the purposes of others’ visually-based checks against you.\n• You are always under the effect of the Cloak of Shadows.' },
+        { level: 14, name: 'ALTBTT',
+          desc: 'You can tell a lie so convincing that the universe itself believes you. A lie you tell becomes true for one minute. All effects of the lie are reversed when reality reasserts itself.' }
+      ]
     }
   };
 
@@ -1216,23 +1510,46 @@
     }
     summary.innerHTML = sumHTML;
 
-    // Proficiencies (Style only)
-    const styleEntry = styleVal && CLASS_DATA[styleVal] && CLASS_DATA[styleVal].proficiencies
-      ? CLASS_DATA[styleVal] : null;
-    if (styleEntry) {
+    const entries = getActiveClassEntries();
+
+    // Proficiencies (any active entry that has them)
+    const profEntries = entries.filter(e => e.data.proficiencies);
+    if (profEntries.length > 0) {
       profsSec.style.display = '';
-      const p = styleEntry.proficiencies;
-      profs.innerHTML =
-        '<div><strong>Saving Throws:</strong> ' + escapeHtml(p.savingThrows || '—') + '</div>' +
-        '<div><strong>Weapons:</strong> '       + escapeHtml(p.weapons      || '—') + '</div>' +
-        '<div><strong>Skills:</strong> '        + escapeHtml(p.skills       || '—') + '</div>';
+      profs.innerHTML = profEntries.map(e => {
+        const p = e.data.proficiencies;
+        return '<div style="margin-bottom:8px;">' +
+          '<div style="font-weight:600;color:var(--accent-glow);margin-bottom:4px;">' + escapeHtml(e.slot + ': ' + e.name) + '</div>' +
+          '<div><strong>Saving Throws:</strong> ' + escapeHtml(p.savingThrows || '—') + '</div>' +
+          '<div><strong>Weapons:</strong> '       + escapeHtml(p.weapons      || '—') + '</div>' +
+          '<div><strong>Skills:</strong> '        + escapeHtml(p.skills       || '—') + '</div>' +
+        '</div>';
+      }).join('');
     } else {
       profsSec.style.display = 'none';
       profs.innerHTML = '';
     }
 
+    // Tenets (any active entry that has them — currently the Gods)
+    const tenetsSec = document.getElementById('class-tenets-section');
+    const tenetsEl  = document.getElementById('class-tenets');
+    const tenetEntries = entries.filter(e => Array.isArray(e.data.tenets) && e.data.tenets.length > 0);
+    if (tenetEntries.length > 0) {
+      tenetsSec.style.display = '';
+      tenetsEl.innerHTML = tenetEntries.map(e =>
+        '<div style="margin-bottom:8px;">' +
+          '<div style="font-weight:600;color:var(--accent-glow);margin-bottom:4px;">' + escapeHtml(e.slot + ': ' + e.name) + '</div>' +
+          e.data.tenets.map(t =>
+            '<div style="margin-bottom:4px;"><strong>' + escapeHtml(t.name) + '.</strong> ' + escapeHtml(t.desc) + '</div>'
+          ).join('') +
+        '</div>'
+      ).join('');
+    } else {
+      tenetsSec.style.display = 'none';
+      tenetsEl.innerHTML = '';
+    }
+
     // Features (merged from active entries, sorted by level then source order)
-    const entries = getActiveClassEntries();
     const featureRows = [];
     entries.forEach((entry, sourceIdx) => {
       (entry.data.features || []).forEach(f => {
